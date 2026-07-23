@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --surface: #ffffff;
+  --ink: #0f172a;
+  --ink-muted: #475569;
+  --ink-faint: #94a3b8;
+  --border: rgba(15, 23, 42, 0.08);
+  --accent: #2563eb;
+  --accent-soft: #dbeafe;
+  --accent-ink: #1e40af;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Fixed AI-prompt atmosphere behind the app */
+.ai-site-bg {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background-color: var(--background);
+}
+
+.ai-site-bg::before {
+  content: "";
+  position: absolute;
+  inset: -20% -10%;
+  background:
+    radial-gradient(ellipse 55% 45% at 12% 8%, rgba(37, 99, 235, 0.16), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 88% 12%, rgba(14, 165, 233, 0.12), transparent 55%),
+    radial-gradient(ellipse 45% 35% at 70% 88%, rgba(59, 130, 246, 0.1), transparent 55%),
+    radial-gradient(ellipse 40% 30% at 18% 78%, rgba(99, 102, 241, 0.08), transparent 50%);
+  animation: ai-glow 18s ease-in-out infinite alternate;
+}
+
+.ai-site-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    url("/bg/ai-prompt-pattern.svg"),
+    linear-gradient(rgba(37, 99, 235, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.035) 1px, transparent 1px);
+  background-size:
+    420px 420px,
+    48px 48px,
+    48px 48px;
+  background-position:
+    0 0,
+    0 0,
+    0 0;
+  opacity: 0.55;
+  mask-image: radial-gradient(ellipse 85% 70% at 50% 30%, #000 20%, transparent 85%);
+}
+
+@keyframes ai-glow {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(1.5%, -1%, 0) scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-site-bg::before {
+    animation: none;
+  }
+}
+
+@layer utilities {
+  .card-hover {
+    @apply transition duration-300 ease-out;
+  }
+
+  .marketplace-grid {
+    @apply grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.45s ease-out both;
+}
