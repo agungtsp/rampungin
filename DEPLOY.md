@@ -6,7 +6,7 @@ Checklist biar production jalan, termasuk **login Google**.
 
 ## 0) Prasyarat
 
-- [ ] Repo di GitHub/GitLab (folder app: `rampungin.com/`)
+- [ ] Repo di GitHub/GitLab (folder app: `rampungin/`)
 - [ ] Project Supabase sudah ada (migration + seed sudah dijalankan)
 - [ ] Google OAuth sudah diaktifkan di Supabase (Auth → Providers → Google)
 
@@ -16,7 +16,7 @@ Checklist biar production jalan, termasuk **login Google**.
 
 1. Buka [vercel.com](https://vercel.com) → **Add New… → Project**
 2. Import repo
-3. **Root Directory** = `rampungin.com` (penting: monorepo)
+3. **Root Directory** = `rampungin` (penting: monorepo)
 4. Framework: Next.js (otomatis)
 5. Jangan deploy dulu — isi env dulu (langkah 2)
 6. **Deploy**
@@ -144,7 +144,7 @@ Setelah deploy + env + redirect:
 | `redirect_uri_mismatch` | Redirect URI di Google harus `…supabase.co/auth/v1/callback` |
 | Kembali ke site tapi belum login | Redirect URL Vercel `/auth/callback` belum di allow list Supabase |
 | Error env / blank data | Env Vercel kosong → redeploy setelah isi |
-| Root Directory salah | Build gagal / 404 → set root ke `rampungin.com` |
+| Root Directory salah | Build gagal / 404 → set root ke `rampungin` |
 
 ---
 

@@ -32,7 +32,14 @@ export default async function CategoryPage({
   let page = parsePage(sp.page);
   const supabase = await createClient();
 
+  const { count: rawCount } = await supabase
+    .from("prompts")
+    .select("id", { count: "exact", head: true })
+    .eq("category", slug);
+  const total = rawCount ?? 0;
+  page = clampPage(page, total, perPage);
   const { from, to } = pageRange(page, perPage);
+
   const selectWithGen = `id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, ${PROMPT_AUTHOR}`;
   const selectBase = `id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, ${PROMPT_AUTHOR}`;
 
@@ -50,34 +57,28 @@ export default async function CategoryPage({
     image_path: string | null;
     profiles: { username: string } | { username: string }[] | null;
   }> = [];
-  let count: number | null = 0;
 
   {
     const first = await supabase
       .from("prompts")
-      .select(selectWithGen, { count: "exact" })
+      .select(selectWithGen)
       .eq("category", slug)
       .order("created_at", { ascending: false })
       .range(from, to);
     if (first.error?.message?.includes("generate_count")) {
       const second = await supabase
         .from("prompts")
-        .select(selectBase, { count: "exact" })
+        .select(selectBase)
         .eq("category", slug)
         .order("created_at", { ascending: false })
         .range(from, to);
       if (second.error) console.error("category query failed:", second.error.message);
       prompts = (second.data as unknown as typeof prompts) ?? [];
-      count = second.count;
     } else {
       if (first.error) console.error("category query failed:", first.error.message);
       prompts = (first.data as unknown as typeof prompts) ?? [];
-      count = first.count;
     }
   }
-
-  const total = count ?? 0;
-  page = clampPage(page, total, perPage);
 
   const { data: catRows } = await supabase.from("prompts").select("category");
   const counts: Record<string, number> = {};
@@ -88,12 +89,12 @@ export default async function CategoryPage({
 
   return (
     <main className="mx-auto max-w-7xl px-3 sm:px-6">
-      <div className="space-y-2 border-b border-zinc-200 py-8">
-        <h1 className="flex items-center gap-2 font-display text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
+      <div className="space-y-2 border-b border-secondary/60 py-8">
+        <h1 className="flex items-center gap-2 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
           <span>{categoryEmoji(slug)}</span>
           {categoryLabel(slug)}
         </h1>
-        <p className="text-zinc-500">{total} prompt di kategori ini.</p>
+        <p className="text-ink-muted">{total} prompt di kategori ini.</p>
       </div>
 
       <div className="sticky top-14 z-30 -mx-3 sm:-mx-6">
@@ -127,7 +128,7 @@ export default async function CategoryPage({
         </section>
 
         {!prompts?.length && (
-          <p className="text-center text-zinc-500">
+          <p className="text-center text-ink-muted">
             Belum ada prompt di kategori ini.
           </p>
         )}

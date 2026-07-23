@@ -13,7 +13,7 @@ export default async function MePage() {
     .from("profiles")
     .select("*")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
   const { data: prompts } = await supabase
     .from("prompts")

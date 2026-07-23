@@ -182,11 +182,12 @@ export function rankPromptsByIntent<T extends SearchablePrompt>(
   const q = intent.trim();
   if (!q) return prompts;
 
-  return [...prompts]
+  const scored = [...prompts]
     .map((p) => ({ p, s: scorePromptAgainstIntent(p, q) }))
-    .filter((x) => x.s > 0)
-    .sort((a, b) => b.s - a.s)
-    .map((x) => x.p);
+    .sort((a, b) => b.s - a.s);
+  const positive = scored.filter((x) => x.s > 0).map((x) => x.p);
+  // Keep DB candidates if intent scoring wiped everything (stopwords / short tokens).
+  return positive.length ? positive : prompts;
 }
 
 /** Build a PostgREST `or` filter for candidate fetch (title/description/tags). */

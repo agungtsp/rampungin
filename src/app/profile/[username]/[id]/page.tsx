@@ -80,11 +80,11 @@ export default async function ProfilePromptDetailPage({
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <Link
             href={`/category/${prompt.category ?? "lainnya"}`}
-            className="rounded-full bg-accent-soft px-2.5 py-1 font-medium text-accent-ink transition hover:bg-accent/15"
+            className="rounded-full bg-soft px-2.5 py-1 font-medium text-primary-hover transition hover:bg-primary-hover/15"
           >
             {categoryEmoji(prompt.category)} {categoryLabel(prompt.category)}
           </Link>
-          <span className="rounded-full bg-background px-2.5 py-1 font-medium text-ink-muted ring-1 ring-black/[0.06]">
+          <span className="rounded-full bg-soft px-2.5 py-1 font-medium text-ink-muted ring-1 ring-black/[0.06]">
             {modeLabel}
           </span>
           {prompt.public_until && effectivelyPublic && (
@@ -94,7 +94,7 @@ export default async function ProfilePromptDetailPage({
             </span>
           )}
           {!effectivelyPublic && isOwner && (
-            <span className="rounded-full bg-background px-2.5 py-1 text-ink-muted">
+            <span className="rounded-full bg-soft px-2.5 py-1 text-ink-muted">
               Privat / kedaluwarsa
             </span>
           )}
@@ -111,7 +111,7 @@ export default async function ProfilePromptDetailPage({
           oleh{" "}
           <Link
             href={`/profile/${author.username}`}
-            className="font-medium text-accent hover:underline"
+            className="font-medium text-primary hover:underline"
           >
             @{author.username}
           </Link>

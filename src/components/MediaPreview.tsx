@@ -37,13 +37,13 @@ export function MediaPreview({ imageUrl, videoUrl, category }: Props) {
       <img
         src={src}
         alt="Preview hasil prompt"
-        className="aspect-[16/10] w-full rounded-xl object-cover ring-1 ring-zinc-200 sm:aspect-video sm:max-h-96"
+        className="aspect-[16/10] w-full rounded-xl object-cover ring-1 ring-secondary/50 sm:aspect-video sm:max-h-96"
         onError={() => {
           if (src !== fallback) setSrc(fallback);
         }}
       />
       {videoUrl ? (
-        <div className="rounded-xl bg-zinc-50 p-2 ring-1 ring-zinc-200">
+        <div className="rounded-xl bg-soft p-2 ring-1 ring-secondary/50">
           {embed && !videoFailed ? (
             <iframe
               src={embed}
@@ -53,13 +53,13 @@ export function MediaPreview({ imageUrl, videoUrl, category }: Props) {
               onError={() => setVideoFailed(true)}
             />
           ) : (
-            <div className="space-y-2 p-4 text-sm text-zinc-700">
+            <div className="space-y-2 p-4 text-sm text-ink-muted">
               <p>Video tidak dapat diputar di sini.</p>
               <a
                 href={videoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-accent underline"
+                className="font-medium text-primary underline"
               >
                 Buka URL video
               </a>

@@ -5,13 +5,13 @@ import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
 
 const sans = DM_Sans({
-  variable: "--font-sans",
+  variable: "--font-dm-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
 
 const display = Sora({
-  variable: "--font-display",
+  variable: "--font-sora",
   subsets: ["latin"],
   weight: ["500", "600", "700"],
 });

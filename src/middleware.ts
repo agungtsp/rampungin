@@ -50,10 +50,10 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/me",
-    "/prompts/new",
-    "/prompts/:id/edit",
-    "/profile/:username/:id/edit",
-    "/auth/callback",
+    /*
+     * Refresh auth session on (almost) all routes so Server Components
+     * keep a valid session cookie. Skip static assets.
+     */
+    "/((?!_next/static|_next/image|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

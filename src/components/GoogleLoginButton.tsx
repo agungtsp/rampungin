@@ -22,7 +22,7 @@ export function GoogleLoginButton() {
     <button
       type="button"
       onClick={login}
-      className="w-full rounded-xl bg-blue-800 px-4 py-3 text-white hover:bg-blue-900"
+      className="w-full rounded-xl bg-primary-hover px-4 py-3 text-white hover:bg-primary-hover"
     >
       Lanjutkan dengan Google
     </button>

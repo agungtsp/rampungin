@@ -146,16 +146,16 @@ export function MeDashboard({
   }
 
   const inputClass =
-    "w-full rounded-lg border border-blue-900/15 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20";
+    "w-full rounded-lg border border-primary/15 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20";
 
   return (
     <div className="mx-auto max-w-3xl space-y-10 px-4 py-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-blue-950">Akun saya</h1>
+        <h1 className="text-3xl font-bold text-ink">Akun saya</h1>
         <button
           type="button"
           onClick={logout}
-          className="text-sm text-blue-800 underline"
+          className="text-sm text-primary-hover underline"
         >
           Keluar
         </button>
@@ -163,12 +163,12 @@ export function MeDashboard({
 
       <form
         onSubmit={saveProfile}
-        className="space-y-5 rounded-2xl border border-blue-900/10 bg-white p-5 shadow-card"
+        className="space-y-5 rounded-2xl border border-primary/10 bg-white p-5 shadow-card"
       >
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-blue-950">Edit profil</h2>
-            <p className="text-sm text-blue-900/60">
+            <h2 className="text-lg font-semibold text-ink">Edit profil</h2>
+            <p className="text-sm text-ink/60">
               Nama, bio, dan tautan media sosial yang tampil di halaman publik.
             </p>
           </div>
@@ -217,11 +217,11 @@ export function MeDashboard({
           />
         </label>
 
-        <div className="space-y-3 rounded-xl border border-blue-900/10 bg-blue-50/40 p-4">
-          <h3 className="text-sm font-semibold text-blue-950">
+        <div className="space-y-3 rounded-xl border border-primary/10 bg-soft/40 p-4">
+          <h3 className="text-sm font-semibold text-ink">
             Media sosial
           </h3>
-          <p className="text-xs text-blue-900/60">
+          <p className="text-xs text-ink/60">
             Isi URL lengkap atau domain saja — akan dinormalisasi ke https.
           </p>
           {SOCIAL_PLATFORMS.map((p) => (
@@ -243,13 +243,13 @@ export function MeDashboard({
           <button
             type="submit"
             disabled={busy}
-            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-800 disabled:opacity-60"
+            className="rounded-lg bg-primary-hover px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-60"
           >
             {busy ? "Menyimpan…" : "Simpan profil"}
           </button>
           <Link
             href={`/profile/${username}`}
-            className="text-sm text-blue-800 underline"
+            className="text-sm text-primary-hover underline"
           >
             Lihat halaman publik →
           </Link>
@@ -259,7 +259,7 @@ export function MeDashboard({
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Prompt saya</h2>
-          <Link href="/prompts/new" className="text-sm text-blue-800 underline">
+          <Link href="/prompts/new" className="text-sm text-primary-hover underline">
             Buat baru
           </Link>
         </div>
@@ -275,7 +275,7 @@ export function MeDashboard({
           return (
             <div
               key={p.id}
-              className="space-y-3 rounded-xl border border-blue-900/10 bg-white p-4 shadow-card"
+              className="space-y-3 rounded-xl border border-primary/10 bg-white p-4 shadow-card"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
@@ -285,7 +285,7 @@ export function MeDashboard({
                   >
                     {p.title}
                   </Link>
-                  <p className="text-xs text-blue-900/60">
+                  <p className="text-xs text-ink/60">
                     {p.mode} · {badge}
                   </p>
                 </div>
@@ -342,7 +342,7 @@ export function MeDashboard({
       </section>
 
       {message && (
-        <p className="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900">
+        <p className="rounded-lg bg-soft px-3 py-2 text-sm text-ink">
           {message}
         </p>
       )}

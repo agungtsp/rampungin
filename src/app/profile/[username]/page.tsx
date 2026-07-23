@@ -37,7 +37,14 @@ export default async function ProfilePage({
 
   if (!profile) notFound();
 
+  const { count: rawCount } = await supabase
+    .from("prompts")
+    .select("id", { count: "exact", head: true })
+    .eq("author_id", profile.id);
+  const total = rawCount ?? 0;
+  page = clampPage(page, total, perPage);
   const { from, to } = pageRange(page, perPage);
+
   type PRow = {
     id: string;
     title: string;
@@ -52,13 +59,11 @@ export default async function ProfilePage({
     image_path: string | null;
   };
   let prompts: PRow[] = [];
-  let count: number | null = 0;
   {
     const first = await supabase
       .from("prompts")
       .select(
         "id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path",
-        { count: "exact" },
       )
       .eq("author_id", profile.id)
       .order("created_at", { ascending: false })
@@ -68,21 +73,15 @@ export default async function ProfilePage({
         .from("prompts")
         .select(
           "id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path",
-          { count: "exact" },
         )
         .eq("author_id", profile.id)
         .order("created_at", { ascending: false })
         .range(from, to);
       prompts = (second.data as PRow[] | null) ?? [];
-      count = second.count;
     } else {
       prompts = (first.data as PRow[] | null) ?? [];
-      count = first.count;
     }
   }
-
-  const total = count ?? 0;
-  page = clampPage(page, total, perPage);
 
   let initiallyFollowing = false;
   if (user && user.id !== profile.id) {
@@ -100,11 +99,11 @@ export default async function ProfilePage({
   return (
     <main className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 sm:py-12">
       <section className="overflow-hidden rounded-3xl bg-white ring-1 ring-black/[0.07] shadow-card">
-        <div className="h-24 bg-gradient-to-r from-blue-900 via-accent to-sky-400 sm:h-28" />
+        <div className="h-24 bg-gradient-to-r from-primary-hover via-primary to-secondary sm:h-28" />
         <div className="relative px-5 pb-6 pt-0 sm:px-8">
           <div className="-mt-10 flex flex-wrap items-end justify-between gap-4">
             <div className="flex items-end gap-4">
-              <div className="flex h-20 w-20 items-center justify-center rounded-2xl border-4 border-white bg-accent font-display text-2xl font-bold text-white shadow-md">
+              <div className="flex h-20 w-20 items-center justify-center rounded-2xl border-4 border-white bg-primary font-display text-2xl font-bold text-white shadow-md">
                 {(profile.display_name || profile.username)
                   .slice(0, 1)
                   .toUpperCase()}
@@ -120,13 +119,14 @@ export default async function ProfilePage({
               {isSelf && (
                 <Link
                   href="/me"
-                  className="rounded-full px-4 py-2 text-sm font-medium text-ink ring-1 ring-black/[0.1] transition hover:bg-background"
+                  className="rounded-full px-4 py-2 text-sm font-medium text-ink ring-1 ring-black/[0.1] transition hover:bg-soft"
                 >
                   Edit profil
                 </Link>
               )}
               <FollowButton
                 followingId={profile.id}
+                profileUsername={profile.username}
                 initiallyFollowing={initiallyFollowing}
                 isLoggedIn={Boolean(user)}
                 isSelf={isSelf}
@@ -179,7 +179,7 @@ export default async function ProfilePage({
       </section>
 
       {!prompts?.length && (
-        <p className="text-center text-blue-900/60">
+        <p className="text-center text-ink/60">
           Belum ada prompt publik.
         </p>
       )}

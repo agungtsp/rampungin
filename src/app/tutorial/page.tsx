@@ -106,19 +106,19 @@ function StepList({ steps }: { steps: Step[] }) {
       {steps.map((s, i) => (
         <li
           key={s.title}
-          className="flex gap-4 rounded-2xl border border-blue-900/10 bg-white p-4 shadow-card"
+          className="flex gap-4 rounded-2xl border border-primary/10 bg-white p-4 shadow-card"
         >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-700 text-sm font-semibold text-white">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-hover text-sm font-semibold text-white">
             {i + 1}
           </span>
           <div className="space-y-2">
-            <h3 className="font-semibold text-blue-950">{s.title}</h3>
-            <p className="text-sm text-blue-900/75">{s.body}</p>
+            <h3 className="font-semibold text-ink">{s.title}</h3>
+            <p className="text-sm text-ink-muted">{s.body}</p>
             {s.points && (
-              <ul className="ml-1 space-y-1 text-sm text-blue-900/70">
+              <ul className="ml-1 space-y-1 text-sm text-ink-muted">
                 {s.points.map((p) => (
                   <li key={p} className="flex gap-2">
-                    <span className="text-blue-600">•</span>
+                    <span className="text-primary">•</span>
                     <span>{p}</span>
                   </li>
                 ))}
@@ -145,11 +145,11 @@ function Section({
   return (
     <section className="space-y-4">
       <div className="space-y-1">
-        <h2 className="flex items-center gap-2 text-2xl font-bold text-blue-950">
+        <h2 className="flex items-center gap-2 text-2xl font-bold text-ink">
           <span>{emoji}</span>
           {title}
         </h2>
-        <p className="text-blue-900/70">{subtitle}</p>
+        <p className="text-ink-muted">{subtitle}</p>
       </div>
       {children}
     </section>
@@ -159,7 +159,7 @@ function Section({
 export default function TutorialPage() {
   return (
     <main className="mx-auto max-w-3xl space-y-12 px-4 py-10">
-      <section className="relative overflow-hidden rounded-4xl bg-gradient-to-br from-blue-900 via-blue-800 to-sky-600 px-6 py-12 text-white shadow-card sm:px-10">
+      <section className="relative overflow-hidden rounded-4xl bg-gradient-to-br from-primary-hover via-primary to-secondary px-6 py-12 text-white shadow-card sm:px-10">
         <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
         <div className="relative space-y-4">
           <span className="inline-flex rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
@@ -168,14 +168,14 @@ export default function TutorialPage() {
           <h1 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
             Cara pakai Rampungin dalam beberapa menit
           </h1>
-          <p className="max-w-xl text-blue-50/90">
+          <p className="max-w-xl text-white/90">
             Rampungin adalah tempat gratis untuk menemukan, mengisi, dan
             membagikan prompt AI. Ikuti panduan singkat di bawah ini.
           </p>
           <div className="flex flex-wrap gap-3 pt-1">
             <Link
               href="/"
-              className="rounded-full bg-amber-300 px-5 py-2.5 text-sm font-semibold text-blue-950 transition hover:bg-amber-200"
+              className="rounded-full bg-amber-300 px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-amber-200"
             >
               Mulai jelajahi
             </Link>
@@ -200,7 +200,7 @@ export default function TutorialPage() {
             <Link
               key={c.slug}
               href={`/category/${c.slug}`}
-              className="inline-flex items-center gap-1.5 rounded-full border border-blue-900/12 bg-white px-3 py-1.5 text-sm text-blue-900 shadow-sm transition hover:border-blue-400 hover:bg-blue-50"
+              className="inline-flex items-center gap-1.5 rounded-full border border-primary/12 bg-white px-3 py-1.5 text-sm text-ink shadow-sm transition hover:border-secondary hover:bg-soft"
             >
               <span>{c.emoji}</span>
               {c.label}
@@ -233,21 +233,21 @@ export default function TutorialPage() {
         <StepList steps={socialSteps} />
       </Section>
 
-      <section className="rounded-2xl border border-blue-900/10 bg-blue-50/60 p-6 text-center">
-        <h2 className="text-xl font-bold text-blue-950">Siap mencoba?</h2>
-        <p className="mt-1 text-blue-900/70">
+      <section className="rounded-2xl border border-primary/10 bg-soft/60 p-6 text-center">
+        <h2 className="text-xl font-bold text-ink">Siap mencoba?</h2>
+        <p className="mt-1 text-ink-muted">
           Semua fitur gratis selamanya — share tanpa batas.
         </p>
         <div className="mt-4 flex flex-wrap justify-center gap-3">
           <Link
             href="/prompts/new"
-            className="rounded-full bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
+            className="rounded-full bg-primary-hover px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover"
           >
             Buat prompt gratis
           </Link>
           <Link
             href="/trending"
-            className="rounded-full border border-blue-700 px-5 py-2.5 text-sm font-medium text-blue-800 transition hover:bg-blue-50"
+            className="rounded-full border border-primary-hover px-5 py-2.5 text-sm font-medium text-primary-hover transition hover:bg-soft"
           >
             Lihat trending
           </Link>

@@ -40,20 +40,20 @@ export function PaginationControls({
   const to = Math.min(safePage * perPage, total);
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-zinc-200 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-zinc-500">
+    <div className="flex flex-col gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-secondary/50 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm text-ink-muted">
         Menampilkan{" "}
-        <span className="font-semibold text-zinc-900">
+        <span className="font-semibold text-ink">
           {from}–{to}
         </span>{" "}
-        dari <span className="font-semibold text-zinc-900">{total}</span>
+        dari <span className="font-semibold text-ink">{total}</span>
       </p>
 
       <div className="flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-2 text-sm text-zinc-500">
+        <label className="flex items-center gap-2 text-sm text-ink-muted">
           <span>Per halaman</span>
           <select
-            className="rounded-lg bg-zinc-50 px-2 py-1.5 text-sm text-zinc-900 outline-none ring-1 ring-zinc-200 focus:ring-accent"
+            className="rounded-lg bg-soft px-2 py-1.5 text-sm text-ink outline-none ring-1 ring-secondary/50 focus:ring-primary"
             defaultValue={perPage}
             onChange={(e) => {
               const next = Number(e.target.value);
@@ -70,28 +70,28 @@ export function PaginationControls({
 
         <div className="flex items-center gap-1">
           {safePage <= 1 ? (
-            <span className="rounded-lg px-3 py-1.5 text-sm text-zinc-300 ring-1 ring-zinc-100">
+            <span className="rounded-lg px-3 py-1.5 text-sm text-ink-faint ring-1 ring-secondary/50">
               Sebelumnya
             </span>
           ) : (
             <Link
               href={hrefFor(basePath, params, safePage - 1, perPage)}
-              className="rounded-lg px-3 py-1.5 text-sm text-zinc-700 ring-1 ring-zinc-200 transition hover:bg-zinc-50"
+              className="rounded-lg px-3 py-1.5 text-sm text-ink-muted ring-1 ring-secondary/50 transition hover:bg-soft"
             >
               Sebelumnya
             </Link>
           )}
-          <span className="px-2 text-sm tabular-nums text-zinc-500">
+          <span className="px-2 text-sm tabular-nums text-ink-muted">
             {safePage} / {totalPages}
           </span>
           {safePage >= totalPages ? (
-            <span className="rounded-lg px-3 py-1.5 text-sm text-zinc-300 ring-1 ring-zinc-100">
+            <span className="rounded-lg px-3 py-1.5 text-sm text-ink-faint ring-1 ring-secondary/50">
               Berikutnya
             </span>
           ) : (
             <Link
               href={hrefFor(basePath, params, safePage + 1, perPage)}
-              className="rounded-lg px-3 py-1.5 text-sm text-zinc-700 ring-1 ring-zinc-200 transition hover:bg-zinc-50"
+              className="rounded-lg px-3 py-1.5 text-sm text-ink-muted ring-1 ring-secondary/50 transition hover:bg-soft"
             >
               Berikutnya
             </Link>

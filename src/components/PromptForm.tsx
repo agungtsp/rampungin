@@ -32,7 +32,7 @@ const baseInputClass =
   "w-full rounded-xl px-3 py-2.5 text-sm outline-none ring-1 transition focus:ring-2";
 
 const okInputClass =
-  "bg-white ring-black/[0.08] focus:ring-accent/30";
+  "bg-white ring-black/[0.08] focus:ring-primary/30";
 
 const errInputClass =
   "bg-rose-100 ring-rose-400 text-rose-950 placeholder:text-rose-400/80 focus:ring-rose-400/50";
@@ -136,21 +136,22 @@ export function PromptForm({
   }
 
   async function copy() {
-    if (!output.trim()) {
-      await generate();
-      return;
-    }
     const missing =
       mode === "template" ? getMissingRequiredFields(fields, values) : [];
     if (missing.length) {
       applyMissing(missing);
       return;
     }
+
     const text =
       mode === "template" ? interpolateTemplate(body, values) : body;
+    const wasEmpty = !output.trim();
     setOutput(text);
     setError(null);
     setInvalidKeys([]);
+    if (wasEmpty) {
+      await trackGenerate();
+    }
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -217,10 +218,10 @@ export function PromptForm({
                           key={opt}
                           className={`flex cursor-pointer items-center gap-2 rounded-full px-3 py-1.5 text-sm transition ${
                             active
-                              ? "bg-accent text-white"
+                              ? "bg-primary text-white"
                               : invalid
                                 ? "bg-white text-rose-900 ring-1 ring-rose-300"
-                                : "bg-background text-ink ring-1 ring-black/[0.08] hover:ring-black/[0.14]"
+                                : "bg-soft text-ink ring-1 ring-black/[0.08] hover:ring-black/[0.14]"
                           }`}
                         >
                           <input
@@ -244,10 +245,10 @@ export function PromptForm({
                           key={opt}
                           className={`flex cursor-pointer items-center gap-2 rounded-full px-3 py-1.5 text-sm transition ${
                             active
-                              ? "bg-accent text-white"
+                              ? "bg-primary text-white"
                               : invalid
                                 ? "bg-white text-rose-900 ring-1 ring-rose-300"
-                                : "bg-background text-ink ring-1 ring-black/[0.08] hover:ring-black/[0.14]"
+                                : "bg-soft text-ink ring-1 ring-black/[0.08] hover:ring-black/[0.14]"
                           }`}
                         >
                           <input
@@ -299,7 +300,7 @@ export function PromptForm({
           <button
             type="button"
             onClick={() => void generate()}
-            className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-accent-ink"
+            className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover"
           >
             Hasilkan prompt
           </button>

@@ -114,7 +114,7 @@ export default async function HomePage({
     const result = await listPage(supabase, { tag, page, perPage });
     prompts = result.rows;
     total = result.total;
-    page = clampPage(page, total, perPage);
+    page = result.page;
     promptsError = result.error;
 
     if (page === 1 && !tag) {
@@ -127,29 +127,29 @@ export default async function HomePage({
   return (
     <main className="mx-auto max-w-7xl px-3 sm:px-6">
       {!q ? (
-        <section className="animate-fade-up border-b border-zinc-200 py-8 sm:py-14">
+        <section className="animate-fade-up border-b border-secondary/60 py-8 sm:py-14">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold text-accent-ink">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+            <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-soft px-3 py-1 text-xs font-semibold text-primary-hover">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
               Gratis selamanya · {totalCatalog}+ prompt
             </p>
-            <h1 className="font-display text-3xl font-semibold tracking-tight text-zinc-900 sm:text-5xl sm:leading-[1.1]">
+            <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-5xl sm:leading-[1.1]">
               Prompt Marketplace
             </h1>
-            <p className="mx-auto mt-3 max-w-xl px-1 text-sm text-zinc-500 sm:text-lg">
+            <p className="mx-auto mt-3 max-w-xl px-1 text-sm text-ink-muted sm:text-lg">
               Temukan prompt AI siap pakai dari komunitas. Isi parameter, salin,
               dan langsung dipakai.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:mt-6 sm:gap-3">
               <Link
                 href="/prompts/new"
-                className="rounded-full bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 sm:px-5"
+                className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover sm:px-5"
               >
                 Jual / share promptmu
               </Link>
               <Link
                 href="/trending"
-                className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-zinc-800 ring-1 ring-zinc-200 transition hover:bg-zinc-50 sm:px-5"
+                className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-soft sm:px-5"
               >
                 Lihat yang lagi tren
               </Link>
@@ -169,16 +169,16 @@ export default async function HomePage({
           <section className="space-y-4 animate-fade-up">
             <div className="flex items-end justify-between gap-3">
               <div>
-                <h2 className="font-display text-xl font-semibold tracking-tight text-zinc-900 sm:text-2xl">
+                <h2 className="font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">
                   Featured
                 </h2>
-                <p className="mt-0.5 text-sm text-zinc-500">
+                <p className="mt-0.5 text-sm text-ink-muted">
                   Prompt paling disukai komunitas
                 </p>
               </div>
               <Link
                 href="/trending"
-                className="text-sm font-semibold text-accent hover:underline"
+                className="text-sm font-semibold text-primary hover:underline"
               >
                 Explore all
               </Link>
@@ -190,11 +190,11 @@ export default async function HomePage({
         <section className="space-y-4">
           <div className="flex items-end justify-between gap-3">
             <div>
-              <h2 className="font-display text-xl font-semibold tracking-tight text-zinc-900 sm:text-2xl">
+              <h2 className="font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">
                 {q ? "Hasil pencarian" : "Terbaru"}
               </h2>
               {!q ? (
-                <p className="mt-0.5 text-sm text-zinc-500">
+                <p className="mt-0.5 text-sm text-ink-muted">
                   Prompt yang baru di-share
                 </p>
               ) : null}
@@ -202,7 +202,7 @@ export default async function HomePage({
             {!q ? (
               <Link
                 href="/trending"
-                className="text-sm font-semibold text-accent hover:underline"
+                className="text-sm font-semibold text-primary hover:underline"
               >
                 Trending
               </Link>
@@ -212,7 +212,7 @@ export default async function HomePage({
         </section>
 
         {!prompts.length ? (
-          <p className="py-12 text-center text-zinc-500">
+          <p className="py-12 text-center text-ink-muted">
             {promptsError
               ? `Gagal memuat prompt: ${promptsError}`
               : q
@@ -236,12 +236,20 @@ export default async function HomePage({
 async function listPage(
   supabase: Awaited<ReturnType<typeof createClient>>,
   opts: { tag: string; page: number; perPage: number },
-): Promise<{ rows: PromptRow[]; total: number; error: string | null }> {
-  const { from, to } = pageRange(opts.page, opts.perPage);
+): Promise<{ rows: PromptRow[]; total: number; error: string | null; page: number }> {
+  let countQuery = supabase
+    .from("prompts")
+    .select("id", { count: "exact", head: true });
+  if (opts.tag) countQuery = countQuery.contains("tags", [opts.tag]);
+  const { count, error: countError } = await countQuery;
+  const total = count ?? 0;
+  const page = clampPage(opts.page, total, opts.perPage);
+  const { from, to } = pageRange(page, opts.perPage);
+
   const attempt = async (select: string) => {
     let query = supabase
       .from("prompts")
-      .select(select, { count: "exact" })
+      .select(select)
       .order("created_at", { ascending: false });
     if (opts.tag) query = query.contains("tags", [opts.tag]);
     return query.range(from, to);
@@ -253,8 +261,9 @@ async function listPage(
   }
   return {
     rows: (res.data as unknown as PromptRow[] | null) ?? [],
-    total: res.count ?? 0,
-    error: res.error?.message ?? null,
+    total,
+    error: res.error?.message ?? countError?.message ?? null,
+    page,
   };
 }
 

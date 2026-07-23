@@ -28,15 +28,15 @@ export function VisibilityControls({ value, onChange }: Props) {
   }, [value]);
 
   return (
-    <div className="space-y-3 rounded-xl border border-blue-900/10 bg-blue-50/40 p-4">
-      <p className="text-sm font-semibold text-blue-950">Visibilitas</p>
+    <div className="space-y-3 rounded-xl border border-primary/10 bg-soft/40 p-4">
+      <p className="text-sm font-semibold text-ink">Visibilitas</p>
       <div className="flex gap-2">
         <button
           type="button"
           className={`rounded-lg px-3 py-2 text-sm ${
             mode === "public"
-              ? "bg-blue-800 text-white"
-              : "bg-white text-blue-900 border"
+              ? "bg-primary-hover text-white"
+              : "bg-white text-ink border"
           }`}
           onClick={() => onChange({ kind: "public" })}
         >
@@ -46,8 +46,8 @@ export function VisibilityControls({ value, onChange }: Props) {
           type="button"
           className={`rounded-lg px-3 py-2 text-sm ${
             mode === "private"
-              ? "bg-blue-800 text-white"
-              : "bg-white text-blue-900 border"
+              ? "bg-primary-hover text-white"
+              : "bg-white text-ink border"
           }`}
           onClick={() => onChange({ kind: "private" })}
         >
@@ -57,7 +57,7 @@ export function VisibilityControls({ value, onChange }: Props) {
 
       {mode === "public" && (
         <div className="space-y-2">
-          <p className="text-xs text-blue-900/70">Publik selama</p>
+          <p className="text-xs text-ink-muted">Publik selama</p>
           <div className="flex flex-wrap gap-2">
             {PRESETS.map((p) => (
               <button
@@ -65,8 +65,8 @@ export function VisibilityControls({ value, onChange }: Props) {
                 type="button"
                 className={`rounded-full px-3 py-1 text-xs ${
                   activePreset === p.label
-                    ? "bg-blue-800 text-white"
-                    : "bg-white border text-blue-900"
+                    ? "bg-primary-hover text-white"
+                    : "bg-white border text-ink"
                 }`}
                 onClick={() =>
                   onChange(

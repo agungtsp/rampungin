@@ -30,9 +30,9 @@ export function RampunginLogo({
           y2="60"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stopColor="#1e40af" />
+          <stop stopColor="#1d4ed8" />
           <stop offset="0.45" stopColor="#2563eb" />
-          <stop offset="1" stopColor="#38bdf8" />
+          <stop offset="1" stopColor="#93c5fd" />
         </linearGradient>
         <linearGradient
           id={`${id}-shine`}

@@ -143,7 +143,7 @@ function openShareWindow(href: string) {
 }
 
 const menuItemClass =
-  "flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-zinc-800 transition hover:bg-zinc-100";
+  "flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-ink transition hover:bg-soft";
 
 export function SocialBar({
   promptId,
@@ -270,7 +270,7 @@ export function SocialBar({
               aria-expanded={open}
               aria-haspopup="menu"
               aria-controls={menuId}
-              className="inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-medium text-ink ring-1 ring-black/[0.08] transition hover:bg-accent-soft hover:text-accent-ink hover:ring-accent/25"
+              className="inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-medium text-ink ring-1 ring-black/[0.08] transition hover:bg-soft hover:text-primary-hover hover:ring-secondary/25"
             >
               <ShareIcon />
               Bagikan
@@ -281,7 +281,7 @@ export function SocialBar({
               <div
                 id={menuId}
                 role="menu"
-                className="absolute left-0 z-20 mt-2 w-52 overflow-hidden rounded-2xl bg-white p-1.5 shadow-card-hover ring-1 ring-zinc-200"
+                className="absolute left-0 z-20 mt-2 w-52 overflow-hidden rounded-2xl bg-white p-1.5 shadow-card-hover ring-1 ring-secondary/50"
               >
                 <button
                   type="button"
@@ -323,7 +323,7 @@ export function SocialBar({
                   <XIcon />
                   X
                 </button>
-                <div className="my-1 border-t border-zinc-100" />
+                <div className="my-1 border-t border-secondary/60" />
                 <button
                   type="button"
                   role="menuitem"
@@ -341,14 +341,14 @@ export function SocialBar({
         {!isLoggedIn && (
           <Link
             href={`/auth?next=${encodeURIComponent(promptPath)}`}
-            className="text-sm text-accent hover:underline"
+            className="text-sm text-primary hover:underline"
           >
             Masuk untuk suka
           </Link>
         )}
       </div>
 
-      {message ? <p className="text-sm text-accent-ink">{message}</p> : null}
+      {message ? <p className="text-sm text-primary-hover">{message}</p> : null}
     </div>
   );
 }

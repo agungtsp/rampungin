@@ -61,7 +61,7 @@ export function SocialLinks({ profile, size = "md" }: Props) {
             rel="noopener noreferrer"
             title={link.label}
             aria-label={link.label}
-            className={`inline-flex items-center justify-center rounded-full border border-blue-900/15 bg-white text-blue-900 shadow-sm transition ${pad} ${ACCENT[link.key]}`}
+            className={`inline-flex items-center justify-center rounded-full border border-primary/15 bg-white text-ink shadow-sm transition ${pad} ${ACCENT[link.key]}`}
           >
             <Icon platform={link.key} className={icon} />
           </a>

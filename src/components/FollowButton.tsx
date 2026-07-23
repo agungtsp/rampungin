@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 
 type Props = {
   followingId: string;
+  profileUsername: string;
   initiallyFollowing: boolean;
   isLoggedIn: boolean;
   isSelf: boolean;
@@ -12,6 +13,7 @@ type Props = {
 
 export function FollowButton({
   followingId,
+  profileUsername,
   initiallyFollowing,
   isLoggedIn,
   isSelf,
@@ -23,7 +25,8 @@ export function FollowButton({
 
   async function toggle() {
     if (!isLoggedIn) {
-      window.location.href = `/auth?next=/profile`;
+      const next = encodeURIComponent(`/profile/${profileUsername}`);
+      window.location.href = `/auth?next=${next}`;
       return;
     }
     setBusy(true);
@@ -57,7 +60,7 @@ export function FollowButton({
       type="button"
       disabled={busy}
       onClick={toggle}
-      className="rounded-full bg-blue-800 px-4 py-2 text-sm text-white disabled:opacity-60"
+      className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:opacity-60"
     >
       {following ? "Mengikuti" : "Ikuti"}
     </button>

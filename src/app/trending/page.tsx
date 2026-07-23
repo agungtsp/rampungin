@@ -42,6 +42,8 @@ export default async function TrendingPage({
     .select(
       `id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, ${PROMPT_AUTHOR}`,
     )
+    .order("like_count", { ascending: false })
+    .order("copy_count", { ascending: false })
     .limit(500);
   if (withGen.error?.message?.includes("generate_count")) {
     const fallback = await supabase
@@ -49,6 +51,8 @@ export default async function TrendingPage({
       .select(
         `id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, ${PROMPT_AUTHOR}`,
       )
+      .order("like_count", { ascending: false })
+      .order("copy_count", { ascending: false })
       .limit(500);
     if (fallback.error) console.error("trending query failed:", fallback.error.message);
     rows = (fallback.data as Row[] | null) ?? [];
@@ -71,10 +75,10 @@ export default async function TrendingPage({
   return (
     <main className="mx-auto max-w-7xl space-y-6 px-3 py-8 sm:px-6">
       <div className="max-w-xl space-y-2">
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
           Trending
         </h1>
-        <p className="text-zinc-500">
+        <p className="text-ink-muted">
           Prompt paling ramai dipakai — skor dari suka, salin, dan generate.
         </p>
       </div>

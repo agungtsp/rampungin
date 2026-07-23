@@ -1,23 +1,53 @@
 @import "tailwindcss";
-@config "../../tailwind.config.ts";
 
-:root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --surface: #ffffff;
-  --ink: #0f172a;
-  --ink-muted: #475569;
-  --ink-faint: #94a3b8;
-  --border: rgba(15, 23, 42, 0.08);
-  --accent: #2563eb;
-  --accent-soft: #dbeafe;
-  --accent-ink: #1e40af;
+/*
+  Rampungin palette
+  #2563EB Primary | #1D4ED8 Primary Hover | #93C5FD Secondary
+  #DBEAFE Soft bg | #0F172A Ink | #FFFFFF White
+*/
+@theme {
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-secondary: #93c5fd;
+  --color-soft: #dbeafe;
+  --color-ink: #0f172a;
+  --color-ink-muted: #334155;
+  --color-ink-faint: #64748b;
+
+  /* Align default blue/slate scales to the same palette */
+  --color-blue-50: #dbeafe;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #93c5fd;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #93c5fd;
+  --color-blue-500: #2563eb;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-blue-800: #1d4ed8;
+  --color-blue-900: #1e3a8a;
+  --color-blue-950: #0f172a;
+
+  --color-slate-50: #dbeafe;
+  --color-slate-100: #dbeafe;
+  --color-slate-200: #93c5fd;
+  --color-slate-500: #64748b;
+  --color-slate-600: #334155;
+  --color-slate-700: #334155;
+  --color-slate-800: #0f172a;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #0f172a;
+
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-display: var(--font-sora), var(--font-dm-sans), system-ui, sans-serif;
+
+  --shadow-card: 0 1px 2px rgba(37, 99, 235, 0.06), 0 8px 24px -12px rgba(15, 23, 42, 0.12);
+  --shadow-card-hover: 0 4px 12px rgba(37, 99, 235, 0.12), 0 20px 40px -20px rgba(29, 78, 216, 0.22);
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  color: #0f172a;
+  background: #ffffff;
+  font-family: var(--font-sans);
 }
 
 a {
@@ -25,14 +55,13 @@ a {
   text-decoration: none;
 }
 
-/* Fixed AI-prompt atmosphere behind the app */
 .ai-site-bg {
   pointer-events: none;
   position: fixed;
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  background-color: var(--background);
+  background-color: #ffffff;
 }
 
 .ai-site-bg::before {
@@ -40,10 +69,9 @@ a {
   position: absolute;
   inset: -20% -10%;
   background:
-    radial-gradient(ellipse 55% 45% at 12% 8%, rgba(37, 99, 235, 0.16), transparent 60%),
-    radial-gradient(ellipse 50% 40% at 88% 12%, rgba(14, 165, 233, 0.12), transparent 55%),
-    radial-gradient(ellipse 45% 35% at 70% 88%, rgba(59, 130, 246, 0.1), transparent 55%),
-    radial-gradient(ellipse 40% 30% at 18% 78%, rgba(99, 102, 241, 0.08), transparent 50%);
+    radial-gradient(ellipse 55% 45% at 12% 8%, rgba(37, 99, 235, 0.1), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 88% 12%, rgba(147, 197, 253, 0.35), transparent 55%),
+    radial-gradient(ellipse 45% 35% at 70% 88%, rgba(219, 234, 254, 0.9), transparent 55%);
   animation: ai-glow 18s ease-in-out infinite alternate;
 }
 
@@ -53,18 +81,14 @@ a {
   inset: 0;
   background-image:
     url("/bg/ai-prompt-pattern.svg"),
-    linear-gradient(rgba(37, 99, 235, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(37, 99, 235, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(37, 99, 235, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.03) 1px, transparent 1px);
   background-size:
     420px 420px,
     48px 48px,
     48px 48px;
-  background-position:
-    0 0,
-    0 0,
-    0 0;
-  opacity: 0.55;
-  mask-image: radial-gradient(ellipse 85% 70% at 50% 30%, #000 20%, transparent 85%);
+  opacity: 0.22;
+  mask-image: radial-gradient(ellipse 85% 70% at 50% 30%, #000 15%, transparent 80%);
 }
 
 @keyframes ai-glow {
@@ -82,13 +106,13 @@ a {
   }
 }
 
-@utility card-hover {
+.card-hover {
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 300ms;
 }
 
-@utility marketplace-grid {
+.marketplace-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.625rem;
@@ -125,5 +149,5 @@ a {
 }
 
 .animate-fade-up {
-  animation: fade-up 0.45s ease-out both;
+  animation: fade-up 0.45s cubic-bezier(0, 0, 0.2, 1) both;
 }

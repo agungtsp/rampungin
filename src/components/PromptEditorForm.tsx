@@ -234,7 +234,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="mx-auto max-w-2xl space-y-5">
-      <h1 className="text-2xl font-bold text-blue-950">
+      <h1 className="text-2xl font-bold text-ink">
         {existing ? "Edit Prompt" : "Buat Prompt"}
       </h1>
 
@@ -276,14 +276,14 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       <div className="flex gap-2">
         <button
           type="button"
-          className={`rounded-lg px-3 py-2 text-sm ${mode === "template" ? "bg-blue-800 text-white" : "border"}`}
+          className={`rounded-lg px-3 py-2 text-sm ${mode === "template" ? "bg-primary-hover text-white" : "border"}`}
           onClick={() => setMode("template")}
         >
           Template berparameter
         </button>
         <button
           type="button"
-          className={`rounded-lg px-3 py-2 text-sm ${mode === "static" ? "bg-blue-800 text-white" : "border"}`}
+          className={`rounded-lg px-3 py-2 text-sm ${mode === "static" ? "bg-primary-hover text-white" : "border"}`}
           onClick={() => setMode("static")}
         >
           Prompt statis
@@ -316,7 +316,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
             <p className="font-medium">Parameter</p>
             <button
               type="button"
-              className="text-sm text-blue-800"
+              className="text-sm text-primary-hover"
               onClick={() =>
                 setFields((f) => [
                   ...f,
@@ -334,7 +334,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
             </button>
           </div>
           {fields.map((f, i) => (
-            <div key={i} className="grid gap-2 rounded-lg bg-blue-50/40 p-3 sm:grid-cols-2">
+            <div key={i} className="grid gap-2 rounded-lg bg-soft/40 p-3 sm:grid-cols-2">
               <input
                 className="rounded border px-2 py-1 text-sm"
                 value={f.label}
@@ -364,7 +364,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
                 />
                 Wajib
               </label>
-              <p className="text-xs text-blue-900/60">
+              <p className="text-xs text-ink/60">
                 key: {`{{${f.field_key}}}`}
               </p>
               {usesOptions(f.field_type) && (
@@ -424,7 +424,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       <button
         type="submit"
         disabled={busy}
-        className="rounded-xl bg-blue-800 px-5 py-3 text-white disabled:opacity-60"
+        className="rounded-xl bg-primary-hover px-5 py-3 text-white disabled:opacity-60"
       >
         {busy ? "Menyimpan…" : "Simpan Prompt"}
       </button>
