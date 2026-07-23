@@ -2,6 +2,8 @@
 
 Checklist biar production jalan, termasuk **login Google**.
 
+> Stack: **Next.js 16** + React 19 + Tailwind 4 + Supabase. Pastikan Vercel memakai Node 20+.
+
 ## 0) Prasyarat
 
 - [ ] Repo di GitHub/GitLab (folder app: `rampungin.com/`)
