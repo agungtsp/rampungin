@@ -49,11 +49,13 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // Only run on routes that need session refresh / auth gate — keeps public pages fast
   matcher: [
-    /*
-     * Refresh auth session on (almost) all routes so Server Components
-     * keep a valid session cookie. Skip static assets.
-     */
-    "/((?!_next/static|_next/image|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/me",
+    "/me/:path*",
+    "/prompts/new",
+    "/prompts/:id/edit",
+    "/profile/:username/:id/edit",
+    "/auth/callback",
   ],
 };

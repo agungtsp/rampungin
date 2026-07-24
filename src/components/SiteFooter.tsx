@@ -21,7 +21,7 @@ export function SiteFooter() {
             Trending
           </Link>
           <Link href="/people" className="transition hover:text-ink">
-            Profil
+            Kreator
           </Link>
           <Link href="/tutorial" className="transition hover:text-ink">
             Panduan
@@ -29,8 +29,8 @@ export function SiteFooter() {
           <Link href="/about" className="transition hover:text-ink">
             Tentang
           </Link>
-          <Link href="/about#sumbangan" className="transition hover:text-ink">
-            Sumbangan
+          <Link href="/about#donasi" className="transition hover:text-ink">
+            Donasi
           </Link>
           <Link href="/prompts/new" className="transition hover:text-ink">
             Buat prompt

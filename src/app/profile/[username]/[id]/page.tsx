@@ -80,7 +80,7 @@ export default async function ProfilePromptDetailPage({
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <Link
             href={`/category/${prompt.category ?? "lainnya"}`}
-            className="rounded-full bg-soft px-2.5 py-1 font-medium text-primary-hover transition hover:bg-primary-hover/15"
+            className="rounded-full bg-soft px-2.5 py-1 font-medium text-primary-hover transition hover:bg-primary/15"
           >
             {categoryEmoji(prompt.category)} {categoryLabel(prompt.category)}
           </Link>

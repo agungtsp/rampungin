@@ -119,15 +119,15 @@ export function SmartSearchButton({
                   Cari prompt
                 </h2>
                 <p className="text-sm text-ink-muted">
-                  Jelaskan apa yang ingin kamu buat — kami cocokkan ke prompt
-                  relevan.
+                  Jelaskan apa yang ingin kamu buat — kami cocokkan dengan prompt
+                  yang relevan.
                 </p>
               </div>
 
               <form onSubmit={onSubmit} className="mt-5 space-y-3">
                 <label className="block space-y-1.5">
                   <span className="text-sm font-medium text-ink">
-                    Konteks / tujuan
+                    Konteks atau tujuan
                   </span>
                   <textarea
                     ref={textareaRef}
@@ -137,7 +137,7 @@ export function SmartSearchButton({
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Contoh: landing page SaaS B2B, debug API Postgres…"
-                    className="w-full rounded-xl bg-soft px-4 py-3 text-sm outline-none ring-1 ring-secondary/50 transition focus:bg-white focus:ring-2 focus:ring-primary/35"
+                    className="w-full rounded-xl bg-soft px-4 py-3 text-sm outline-none ring-1 ring-secondary/50 transition focus:bg-white text-ink focus:ring-2 focus:ring-primary/35"
                   />
                 </label>
 
@@ -151,7 +151,7 @@ export function SmartSearchButton({
                     value={tag}
                     onChange={(e) => setTag(e.target.value)}
                     placeholder="saas, postgres, copywriting…"
-                    className="w-full rounded-xl bg-soft px-4 py-2.5 text-sm outline-none ring-1 ring-secondary/50 transition focus:bg-white focus:ring-2 focus:ring-primary/35"
+                    className="w-full rounded-xl bg-soft px-4 py-2.5 text-sm outline-none ring-1 ring-secondary/50 transition focus:bg-white text-ink focus:ring-2 focus:ring-primary/35"
                   />
                 </label>
 

@@ -1,7 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { PAGE_SIZE_OPTIONS, type PageSize } from "@/lib/pagination";
+import { usePaginationNav } from "./PaginationShell";
 
 type Props = {
   basePath: string;
@@ -34,13 +36,37 @@ export function PaginationControls({
   total,
   params = {},
 }: Props) {
+  const router = useRouter();
+  const nav = usePaginationNav();
+  const [localPending, startLocalTransition] = useTransition();
+  const pending = nav?.pending ?? localPending;
+
   const totalPages = Math.max(1, Math.ceil(total / perPage));
   const safePage = Math.min(Math.max(1, page), totalPages);
   const from = total === 0 ? 0 : (safePage - 1) * perPage + 1;
   const to = Math.min(safePage * perPage, total);
 
+  function go(nextPage: number, nextPerPage: number = perPage) {
+    const href = hrefFor(basePath, params, nextPage, nextPerPage);
+    if (nav) {
+      nav.navigate(href);
+      return;
+    }
+    startLocalTransition(() => {
+      router.push(href, { scroll: false });
+    });
+  }
+
+  const btn =
+    "rounded-lg px-3 py-1.5 text-sm ring-1 ring-secondary/50 transition disabled:cursor-not-allowed disabled:opacity-40";
+
   return (
-    <div className="flex flex-col gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-secondary/50 sm:flex-row sm:items-center sm:justify-between">
+    <div
+      className={`mt-4 flex flex-col gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-secondary/50 sm:flex-row sm:items-center sm:justify-between ${
+        pending ? "opacity-70" : ""
+      }`}
+      aria-busy={pending}
+    >
       <p className="text-sm text-ink-muted">
         Menampilkan{" "}
         <span className="font-semibold text-ink">
@@ -54,11 +80,9 @@ export function PaginationControls({
           <span>Per halaman</span>
           <select
             className="rounded-lg bg-soft px-2 py-1.5 text-sm text-ink outline-none ring-1 ring-secondary/50 focus:ring-primary"
-            defaultValue={perPage}
-            onChange={(e) => {
-              const next = Number(e.target.value);
-              window.location.href = hrefFor(basePath, params, 1, next);
-            }}
+            value={perPage}
+            disabled={pending}
+            onChange={(e) => go(1, Number(e.target.value))}
           >
             {PAGE_SIZE_OPTIONS.map((n) => (
               <option key={n} value={n}>
@@ -69,33 +93,25 @@ export function PaginationControls({
         </label>
 
         <div className="flex items-center gap-1">
-          {safePage <= 1 ? (
-            <span className="rounded-lg px-3 py-1.5 text-sm text-ink-faint ring-1 ring-secondary/50">
-              Sebelumnya
-            </span>
-          ) : (
-            <Link
-              href={hrefFor(basePath, params, safePage - 1, perPage)}
-              className="rounded-lg px-3 py-1.5 text-sm text-ink-muted ring-1 ring-secondary/50 transition hover:bg-soft"
-            >
-              Sebelumnya
-            </Link>
-          )}
+          <button
+            type="button"
+            className={`${btn} text-ink-muted hover:bg-soft`}
+            disabled={pending || safePage <= 1}
+            onClick={() => go(safePage - 1)}
+          >
+            Sebelumnya
+          </button>
           <span className="px-2 text-sm tabular-nums text-ink-muted">
             {safePage} / {totalPages}
           </span>
-          {safePage >= totalPages ? (
-            <span className="rounded-lg px-3 py-1.5 text-sm text-ink-faint ring-1 ring-secondary/50">
-              Berikutnya
-            </span>
-          ) : (
-            <Link
-              href={hrefFor(basePath, params, safePage + 1, perPage)}
-              className="rounded-lg px-3 py-1.5 text-sm text-ink-muted ring-1 ring-secondary/50 transition hover:bg-soft"
-            >
-              Berikutnya
-            </Link>
-          )}
+          <button
+            type="button"
+            className={`${btn} text-ink-muted hover:bg-soft`}
+            disabled={pending || safePage >= totalPages}
+            onClick={() => go(safePage + 1)}
+          >
+            Berikutnya
+          </button>
         </div>
       </div>
     </div>

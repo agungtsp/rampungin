@@ -55,6 +55,8 @@ end;
 $$;
 
 grant execute on function public.increment_generate_count(uuid) to anon, authenticated;
+
+notify pgrst, 'reload schema';
 `.trim();
 
 async function viaPg() {

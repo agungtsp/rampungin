@@ -104,7 +104,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      setError("Silakan login dulu");
+      setError("Silakan masuk terlebih dahulu");
       setBusy(false);
       return;
     }
@@ -235,7 +235,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
   return (
     <form onSubmit={onSubmit} className="mx-auto max-w-2xl space-y-5">
       <h1 className="text-2xl font-bold text-ink">
-        {existing ? "Edit Prompt" : "Buat Prompt"}
+        {existing ? "Edit prompt" : "Buat prompt"}
       </h1>
 
       <label className="block space-y-1">
@@ -426,7 +426,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
         disabled={busy}
         className="rounded-xl bg-primary-hover px-5 py-3 text-white disabled:opacity-60"
       >
-        {busy ? "Menyimpan…" : "Simpan Prompt"}
+        {busy ? "Menyimpan…" : "Simpan prompt"}
       </button>
     </form>
   );

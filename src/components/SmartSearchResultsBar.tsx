@@ -30,7 +30,7 @@ export function SmartSearchResultsBar({ note, query }: Props) {
           href="/"
           className="rounded-full px-3.5 py-1.5 text-sm font-medium text-ink-muted transition hover:text-ink"
         >
-          Reset
+          Hapus filter
         </Link>
       </div>
     </div>

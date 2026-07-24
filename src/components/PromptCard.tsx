@@ -59,14 +59,14 @@ export function PromptCard({
           />
 
           <div className="absolute left-1.5 top-1.5 flex max-w-[calc(100%-0.75rem)] flex-wrap gap-1 sm:left-2 sm:top-2">
-            <span className="max-w-full truncate rounded-md bg-white/95 px-1.5 py-0.5 text-[10px] font-semibold text-ink shadow-sm backdrop-blur sm:text-[11px]">
+            <span className="max-w-full truncate rounded-md bg-white px-1.5 py-0.5 text-[10px] font-semibold text-ink shadow-sm sm:text-[11px]">
               <span className="sm:hidden">{categoryEmoji(category)}</span>
               <span className="hidden sm:inline">
                 {categoryEmoji(category)} {categoryLabel(category)}
               </span>
             </span>
             {mode === "template" ? (
-              <span className="hidden rounded-md bg-primary-hover/80 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur min-[400px]:inline sm:text-[11px]">
+              <span className="hidden rounded-md bg-primary-hover px-1.5 py-0.5 text-[10px] font-medium text-white min-[400px]:inline sm:text-[11px]">
                 Template
               </span>
             ) : null}
@@ -96,7 +96,7 @@ export function PromptCard({
               <span className="mx-0.5 text-ink-faint sm:mx-1">·</span>
               <span className="sm:hidden">{generate_count + copy_count}</span>
               <span className="hidden sm:inline">
-                {generate_count + copy_count} pakai
+                {generate_count + copy_count} digunakan
               </span>
             </span>
           </div>

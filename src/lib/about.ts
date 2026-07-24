@@ -6,10 +6,25 @@ export type DonateLink = {
   label: string;
   href: string;
   hint?: string;
+  /** Embed as iframe (e.g. Saweria QR widget) instead of opening a new tab */
+  embed?: boolean;
 };
 
 export function getCreatorUsername(): string {
   return process.env.NEXT_PUBLIC_CREATOR_USERNAME?.trim() || "agungtsp";
+}
+
+/** True when URL is a Saweria (or similar) QR/widget page meant for iframe embed. */
+export function isDonateWidgetUrl(href: string): boolean {
+  try {
+    const u = new URL(href);
+    return (
+      u.hostname.includes("saweria.co") &&
+      (u.pathname.includes("/widgets/") || u.searchParams.has("streamKey"))
+    );
+  } catch {
+    return /saweria\.co\/widgets\//i.test(href);
+  }
 }
 
 export function getDonateLinks(): DonateLink[] {
@@ -19,14 +34,16 @@ export function getDonateLinks(): DonateLink[] {
   const paypal = process.env.NEXT_PUBLIC_DONATE_PAYPAL?.trim();
   const customUrl = process.env.NEXT_PUBLIC_DONATE_URL?.trim();
   const customLabel =
-    process.env.NEXT_PUBLIC_DONATE_LABEL?.trim() || "Kirim sumbangan";
+    process.env.NEXT_PUBLIC_DONATE_LABEL?.trim() || "Kirim donasi";
 
   if (saweria) {
+    const embed = isDonateWidgetUrl(saweria);
     links.push({
       key: "saweria",
       label: "Saweria",
       href: saweria,
-      hint: "Cepat via e-wallet / QRIS",
+      hint: embed ? "Scan QRIS atau e-wallet" : "Cepat via e-wallet atau QRIS",
+      embed,
     });
   }
   if (trakteer) {
@@ -49,6 +66,7 @@ export function getDonateLinks(): DonateLink[] {
       key: "custom",
       label: customLabel,
       href: customUrl,
+      embed: isDonateWidgetUrl(customUrl),
     });
   }
   return links;

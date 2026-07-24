@@ -55,6 +55,69 @@ a {
   text-decoration: none;
 }
 
+/* Ensure interactive links also show pointer (nav, chips, etc.) */
+a[href] {
+  cursor: pointer;
+}
+
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+select:not(:disabled),
+summary {
+  cursor: pointer;
+}
+
+button:disabled,
+select:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* Blue (primary) button/surfaces → white text */
+.bg-primary,
+.bg-primary-hover {
+  color: #ffffff;
+}
+
+/* White buttons → black (ink) text */
+button.bg-white,
+a.bg-white {
+  color: #0f172a;
+}
+
+/* Orange / amber surfaces → black text for contrast */
+:is(
+  .bg-orange-50,
+  .bg-orange-100,
+  .bg-orange-200,
+  .bg-orange-300,
+  .bg-orange-400,
+  .bg-orange-500,
+  .bg-amber-50,
+  .bg-amber-100,
+  .bg-amber-200,
+  .bg-amber-300,
+  .bg-amber-400,
+  .bg-amber-500
+),
+:is(
+  .bg-orange-50,
+  .bg-orange-100,
+  .bg-orange-200,
+  .bg-orange-300,
+  .bg-orange-400,
+  .bg-orange-500,
+  .bg-amber-50,
+  .bg-amber-100,
+  .bg-amber-200,
+  .bg-amber-300,
+  .bg-amber-400,
+  .bg-amber-500
+) :where(span, p, strong, a, button) {
+  color: #0f172a;
+}
+
+
 .ai-site-bg {
   pointer-events: none;
   position: fixed;
@@ -62,17 +125,19 @@ a {
   z-index: 0;
   overflow: hidden;
   background-color: #ffffff;
+  /* Keep bg on its own layer; no transform animation (causes scroll flicker) */
+  transform: translateZ(0);
+  contain: strict;
 }
 
 .ai-site-bg::before {
   content: "";
   position: absolute;
-  inset: -20% -10%;
+  inset: 0;
   background:
     radial-gradient(ellipse 55% 45% at 12% 8%, rgba(37, 99, 235, 0.1), transparent 60%),
-    radial-gradient(ellipse 50% 40% at 88% 12%, rgba(147, 197, 253, 0.35), transparent 55%),
-    radial-gradient(ellipse 45% 35% at 70% 88%, rgba(219, 234, 254, 0.9), transparent 55%);
-  animation: ai-glow 18s ease-in-out infinite alternate;
+    radial-gradient(ellipse 50% 40% at 88% 12%, rgba(147, 197, 253, 0.28), transparent 55%),
+    radial-gradient(ellipse 45% 35% at 70% 88%, rgba(219, 234, 254, 0.85), transparent 55%);
 }
 
 .ai-site-bg::after {
@@ -87,21 +152,12 @@ a {
     420px 420px,
     48px 48px,
     48px 48px;
-  opacity: 0.22;
-  mask-image: radial-gradient(ellipse 85% 70% at 50% 30%, #000 15%, transparent 80%);
-}
-
-@keyframes ai-glow {
-  from {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  to {
-    transform: translate3d(1.5%, -1%, 0) scale(1.04);
-  }
+  opacity: 0.18;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ai-site-bg::before {
+  .ai-site-bg::before,
+  .ai-site-bg::after {
     animation: none;
   }
 }

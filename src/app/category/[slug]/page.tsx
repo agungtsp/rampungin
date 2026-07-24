@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
 import { CategoryChips } from "@/components/CategoryChips";
 import { PaginationControls } from "@/components/PaginationControls";
+import {
+  PaginationShell,
+  PromptGridSkeleton,
+} from "@/components/PaginationShell";
 import { PromptCard } from "@/components/PromptCard";
 import {
   categoryEmoji,
@@ -80,13 +84,6 @@ export default async function CategoryPage({
     }
   }
 
-  const { data: catRows } = await supabase.from("prompts").select("category");
-  const counts: Record<string, number> = {};
-  for (const row of catRows ?? []) {
-    const key = (row as { category: string | null }).category ?? "lainnya";
-    counts[key] = (counts[key] ?? 0) + 1;
-  }
-
   return (
     <main className="mx-auto max-w-7xl px-3 sm:px-6">
       <div className="space-y-2 border-b border-secondary/60 py-8">
@@ -94,50 +91,61 @@ export default async function CategoryPage({
           <span>{categoryEmoji(slug)}</span>
           {categoryLabel(slug)}
         </h1>
-        <p className="text-ink-muted">{total} prompt di kategori ini.</p>
+        <p className="text-ink-muted">{total} prompt dalam kategori ini.</p>
       </div>
 
       <div className="sticky top-14 z-30 -mx-3 sm:-mx-6">
-        <CategoryChips counts={counts} activeSlug={slug} />
+        <CategoryChips activeSlug={slug} />
       </div>
 
       <div className="space-y-8 py-8">
-        <section className="marketplace-grid">
-          {(prompts ?? []).map((p) => {
-            const author = asOne(
-              p.profiles as { username: string } | { username: string }[] | null,
-            );
-            return (
-              <PromptCard
-                key={p.id}
-                id={p.id}
-                title={p.title}
-                description={p.description}
-                mode={p.mode}
-                category={p.category}
-                like_count={p.like_count}
-                copy_count={p.copy_count}
-                generate_count={p.generate_count ?? 0}
-                is_public={p.is_public}
-                public_until={p.public_until}
-                authorUsername={author?.username}
-                imageUrl={publicImageUrl(p.image_path)}
-              />
-            );
-          })}
-        </section>
+        <PaginationShell
+          skeleton={<PromptGridSkeleton count={perPage} />}
+          content={
+            <>
+              <section className="marketplace-grid">
+                {(prompts ?? []).map((p) => {
+                  const author = asOne(
+                    p.profiles as
+                      | { username: string }
+                      | { username: string }[]
+                      | null,
+                  );
+                  return (
+                    <PromptCard
+                      key={p.id}
+                      id={p.id}
+                      title={p.title}
+                      description={p.description}
+                      mode={p.mode}
+                      category={p.category}
+                      like_count={p.like_count}
+                      copy_count={p.copy_count}
+                      generate_count={p.generate_count ?? 0}
+                      is_public={p.is_public}
+                      public_until={p.public_until}
+                      authorUsername={author?.username}
+                      imageUrl={publicImageUrl(p.image_path)}
+                    />
+                  );
+                })}
+              </section>
 
-        {!prompts?.length && (
-          <p className="text-center text-ink-muted">
-            Belum ada prompt di kategori ini.
-          </p>
-        )}
-
-        <PaginationControls
-          basePath={`/category/${slug}`}
-          page={page}
-          perPage={perPage}
-          total={total}
+              {!prompts?.length && (
+                <p className="text-center text-ink-muted">
+                  Belum ada prompt dalam kategori ini.
+                </p>
+              )}
+            </>
+          }
+          controls={
+            <PaginationControls
+              basePath={`/category/${slug}`}
+              page={page}
+              perPage={perPage}
+              total={total}
+            />
+          }
         />
       </div>
     </main>

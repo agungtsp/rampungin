@@ -39,7 +39,7 @@ Project → **Settings → Environment Variables** → isi untuk **Production** 
 | `NEXT_PUBLIC_SITE_URL` | `https://rampungin.vercel.app` (tanpa slash akhir) | Ya (share/Disqus/absolute URL) |
 | `NEXT_PUBLIC_DISQUS_SHORTNAME` | shortname Disqus | Opsional |
 | `NEXT_PUBLIC_CREATOR_USERNAME` | `agungtsp` | Opsional |
-| `NEXT_PUBLIC_DONATE_*` | link sumbangan | Opsional |
+| `NEXT_PUBLIC_DONATE_*` | link donasi | Opsional |
 
 Lalu **Redeploy** agar env terbaca.
 
@@ -120,7 +120,7 @@ Setelah deploy + env + redirect:
 - [ ] `/prompts/new` bisa diakses saat login
 - [ ] Like / Bagikan jalan
 - [ ] Favicon logo Rampungin muncul (hard refresh kalau cache)
-- [ ] `/about` & sumbangan (kalau env donate diisi)
+- [ ] `/about` & donasi (kalau env donate diisi)
 
 ---
 

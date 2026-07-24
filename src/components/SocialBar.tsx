@@ -226,9 +226,9 @@ export function SocialBar({
   async function shareInstagram() {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      flash("Link disalin — tempel di Instagram Stories / post");
+      flash("Tautan disalin — tempel di Instagram Stories atau postingan");
     } catch {
-      flash("Salin link manual, lalu buka Instagram");
+      flash("Salin tautan secara manual, lalu buka Instagram");
     }
     window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
   }
@@ -236,9 +236,9 @@ export function SocialBar({
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      flash("Link disalin");
+      flash("Tautan disalin");
     } catch {
-      flash("Gagal menyalin link");
+      flash("Gagal menyalin tautan");
     }
   }
 
@@ -331,7 +331,7 @@ export function SocialBar({
                   onClick={() => runAndClose(copyLink)}
                 >
                   <LinkIcon />
-                  Salin link
+                  Salin tautan
                 </button>
               </div>
             ) : null}
@@ -343,7 +343,7 @@ export function SocialBar({
             href={`/auth?next=${encodeURIComponent(promptPath)}`}
             className="text-sm text-primary hover:underline"
           >
-            Masuk untuk suka
+            Masuk untuk menyukai
           </Link>
         )}
       </div>

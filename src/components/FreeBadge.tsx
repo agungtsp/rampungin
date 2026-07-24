@@ -9,7 +9,7 @@ export function FreeBadge({ compact = false }: { compact?: boolean }) {
 
   return (
     <p className="text-sm font-medium text-ink-muted">
-      Gratis selamanya · share tanpa batas
+      Gratis selamanya · bagikan tanpa batas
     </p>
   );
 }

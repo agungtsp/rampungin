@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { DonateOptions } from "@/components/DonateOptions";
 import {
   getBankDonation,
   getCreatorUsername,
@@ -7,9 +8,9 @@ import {
 } from "@/lib/about";
 
 export const metadata: Metadata = {
-  title: "Tentang & Sumbangan — Rampungin",
+  title: "Tentang & Donasi — Rampungin",
   description:
-    "Kenalan dengan Rampungin dan dukung pengembangan platform prompt AI gratis.",
+    "Kenali Rampungin dan dukung pengembangan marketplace prompt AI gratis.",
 };
 
 export default function AboutPage() {
@@ -23,17 +24,19 @@ export default function AboutPage() {
       <section className="space-y-4">
         <p className="text-sm font-semibold text-primary">Tentang</p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-          Halo, ini Rampungin
+          Selamat datang di Rampungin
         </h1>
         <p className="text-base leading-relaxed text-ink-muted sm:text-lg">
           Rampungin adalah marketplace komunitas untuk berbagi{" "}
           <strong className="font-semibold text-ink">prompt AI</strong> —
-          template berparameter maupun prompt siap pakai. Siapa saja bisa
-          menjelajah, mengisi field, menyalin hasil, dan ikut share tanpa biaya.
+          baik template berparameter maupun prompt siap pakai. Siapa saja dapat
+          menjelajah, mengisi field, menyalin hasil, dan ikut membagikan tanpa
+          biaya.
         </p>
         <p className="text-base leading-relaxed text-ink-muted">
-          Proyek ini dibuat agar prompt yang berguna tidak hilang di chat pribadi
-          saja: bisa ditemukan, dipakai ulang, dan berkembang bersama komunitas.
+          Platform ini dibuat agar prompt yang bermanfaat tidak hilang di chat
+          pribadi: mudah ditemukan, dipakai ulang, dan terus berkembang bersama
+          komunitas.
         </p>
       </section>
 
@@ -52,10 +55,11 @@ export default function AboutPage() {
             </div>
           </div>
           <p className="mt-4 text-sm leading-relaxed text-ink-muted">
-            Hai — saya membangun Rampungin di waktu luang sebagai ruang gratis
-            untuk berbagi konteks prompt. Kalau platform ini membantu workflow-mu,
-            boleh dukung lewat sumbangan di bawah. Setiap kontribusi dipakai untuk
-            biaya server, maintenance, dan fitur baru.
+            Halo — saya mengembangkan Rampungin di waktu luang sebagai ruang
+            gratis untuk berbagi konteks prompt. Jika platform ini membantu
+            alur kerjamu, kamu boleh mendukung lewat donasi di bawah. Setiap
+            kontribusi digunakan untuk biaya server, pemeliharaan, dan fitur
+            baru.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link
@@ -74,75 +78,30 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section id="sumbangan" className="scroll-mt-20 space-y-4">
+      <section id="donasi" className="scroll-mt-20 space-y-4">
+        <span id="sumbangan" className="sr-only" />
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-primary">Sumbangan</p>
+          <p className="text-sm font-semibold text-primary">Donasi</p>
           <h2 className="font-display text-2xl font-semibold tracking-tight text-ink">
-            Dukung Rampungin tetap jalan
+            Dukung Rampungin tetap berkembang
           </h2>
           <p className="text-ink-muted">
-            Sumbangan bersifat sukarela. Fitur tetap gratis untuk semua — tidak
-            ada paywall. Terima kasih sudah membantu!
+            Donasi bersifat sukarela. Semua fitur tetap gratis — tanpa paywall.
+            Terima kasih atas dukungannya.
           </p>
         </div>
 
         {hasDonate ? (
-          <div className="space-y-3">
-            {donateLinks.map((link) => (
-              <a
-                key={link.key}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-4 ring-1 ring-secondary/50 transition hover:ring-secondary/30 hover:shadow-card"
-              >
-                <div>
-                  <p className="font-semibold text-ink">{link.label}</p>
-                  {link.hint ? (
-                    <p className="text-sm text-ink-muted">{link.hint}</p>
-                  ) : null}
-                </div>
-                <span className="shrink-0 text-sm font-semibold text-primary">
-                  Buka →
-                </span>
-              </a>
-            ))}
-
-            {bank ? (
-              <div className="rounded-2xl bg-soft px-4 py-4 ring-1 ring-primary/15">
-                <p className="text-sm font-semibold text-primary-hover">
-                  Transfer bank
-                </p>
-                <dl className="mt-3 space-y-2 text-sm">
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-ink-muted">Bank</dt>
-                    <dd className="font-medium text-ink">{bank.bank}</dd>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-ink-muted">No. rekening</dt>
-                    <dd className="font-mono font-medium text-ink">
-                      {bank.account}
-                    </dd>
-                  </div>
-                  {bank.holder ? (
-                    <div className="flex justify-between gap-4">
-                      <dt className="text-ink-muted">Atas nama</dt>
-                      <dd className="font-medium text-ink">{bank.holder}</dd>
-                    </div>
-                  ) : null}
-                </dl>
-              </div>
-            ) : null}
-          </div>
+          <DonateOptions />
         ) : (
           <div className="rounded-2xl bg-white px-4 py-5 text-sm text-ink-muted ring-1 ring-secondary/50">
             <p>
-              Channel sumbangan belum dikonfigurasi di environment. Sementara
-              itu, cara terbaik mendukung adalah{" "}
+              Channel donasi belum dikonfigurasi. Sementara itu, cara terbaik
+              mendukung adalah{" "}
               <Link href="/prompts/new" className="font-medium text-primary underline">
-                share prompt berkualitas
+                membagikan prompt berkualitas
               </Link>{" "}
-              dan ajak teman memakai Rampungin.
+              dan mengajak teman memakai Rampungin.
             </p>
             <p className="mt-3 text-ink-muted">
               Admin: isi{" "}
@@ -150,7 +109,11 @@ export default function AboutPage() {
                 NEXT_PUBLIC_DONATE_*
               </code>{" "}
               di <code className="rounded bg-soft px-1 text-xs">.env</code>{" "}
-              (lihat <code className="rounded bg-soft px-1 text-xs">.env.local.example</code>).
+              (lihat{" "}
+              <code className="rounded bg-soft px-1 text-xs">
+                .env.local.example
+              </code>
+              ).
             </p>
           </div>
         )}
@@ -161,7 +124,7 @@ export default function AboutPage() {
           Punya ide atau masukan?
         </h2>
         <p className="mt-2 text-sm text-soft">
-          Silakan hubungi lewat profil pembuat, atau mulai dengan membuat prompt
+          Hubungi pembuat lewat profil, atau mulai dengan membuat prompt
           pertamamu.
         </p>
         <div className="mt-4 flex flex-wrap justify-center gap-2">

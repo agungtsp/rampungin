@@ -90,7 +90,7 @@ export function VisibilityControls({ value, onChange }: Props) {
             />
             <button
               type="button"
-              className="rounded-lg bg-white border px-3 py-1 text-sm"
+              className="rounded-lg border bg-white px-3 py-1 text-sm text-ink"
               onClick={() => {
                 const hours = Number(customHours);
                 if (!Number.isFinite(hours) || hours <= 0) return;

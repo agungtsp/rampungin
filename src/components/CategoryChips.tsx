@@ -8,7 +8,7 @@ type Props = {
 
 export function CategoryChips({ counts, activeSlug }: Props) {
   return (
-    <div className="border-b border-secondary/60 bg-white/95 backdrop-blur">
+    <div className="border-b border-secondary/60 bg-white">
       <div className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-3 py-2 [scrollbar-width:none] sm:px-6 sm:py-2.5 [&::-webkit-scrollbar]:hidden">
         <Link
           href="/"

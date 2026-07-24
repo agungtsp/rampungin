@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { CategoryChips } from "@/components/CategoryChips";
 import { PaginationControls } from "@/components/PaginationControls";
+import {
+  PaginationShell,
+  PromptGridSkeleton,
+} from "@/components/PaginationShell";
 import { PromptCard } from "@/components/PromptCard";
 import { SmartSearchResultsBar } from "@/components/SmartSearchResultsBar";
 import {
@@ -35,8 +39,10 @@ type PromptRow = {
   profiles?: { username: string } | { username: string }[] | null;
 };
 
-const LIST_SELECT = `id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, tags, body, ${PROMPT_AUTHOR}`;
-const LIST_SELECT_WITH_GEN = `id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, tags, body, ${PROMPT_AUTHOR}`;
+const LIST_SELECT = `id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, ${PROMPT_AUTHOR}`;
+const LIST_SELECT_WITH_GEN = `id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, ${PROMPT_AUTHOR}`;
+const SEARCH_SELECT = `id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, tags, body, ${PROMPT_AUTHOR}`;
+const SEARCH_SELECT_WITH_GEN = `id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, tags, body, ${PROMPT_AUTHOR}`;
 
 function CardGrid({ items }: { items: PromptRow[] }) {
   return (
@@ -82,13 +88,11 @@ export default async function HomePage({
   let page = parsePage(sp.page);
   const supabase = await createClient();
 
-  const { data: catRows } = await supabase.from("prompts").select("category");
-  const counts: Record<string, number> = {};
-  for (const row of catRows ?? []) {
-    const key = (row as { category: string | null }).category ?? "lainnya";
-    counts[key] = (counts[key] ?? 0) + 1;
-  }
-  const totalCatalog = Object.values(counts).reduce((a, b) => a + b, 0);
+  // Cheap total for hero badge — avoid scanning every category row
+  const { count: catalogCount } = await supabase
+    .from("prompts")
+    .select("id", { count: "exact", head: true });
+  const totalCatalog = catalogCount ?? 0;
 
   const intentCategory = q ? categoryFromIntent(q) : null;
   let prompts: PromptRow[] = [];
@@ -106,9 +110,9 @@ export default async function HomePage({
     const { from, to } = pageRange(page, perPage);
     prompts = ranked.slice(from, to + 1);
     if (intentCategory) {
-      smartNote = `Konteks terdeteksi: ${intentCategory.label} — diurutkan menurut relevansi.`;
+      smartNote = `Kategori terdeteksi: ${intentCategory.label} — diurutkan berdasarkan relevansi.`;
     } else if (ranked.length) {
-      smartNote = "Diurutkan menurut kecocokan dengan konteksmu.";
+      smartNote = "Diurutkan berdasarkan kecocokan dengan konteks pencarianmu.";
     }
   } else {
     const result = await listPage(supabase, { tag, page, perPage });
@@ -131,27 +135,27 @@ export default async function HomePage({
           <div className="mx-auto max-w-3xl text-center">
             <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-soft px-3 py-1 text-xs font-semibold text-primary-hover">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-              Gratis selamanya · {totalCatalog}+ prompt
+              Gratis selamanya · {totalCatalog}+ prompt siap pakai
             </p>
             <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-5xl sm:leading-[1.1]">
-              Prompt Marketplace
+              Marketplace Prompt AI
             </h1>
             <p className="mx-auto mt-3 max-w-xl px-1 text-sm text-ink-muted sm:text-lg">
-              Temukan prompt AI siap pakai dari komunitas. Isi parameter, salin,
-              dan langsung dipakai.
+              Temukan prompt berkualitas dari komunitas. Isi parameter, salin
+              hasilnya, dan langsung gunakan di AI favoritmu.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:mt-6 sm:gap-3">
               <Link
                 href="/prompts/new"
                 className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover sm:px-5"
               >
-                Jual / share promptmu
+                Bagikan promptmu
               </Link>
               <Link
                 href="/trending"
                 className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-soft sm:px-5"
               >
-                Lihat yang lagi tren
+                Lihat yang sedang tren
               </Link>
             </div>
           </div>
@@ -159,7 +163,7 @@ export default async function HomePage({
       ) : null}
 
       <div className="sticky top-14 z-30 -mx-3 sm:-mx-6">
-        <CategoryChips counts={counts} />
+        <CategoryChips />
       </div>
 
       <div className="space-y-10 py-8">
@@ -170,63 +174,71 @@ export default async function HomePage({
             <div className="flex items-end justify-between gap-3">
               <div>
                 <h2 className="font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">
-                  Featured
+                  Pilihan komunitas
                 </h2>
                 <p className="mt-0.5 text-sm text-ink-muted">
-                  Prompt paling disukai komunitas
+                  Prompt paling disukai minggu ini
                 </p>
               </div>
               <Link
                 href="/trending"
                 className="text-sm font-semibold text-primary hover:underline"
               >
-                Explore all
+                Lihat semua
               </Link>
             </div>
             <CardGrid items={featured} />
           </section>
         ) : null}
 
-        <section className="space-y-4">
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <h2 className="font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">
-                {q ? "Hasil pencarian" : "Terbaru"}
-              </h2>
-              {!q ? (
-                <p className="mt-0.5 text-sm text-ink-muted">
-                  Prompt yang baru di-share
+        <PaginationShell
+          skeleton={<PromptGridSkeleton count={perPage} />}
+          content={
+            <>
+              <section className="space-y-4">
+                <div className="flex items-end justify-between gap-3">
+                  <div>
+                    <h2 className="font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">
+                      {q ? "Hasil pencarian" : "Terbaru"}
+                    </h2>
+                    {!q ? (
+                      <p className="mt-0.5 text-sm text-ink-muted">
+                        Prompt yang baru dibagikan komunitas
+                      </p>
+                    ) : null}
+                  </div>
+                  {!q ? (
+                    <Link
+                      href="/trending"
+                      className="text-sm font-semibold text-primary hover:underline"
+                    >
+                      Trending
+                    </Link>
+                  ) : null}
+                </div>
+                <CardGrid items={prompts} />
+              </section>
+
+              {!prompts.length ? (
+                <p className="py-12 text-center text-ink-muted">
+                  {promptsError
+                    ? `Gagal memuat prompt: ${promptsError}`
+                    : q
+                      ? "Tidak ada hasil yang cocok. Coba kata kunci atau konteks lain."
+                      : "Belum ada prompt publik. Jadilah yang pertama membagikan!"}
                 </p>
               ) : null}
-            </div>
-            {!q ? (
-              <Link
-                href="/trending"
-                className="text-sm font-semibold text-primary hover:underline"
-              >
-                Trending
-              </Link>
-            ) : null}
-          </div>
-          <CardGrid items={prompts} />
-        </section>
-
-        {!prompts.length ? (
-          <p className="py-12 text-center text-ink-muted">
-            {promptsError
-              ? `Gagal memuat prompt: ${promptsError}`
-              : q
-                ? "Tidak ada yang cocok. Coba konteks lain lewat kotak cari."
-                : "Belum ada prompt publik. Jadilah yang pertama!"}
-          </p>
-        ) : null}
-
-        <PaginationControls
-          basePath="/"
-          page={page}
-          perPage={perPage}
-          total={total}
-          params={keep}
+            </>
+          }
+          controls={
+            <PaginationControls
+              basePath="/"
+              page={page}
+              perPage={perPage}
+              total={total}
+              params={keep}
+            />
+          }
         />
       </div>
     </main>
@@ -296,20 +308,20 @@ async function fetchCandidates(
       .from("prompts")
       .select(select)
       .order("created_at", { ascending: false })
-      .limit(240);
+      .limit(80);
     if (tag) query = query.contains("tags", [tag]);
     if (orFilter) query = query.or(orFilter);
     return query;
   };
 
-  let res = await run(LIST_SELECT_WITH_GEN);
+  let res = await run(SEARCH_SELECT_WITH_GEN);
   if (res.error?.message?.includes("generate_count")) {
-    res = await run(LIST_SELECT);
+    res = await run(SEARCH_SELECT);
   }
   if (res.error) {
     const fb = await supabase
       .from("prompts")
-      .select(LIST_SELECT)
+      .select(SEARCH_SELECT)
       .ilike("title", `%${intent.slice(0, 80)}%`)
       .limit(120);
     return {

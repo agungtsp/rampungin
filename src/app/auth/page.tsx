@@ -9,7 +9,8 @@ export default function AuthPage() {
       <div className="space-y-3 text-center">
         <h1 className="text-3xl font-bold text-primary-hover">Masuk ke Rampungin</h1>
         <p className="text-ink-muted">
-          Login/register dengan akun Google. Buat, share, dan kelola prompt — gratis.
+          Masuk atau daftar dengan akun Google. Buat, bagikan, dan kelola prompt
+          — sepenuhnya gratis.
         </p>
         <div className="flex justify-center">
           <FreeBadge />

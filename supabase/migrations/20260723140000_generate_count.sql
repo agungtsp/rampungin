@@ -17,3 +17,6 @@ end;
 $$;
 
 grant execute on function public.increment_generate_count(uuid) to anon, authenticated;
+
+-- Refresh PostgREST schema cache so rpc() finds the new function
+notify pgrst, 'reload schema';

@@ -17,7 +17,7 @@ const display = Sora({
 });
 
 export const metadata: Metadata = {
-  title: "Rampungin — Prompt Marketplace Gratis",
+  title: "Rampungin — Marketplace Prompt AI Gratis",
   description:
     "Jelajahi dan bagikan prompt AI siap pakai. Template berparameter, gratis selamanya.",
   icons: {

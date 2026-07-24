@@ -1,4 +1,8 @@
 import { PaginationControls } from "@/components/PaginationControls";
+import {
+  PaginationShell,
+  ProfileListSkeleton,
+} from "@/components/PaginationShell";
 import { ProfileCard } from "@/components/ProfileCard";
 import {
   clampPage,
@@ -61,10 +65,10 @@ export default async function PeoplePage({
     <main className="mx-auto max-w-3xl space-y-6 px-3 py-8 sm:px-6">
       <div className="space-y-2">
         <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-          Cari profil
+          Cari kreator
         </h1>
         <p className="text-ink-muted">
-          Temukan kreator prompt lewat username, nama, atau bio.
+          Temukan pembuat prompt lewat username, nama tampilan, atau bio.
         </p>
       </div>
 
@@ -78,7 +82,7 @@ export default async function PeoplePage({
           name="q"
           defaultValue={q}
           placeholder="Cari @username, nama, atau kata di bio…"
-          className="min-w-0 flex-1 rounded-xl bg-soft px-4 py-2.5 text-sm outline-none ring-1 ring-secondary/50 focus:bg-white focus:ring-2 focus:ring-primary/35"
+          className="min-w-0 flex-1 rounded-xl bg-soft px-4 py-2.5 text-sm outline-none ring-1 ring-secondary/50 focus:bg-white text-ink focus:ring-2 focus:ring-primary/35"
         />
         {perPage !== 10 ? (
           <input type="hidden" name="perPage" value={perPage} />
@@ -94,7 +98,7 @@ export default async function PeoplePage({
             href="/people"
             className="rounded-full px-4 py-2.5 text-center text-sm font-medium text-ink-muted transition hover:bg-soft hover:text-ink"
           >
-            Reset
+            Hapus filter
           </a>
         ) : null}
       </form>
@@ -104,37 +108,45 @@ export default async function PeoplePage({
           Hasil untuk <span className="font-medium text-ink">“{q}”</span>
         </p>
       ) : (
-        <p className="text-sm text-ink-muted">Menampilkan semua profil</p>
+        <p className="text-sm text-ink-muted">Menampilkan semua kreator</p>
       )}
 
-      <section className="grid gap-3">
-        {profiles.map((p) => (
-          <ProfileCard
-            key={p.id}
-            username={p.username}
-            displayName={p.display_name}
-            bio={p.bio}
-            avatarUrl={p.avatar_url}
+      <PaginationShell
+        skeleton={<ProfileListSkeleton count={Math.min(perPage, 8)} />}
+        content={
+          <>
+            <section className="grid gap-3">
+              {profiles.map((p) => (
+                <ProfileCard
+                  key={p.id}
+                  username={p.username}
+                  displayName={p.display_name}
+                  bio={p.bio}
+                  avatarUrl={p.avatar_url}
+                />
+              ))}
+            </section>
+
+            {!profiles.length ? (
+              <p className="py-10 text-center text-ink-muted">
+                {displayError
+                  ? `Gagal memuat profil: ${displayError.message}`
+                  : q
+                    ? "Tidak ada kreator yang cocok. Coba kata kunci lain."
+                    : "Belum ada profil yang tersedia."}
+              </p>
+            ) : null}
+          </>
+        }
+        controls={
+          <PaginationControls
+            basePath="/people"
+            page={page}
+            perPage={perPage}
+            total={total}
+            params={{ q: q || undefined }}
           />
-        ))}
-      </section>
-
-      {!profiles.length ? (
-        <p className="py-10 text-center text-ink-muted">
-          {displayError
-            ? `Gagal memuat profil: ${displayError.message}`
-            : q
-              ? "Tidak ada profil yang cocok. Coba kata lain."
-              : "Belum ada profil."}
-        </p>
-      ) : null}
-
-      <PaginationControls
-        basePath="/people"
-        page={page}
-        perPage={perPage}
-        total={total}
-        params={{ q: q || undefined }}
+        }
       />
     </main>
   );

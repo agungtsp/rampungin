@@ -2,6 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FollowButton } from "@/components/FollowButton";
 import { PaginationControls } from "@/components/PaginationControls";
+import {
+  PaginationShell,
+  PromptGridSkeleton,
+} from "@/components/PaginationShell";
 import { PromptCard } from "@/components/PromptCard";
 import { SocialLinks } from "@/components/SocialLinks";
 import {
@@ -158,37 +162,45 @@ export default async function ProfilePage({
         <span className="text-sm text-ink-muted">{total} prompt</span>
       </div>
 
-      <section className="marketplace-grid">
-        {(prompts ?? []).map((p) => (
-          <PromptCard
-            key={p.id}
-            id={p.id}
-            title={p.title}
-            description={p.description}
-            mode={p.mode}
-            category={p.category}
-            like_count={p.like_count}
-            copy_count={p.copy_count}
-            generate_count={p.generate_count ?? 0}
-            is_public={p.is_public}
-            public_until={p.public_until}
-            authorUsername={profile.username}
-            imageUrl={publicImageUrl(p.image_path)}
+      <PaginationShell
+        skeleton={<PromptGridSkeleton count={perPage} />}
+        content={
+          <>
+            <section className="marketplace-grid">
+              {(prompts ?? []).map((p) => (
+                <PromptCard
+                  key={p.id}
+                  id={p.id}
+                  title={p.title}
+                  description={p.description}
+                  mode={p.mode}
+                  category={p.category}
+                  like_count={p.like_count}
+                  copy_count={p.copy_count}
+                  generate_count={p.generate_count ?? 0}
+                  is_public={p.is_public}
+                  public_until={p.public_until}
+                  authorUsername={profile.username}
+                  imageUrl={publicImageUrl(p.image_path)}
+                />
+              ))}
+            </section>
+
+            {!prompts?.length && (
+              <p className="text-center text-ink/60">
+                Belum ada prompt publik untuk ditampilkan.
+              </p>
+            )}
+          </>
+        }
+        controls={
+          <PaginationControls
+            basePath={`/profile/${username}`}
+            page={page}
+            perPage={perPage}
+            total={total}
           />
-        ))}
-      </section>
-
-      {!prompts?.length && (
-        <p className="text-center text-ink/60">
-          Belum ada prompt publik.
-        </p>
-      )}
-
-      <PaginationControls
-        basePath={`/profile/${username}`}
-        page={page}
-        perPage={perPage}
-        total={total}
+        }
       />
     </main>
   );

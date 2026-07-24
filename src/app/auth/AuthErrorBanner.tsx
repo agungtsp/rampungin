@@ -9,7 +9,7 @@ export function AuthErrorBanner() {
 
   const message =
     error === "missing_code"
-      ? "Login dibatalkan atau kode OAuth tidak ditemukan. Coba lagi."
+      ? "Login dibatalkan atau kode OAuth tidak ditemukan. Silakan coba lagi."
       : `Login gagal: ${error}`;
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { DonateModal } from "@/components/DonateModal";
 import {
   getMissingRequiredFields,
   interpolateTemplate,
@@ -47,11 +48,15 @@ export function PromptForm({
   initialGenerateCount = 0,
 }: Props) {
   const [values, setValues] = useState<Record<string, string>>({});
-  const [output, setOutput] = useState(mode === "static" ? body : "");
+  const [output, setOutput] = useState("");
+  const [hasGenerated, setHasGenerated] = useState(false);
+  const [donateOpen, setDonateOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [invalidKeys, setInvalidKeys] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
   const [generateCount, setGenerateCount] = useState(initialGenerateCount);
+
+  const closeDonate = useCallback(() => setDonateOpen(false), []);
 
   function setValue(key: string, value: string) {
     setValues((v) => ({ ...v, [key]: value }));
@@ -116,43 +121,28 @@ export function PromptForm({
   }
 
   async function generate() {
-    if (mode === "static") {
+    if (mode === "template") {
+      const missing = getMissingRequiredFields(fields, values);
+      if (missing.length) {
+        applyMissing(missing);
+        setOutput("");
+        setHasGenerated(false);
+        return;
+      }
+      setOutput(interpolateTemplate(body, values));
+    } else {
       setOutput(body);
-      setError(null);
-      setInvalidKeys([]);
-      await trackGenerate();
-      return;
-    }
-    const missing = getMissingRequiredFields(fields, values);
-    if (missing.length) {
-      applyMissing(missing);
-      setOutput("");
-      return;
     }
     setError(null);
     setInvalidKeys([]);
-    setOutput(interpolateTemplate(body, values));
+    setHasGenerated(true);
+    setDonateOpen(true);
     await trackGenerate();
   }
 
   async function copy() {
-    const missing =
-      mode === "template" ? getMissingRequiredFields(fields, values) : [];
-    if (missing.length) {
-      applyMissing(missing);
-      return;
-    }
-
-    const text =
-      mode === "template" ? interpolateTemplate(body, values) : body;
-    const wasEmpty = !output.trim();
-    setOutput(text);
-    setError(null);
-    setInvalidKeys([]);
-    if (wasEmpty) {
-      await trackGenerate();
-    }
-    await navigator.clipboard.writeText(text);
+    if (!hasGenerated || !output.trim()) return;
+    await navigator.clipboard.writeText(output);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
     await trackCopy();
@@ -178,29 +168,73 @@ export function PromptForm({
                     : ""
                 }`}
               >
-                <span
+                <label
                   className={`block text-sm font-medium ${
                     invalid ? "text-rose-800" : "text-ink"
                   }`}
                 >
                   {f.label}
                   {f.required ? <span className="text-rose-600"> *</span> : ""}
-                </span>
+                </label>
                 {f.field_type === "textarea" ? (
                   <textarea
-                    className={fieldInputClass(f.field_key)}
                     rows={3}
-                    placeholder={f.placeholder ?? ""}
                     value={values[f.field_key] ?? ""}
-                    aria-invalid={invalid}
+                    placeholder={f.placeholder ?? undefined}
                     onChange={(e) => setValue(f.field_key, e.target.value)}
+                    className={fieldInputClass(f.field_key)}
                   />
+                ) : f.field_type === "radio" ? (
+                  <div className="flex flex-wrap gap-2">
+                    {(f.options ?? []).map((opt) => {
+                      const selected = values[f.field_key] === opt;
+                      return (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => setValue(f.field_key, opt)}
+                          className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
+                            selected
+                              ? "bg-primary text-white"
+                              : invalid
+                                ? "bg-white text-rose-900 ring-1 ring-rose-300"
+                                : "bg-soft text-ink ring-1 ring-black/[0.08] hover:ring-black/[0.14]"
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : f.field_type === "checkbox" ? (
+                  <div className="flex flex-wrap gap-2">
+                    {(f.options ?? []).map((opt) => {
+                      const selected = isChecked(f.field_key, opt);
+                      return (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() =>
+                            toggleCheckbox(f.field_key, opt, !selected)
+                          }
+                          className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
+                            selected
+                              ? "bg-primary text-white"
+                              : invalid
+                                ? "bg-white text-rose-900 ring-1 ring-rose-300"
+                                : "bg-soft text-ink ring-1 ring-black/[0.08] hover:ring-black/[0.14]"
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
                 ) : f.field_type === "select" ? (
                   <select
-                    className={fieldInputClass(f.field_key)}
                     value={values[f.field_key] ?? ""}
-                    aria-invalid={invalid}
                     onChange={(e) => setValue(f.field_key, e.target.value)}
+                    className={fieldInputClass(f.field_key)}
                   >
                     <option value="">Pilih…</option>
                     {(f.options ?? []).map((opt) => (
@@ -209,73 +243,13 @@ export function PromptForm({
                       </option>
                     ))}
                   </select>
-                ) : f.field_type === "radio" ? (
-                  <div className="flex flex-wrap gap-2">
-                    {(f.options ?? []).map((opt) => {
-                      const active = (values[f.field_key] ?? "") === opt;
-                      return (
-                        <label
-                          key={opt}
-                          className={`flex cursor-pointer items-center gap-2 rounded-full px-3 py-1.5 text-sm transition ${
-                            active
-                              ? "bg-primary text-white"
-                              : invalid
-                                ? "bg-white text-rose-900 ring-1 ring-rose-300"
-                                : "bg-soft text-ink ring-1 ring-black/[0.08] hover:ring-black/[0.14]"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            className="sr-only"
-                            name={f.field_key}
-                            checked={active}
-                            onChange={() => setValue(f.field_key, opt)}
-                          />
-                          {opt}
-                        </label>
-                      );
-                    })}
-                  </div>
-                ) : f.field_type === "checkbox" ? (
-                  <div className="flex flex-wrap gap-2">
-                    {(f.options ?? []).map((opt) => {
-                      const active = isChecked(f.field_key, opt);
-                      return (
-                        <label
-                          key={opt}
-                          className={`flex cursor-pointer items-center gap-2 rounded-full px-3 py-1.5 text-sm transition ${
-                            active
-                              ? "bg-primary text-white"
-                              : invalid
-                                ? "bg-white text-rose-900 ring-1 ring-rose-300"
-                                : "bg-soft text-ink ring-1 ring-black/[0.08] hover:ring-black/[0.14]"
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            className="sr-only"
-                            checked={active}
-                            onChange={(e) =>
-                              toggleCheckbox(
-                                f.field_key,
-                                opt,
-                                e.target.checked,
-                              )
-                            }
-                          />
-                          {active ? "✓ " : ""}
-                          {opt}
-                        </label>
-                      );
-                    })}
-                  </div>
                 ) : (
                   <input
-                    className={fieldInputClass(f.field_key)}
-                    placeholder={f.placeholder ?? ""}
+                    type="text"
                     value={values[f.field_key] ?? ""}
-                    aria-invalid={invalid}
+                    placeholder={f.placeholder ?? undefined}
                     onChange={(e) => setValue(f.field_key, e.target.value)}
+                    className={fieldInputClass(f.field_key)}
                   />
                 )}
                 {invalid ? (
@@ -296,32 +270,34 @@ export function PromptForm({
       )}
 
       <div className="flex flex-wrap items-center gap-2">
-        {mode === "template" && (
-          <button
-            type="button"
-            onClick={() => void generate()}
-            className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover"
-          >
-            Hasilkan prompt
-          </button>
-        )}
         <button
           type="button"
-          onClick={() => void copy()}
-          className="rounded-full px-5 py-2.5 text-sm font-medium text-ink ring-1 ring-black/[0.1] transition hover:bg-white"
+          onClick={() => void generate()}
+          className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover"
         >
-          {copied ? "Tersalin!" : "Salin"}
+          Hasilkan prompt
         </button>
+        {hasGenerated ? (
+          <button
+            type="button"
+            onClick={() => void copy()}
+            className="rounded-full bg-white px-5 py-2.5 text-sm font-medium text-ink ring-1 ring-black/[0.1] transition hover:bg-soft"
+          >
+            {copied ? "Tersalin" : "Salin"}
+          </button>
+        ) : null}
         <span className="text-xs text-ink-faint">
-          {generateCount} kali digenerate
+          {generateCount} kali dihasilkan
         </span>
       </div>
 
-      {output && (
+      {hasGenerated && output ? (
         <pre className="whitespace-pre-wrap rounded-2xl bg-white p-4 text-sm leading-relaxed text-ink ring-1 ring-black/[0.07]">
           {output}
         </pre>
-      )}
+      ) : null}
+
+      <DonateModal open={donateOpen} onClose={closeDonate} />
     </div>
   );
 }

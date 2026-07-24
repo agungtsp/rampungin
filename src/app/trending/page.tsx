@@ -1,4 +1,8 @@
 import { PaginationControls } from "@/components/PaginationControls";
+import {
+  PaginationShell,
+  PromptGridSkeleton,
+} from "@/components/PaginationShell";
 import { PromptCard } from "@/components/PromptCard";
 import {
   clampPage,
@@ -44,7 +48,7 @@ export default async function TrendingPage({
     )
     .order("like_count", { ascending: false })
     .order("copy_count", { ascending: false })
-    .limit(500);
+    .limit(120);
   if (withGen.error?.message?.includes("generate_count")) {
     const fallback = await supabase
       .from("prompts")
@@ -53,7 +57,7 @@ export default async function TrendingPage({
       )
       .order("like_count", { ascending: false })
       .order("copy_count", { ascending: false })
-      .limit(500);
+      .limit(120);
     if (fallback.error) console.error("trending query failed:", fallback.error.message);
     rows = (fallback.data as Row[] | null) ?? [];
   } else {
@@ -79,36 +83,43 @@ export default async function TrendingPage({
           Trending
         </h1>
         <p className="text-ink-muted">
-          Prompt paling ramai dipakai — skor dari suka, salin, dan generate.
+          Prompt paling banyak digunakan — berdasarkan suka, salin, dan generate.
         </p>
       </div>
-      <section className="marketplace-grid">
-        {pageItems.map((p) => {
-          const author = asOne(p.profiles);
-          return (
-            <PromptCard
-              key={p.id}
-              id={p.id}
-              title={p.title}
-              description={p.description}
-              mode={p.mode}
-              category={p.category}
-              like_count={p.like_count}
-              copy_count={p.copy_count}
-              generate_count={p.generate_count ?? 0}
-              is_public={p.is_public}
-              public_until={p.public_until}
-              authorUsername={author?.username}
-              imageUrl={publicImageUrl(p.image_path)}
-            />
-          );
-        })}
-      </section>
-      <PaginationControls
-        basePath="/trending"
-        page={page}
-        perPage={perPage}
-        total={total}
+      <PaginationShell
+        skeleton={<PromptGridSkeleton count={perPage} />}
+        content={
+          <section className="marketplace-grid">
+            {pageItems.map((p) => {
+              const author = asOne(p.profiles);
+              return (
+                <PromptCard
+                  key={p.id}
+                  id={p.id}
+                  title={p.title}
+                  description={p.description}
+                  mode={p.mode}
+                  category={p.category}
+                  like_count={p.like_count}
+                  copy_count={p.copy_count}
+                  generate_count={p.generate_count ?? 0}
+                  is_public={p.is_public}
+                  public_until={p.public_until}
+                  authorUsername={author?.username}
+                  imageUrl={publicImageUrl(p.image_path)}
+                />
+              );
+            })}
+          </section>
+        }
+        controls={
+          <PaginationControls
+            basePath="/trending"
+            page={page}
+            perPage={perPage}
+            total={total}
+          />
+        }
       />
     </main>
   );

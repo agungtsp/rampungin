@@ -5,7 +5,7 @@ import { CATEGORIES } from "@/lib/categories";
 export const metadata: Metadata = {
   title: "Panduan Penggunaan — Rampungin",
   description:
-    "Pelajari cara menjelajah, menyalin, dan membuat prompt AI di Rampungin, termasuk field dinamis dan pengaturan visibilitas.",
+    "Pelajari cara menemukan, menyalin, dan membuat prompt AI di Rampungin — termasuk field dinamis dan pengaturan visibilitas.",
 };
 
 type Step = {
@@ -17,55 +17,55 @@ type Step = {
 const browseSteps: Step[] = [
   {
     title: "Jelajahi berdasarkan kategori",
-    body: "Di beranda, pilih salah satu chip kategori untuk melihat prompt sejenis, atau buka halaman kategori langsung.",
+    body: "Di beranda, pilih chip kategori untuk melihat prompt sejenis, atau buka halaman kategori secara langsung.",
   },
   {
     title: "Cari yang spesifik",
-    body: "Gunakan kolom pencarian untuk mencari berdasarkan judul, atau isi kolom Tag untuk menyaring berdasarkan tag tertentu.",
+    body: "Gunakan pencarian untuk menemukan prompt berdasarkan konteks, judul, atau tag tertentu.",
   },
   {
     title: "Lihat yang sedang tren",
-    body: "Buka menu Trending untuk melihat prompt terpopuler, diurutkan dari skor (like × 2 + jumlah salin).",
+    body: "Buka menu Trending untuk melihat prompt terpopuler, diurutkan dari skor komunitas (suka, salin, dan generate).",
   },
 ];
 
 const copySteps: Step[] = [
   {
     title: "Buka detail prompt",
-    body: "Klik kartu prompt mana pun untuk membuka halaman detailnya beserta preview gambar/video (jika ada).",
+    body: "Klik kartu prompt untuk membuka halaman detail beserta pratinjau gambar atau video (jika tersedia).",
   },
   {
     title: "Isi parameter (untuk prompt Template)",
-    body: "Prompt bertipe Template punya form dinamis. Lengkapi field yang ditandai bintang (*) karena wajib diisi.",
+    body: "Prompt bertipe Template memiliki form dinamis. Lengkapi field bertanda bintang (*) karena wajib diisi.",
     points: [
       "Text / Textarea — ketik jawaban bebas",
-      "Select — pilih satu opsi dari dropdown",
+      "Select — pilih satu opsi dari daftar",
       "Radio button — pilih tepat satu opsi",
       "Checkbox — pilih satu atau lebih opsi",
     ],
   },
   {
     title: "Hasilkan & salin",
-    body: "Klik “Hasilkan Prompt” untuk melihat hasil akhir, lalu “Salin” untuk menyalin ke clipboard. Prompt statis bisa langsung disalin.",
+    body: "Klik “Hasilkan prompt” untuk melihat hasil akhir, lalu “Salin” untuk menyalin ke clipboard. Prompt statis dapat langsung disalin.",
   },
 ];
 
 const createSteps: Step[] = [
   {
     title: "Masuk dengan Google",
-    body: "Klik “Masuk” lalu login dengan akun Google. Profil dan username otomatis dibuat pada login pertama.",
+    body: "Klik “Masuk”, lalu masuk dengan akun Google. Profil dan username dibuat otomatis pada login pertama.",
   },
   {
     title: "Isi info dasar & kategori",
-    body: "Buka “Buat Prompt”, isi judul, deskripsi, lalu pilih kategori yang paling sesuai agar mudah ditemukan.",
+    body: "Buka “Buat prompt”, isi judul dan deskripsi, lalu pilih kategori yang paling sesuai agar mudah ditemukan.",
   },
   {
     title: "Pilih mode prompt",
-    body: "Pilih Template berparameter (punya form yang bisa diisi pengunjung) atau Prompt statis (teks siap pakai).",
+    body: "Pilih Template berparameter (pengunjung mengisi form) atau Prompt statis (teks siap pakai).",
   },
   {
     title: "Rancang field dinamis (mode Template)",
-    body: "Tambahkan field lalu pilih tipenya. Tulis {{field_key}} di dalam template untuk menyisipkan jawaban.",
+    body: "Tambahkan field lalu pilih tipenya. Tulis {{field_key}} di dalam template untuk menyisipkan jawaban pengguna.",
     points: [
       "Text — input satu baris",
       "Textarea — input banyak baris",
@@ -76,27 +76,27 @@ const createSteps: Step[] = [
   },
   {
     title: "Tambahkan media & atur visibilitas",
-    body: "Unggah gambar preview (jpg/png/webp, maks 2MB) dan/atau URL video. Terakhir atur visibilitas prompt.",
+    body: "Unggah gambar pratinjau (jpg/png/webp, maks. 2MB) dan/atau URL video. Terakhir, atur visibilitas prompt.",
     points: [
-      "Publik — bisa dilihat & disalin siapa saja",
-      "Privat — hanya kamu yang bisa mengakses",
-      "Publik untuk X jam — otomatis jadi privat setelah waktunya habis",
+      "Publik — dapat dilihat dan disalin siapa saja",
+      "Privat — hanya kamu yang dapat mengakses",
+      "Publik untuk X jam — otomatis menjadi privat setelah waktu habis",
     ],
   },
 ];
 
 const socialSteps: Step[] = [
   {
-    title: "Like & komentar",
-    body: "Setelah login, kamu bisa menyukai prompt publik. Komentar memakai Disqus di halaman detail prompt.",
+    title: "Suka & komentar",
+    body: "Setelah masuk, kamu dapat menyukai prompt publik. Komentar menggunakan Disqus di halaman detail prompt.",
   },
   {
-    title: "Follow kreator",
-    body: "Buka profil kreator dan tekan Follow untuk mengikuti karya-karya mereka.",
+    title: "Ikuti kreator",
+    body: "Buka profil kreator dan tekan Ikuti untuk mengikuti karya mereka.",
   },
   {
     title: "Kelola akun",
-    body: "Di halaman Akun saya (/me) kamu bisa mengubah username & profil, mengatur ulang visibilitas prompt, atau menghapus akun secara permanen.",
+    body: "Di halaman Akun saya (/me) kamu dapat mengubah username & profil, mengatur ulang visibilitas prompt, atau menghapus akun secara permanen.",
   },
 ];
 
@@ -166,11 +166,11 @@ export default function TutorialPage() {
             Panduan Penggunaan
           </span>
           <h1 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-            Cara pakai Rampungin dalam beberapa menit
+            Pelajari Rampungin dalam beberapa menit
           </h1>
           <p className="max-w-xl text-white/90">
-            Rampungin adalah tempat gratis untuk menemukan, mengisi, dan
-            membagikan prompt AI. Ikuti panduan singkat di bawah ini.
+            Temukan, isi, dan bagikan prompt AI secara gratis. Ikuti panduan
+            singkat di bawah ini.
           </p>
           <div className="flex flex-wrap gap-3 pt-1">
             <Link
@@ -192,7 +192,7 @@ export default function TutorialPage() {
       <Section
         emoji="🔎"
         title="1. Menemukan prompt"
-        subtitle="Jelajah dan temukan prompt yang kamu butuhkan."
+        subtitle="Jelajahi katalog dan temukan prompt yang kamu butuhkan."
       >
         <StepList steps={browseSteps} />
         <div className="flex flex-wrap gap-2 pt-1">
@@ -212,7 +212,7 @@ export default function TutorialPage() {
       <Section
         emoji="📋"
         title="2. Menyalin prompt"
-        subtitle="Isi parameter (jika ada) lalu salin hasilnya."
+        subtitle="Isi parameter (jika ada), lalu salin hasilnya."
       >
         <StepList steps={copySteps} />
       </Section>
@@ -228,7 +228,7 @@ export default function TutorialPage() {
       <Section
         emoji="💬"
         title="4. Berinteraksi & mengelola akun"
-        subtitle="Dukung kreator lain dan atur prompt milikmu."
+        subtitle="Dukung kreator lain dan kelola prompt milikmu."
       >
         <StepList steps={socialSteps} />
       </Section>
@@ -236,7 +236,7 @@ export default function TutorialPage() {
       <section className="rounded-2xl border border-primary/10 bg-soft/60 p-6 text-center">
         <h2 className="text-xl font-bold text-ink">Siap mencoba?</h2>
         <p className="mt-1 text-ink-muted">
-          Semua fitur gratis selamanya — share tanpa batas.
+          Semua fitur gratis selamanya — bagikan tanpa batas.
         </p>
         <div className="mt-4 flex flex-wrap justify-center gap-3">
           <Link
