@@ -118,11 +118,11 @@ export function SiteHeader({ initialUsername = null }: Props) {
           <ThemeSwitcher />
           <LanguageSwitcher />
           <LocaleLink
-            href="/prompts/new"
+            href={username ? "/my-prompts" : "/prompts/new"}
             prefetch
             className="hidden rounded-full bg-primary px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover md:inline-flex"
           >
-            {t("navCreate")}
+            {username ? t("myPrompts") : t("navCreate")}
           </LocaleLink>
           {!ready ? (
             <span
@@ -149,11 +149,11 @@ export function SiteHeader({ initialUsername = null }: Props) {
       >
         {navLinks}
         <LocaleLink
-          href="/prompts/new"
+          href={username ? "/my-prompts" : "/prompts/new"}
           prefetch
           className="ml-auto whitespace-nowrap rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white transition hover:bg-primary-hover md:hidden"
         >
-          {t("navCreate")}
+          {username ? t("myPrompts") : t("navCreate")}
         </LocaleLink>
       </nav>
     </header>

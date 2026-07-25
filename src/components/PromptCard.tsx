@@ -7,6 +7,7 @@ import { LocaleLink } from "./LocaleLink";
 import { aiPlatformBadge } from "@/lib/ai-platform";
 import { categoryEmoji, categoryLabel } from "@/lib/categories";
 import { defaultCoverUrl, promptCoverUrl } from "@/lib/cover";
+import { useLocale } from "@/lib/i18n";
 import { promptDetailPath } from "@/lib/paths";
 import { isEffectivelyPublic } from "@/lib/visibility";
 
@@ -36,6 +37,8 @@ type Props = {
   ai_platform?: string | null;
   isLoggedIn?: boolean;
   priority?: boolean;
+  /** When set, show an Edit control (owner/manage views). */
+  editHref?: string | null;
 };
 
 export function PromptCard({
@@ -55,7 +58,9 @@ export function PromptCard({
   ai_platform,
   isLoggedIn = false,
   priority = false,
+  editHref = null,
 }: Props) {
+  const { locale } = useLocale();
   const pub = isEffectivelyPublic(is_public, public_until);
   const href = authorUsername
     ? promptDetailPath(authorUsername, id)
@@ -66,10 +71,21 @@ export function PromptCard({
   const avg = Number(rating_avg) || 0;
   const rcount = Number(rating_count) || 0;
   const isRemote = src.startsWith("http");
+  const editLabel = locale === "en" ? "Edit" : "Edit";
 
   return (
     <div className="card-hover group relative min-w-0">
-      <div className="absolute right-1.5 top-1.5 z-10 sm:right-2 sm:top-2">
+      <div className="absolute right-1.5 top-1.5 z-10 flex flex-col items-end gap-1 sm:right-2 sm:top-2">
+        {editHref ? (
+          <LocaleLink
+            href={editHref}
+            className="rounded-md bg-white px-2 py-1 text-[10px] font-semibold text-ink shadow-sm ring-1 ring-black/10 transition hover:bg-soft sm:text-[11px]"
+            title={editLabel}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {editLabel}
+          </LocaleLink>
+        ) : null}
         <SaveToFolderButton
           promptId={id}
           promptPath={href}

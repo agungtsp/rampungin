@@ -68,6 +68,15 @@ export function UserMenu({ username }: Props) {
           </LocaleLink>
           <LocaleLink
             role="menuitem"
+            href="/my-prompts"
+            prefetch
+            onClick={() => setOpen(false)}
+            className="block px-3.5 py-2 text-sm text-ink transition hover:bg-soft"
+          >
+            {t("myPrompts")}
+          </LocaleLink>
+          <LocaleLink
+            role="menuitem"
             href="/saved"
             prefetch
             onClick={() => setOpen(false)}

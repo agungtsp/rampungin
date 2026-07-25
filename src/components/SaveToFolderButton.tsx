@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useLocale } from "@/lib/i18n";
 import { trackSavePrompt } from "@/lib/analytics";
 import { localePath } from "@/lib/i18n/paths";
@@ -211,6 +212,96 @@ export function SaveToFolderButton({
 
   const label = locale === "en" ? "Save" : "Simpan";
   const savedLabel = locale === "en" ? "Saved" : "Tersimpan";
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const dialog =
+    open && mounted
+      ? createPortal(
+          <div
+            className="fixed inset-0 z-[200] flex items-end justify-center bg-ink/40 p-4 sm:items-center"
+            role="dialog"
+            aria-modal="true"
+            onClick={() => setOpen(false)}
+          >
+            <div
+              className="w-full max-w-md rounded-2xl bg-white p-5 shadow-card-hover"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="font-display text-lg font-semibold text-ink">
+                  {locale === "en" ? "Save to folder" : "Simpan ke folder"}
+                </h2>
+                <button
+                  type="button"
+                  className="rounded-lg px-2 py-1 text-sm text-ink-muted hover:bg-soft"
+                  onClick={() => setOpen(false)}
+                  aria-label={locale === "en" ? "Close" : "Tutup"}
+                  title={locale === "en" ? "Close" : "Tutup"}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <ul className="max-h-56 space-y-1 overflow-y-auto">
+                {folders.map((f) => (
+                  <li key={f.id}>
+                    <label className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2 hover:bg-soft">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(f.id)}
+                        disabled={busy}
+                        onChange={() => void toggleFolder(f.id)}
+                      />
+                      <span className="text-sm font-medium text-ink">
+                        {f.is_default
+                          ? locale === "en"
+                            ? "Uncategorized"
+                            : "Tanpa kategori"
+                          : f.name}
+                      </span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+
+              <form onSubmit={createFolder} className="mt-3 flex gap-2">
+                <input
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder={
+                    locale === "en" ? "New folder name" : "Nama folder baru"
+                  }
+                  className="field-control min-w-0 flex-1 rounded-lg px-3 py-2 text-sm"
+                />
+                <button
+                  type="submit"
+                  disabled={busy || !newName.trim()}
+                  className="rounded-lg bg-soft px-3 py-2 text-sm font-medium text-ink hover:bg-secondary/40 disabled:opacity-50"
+                >
+                  {locale === "en" ? "Add" : "Tambah"}
+                </button>
+              </form>
+
+              {savedAnywhere ? (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void unsaveEverywhere()}
+                  className="mt-3 w-full rounded-lg py-2 text-sm text-red-600 hover:bg-red-50"
+                >
+                  {locale === "en"
+                    ? "Remove from all folders"
+                    : "Hapus dari semua folder"}
+                </button>
+              ) : null}
+
+              {msg ? <p className="mt-2 text-xs text-red-600">{msg}</p> : null}
+            </div>
+          </div>,
+          document.body,
+        )
+      : null;
 
   return (
     <>
@@ -244,88 +335,7 @@ export function SaveToFolderButton({
         </svg>
         {!compact ? (savedAnywhere ? savedLabel : label) : null}
       </button>
-
-      {open ? (
-        <div
-          className="fixed inset-0 z-[80] flex items-end justify-center bg-ink/40 p-4 sm:items-center"
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setOpen(false)}
-        >
-          <div
-            className="w-full max-w-md rounded-2xl bg-white p-5 shadow-card-hover"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-display text-lg font-semibold text-ink">
-                {locale === "en" ? "Save to folder" : "Simpan ke folder"}
-              </h2>
-              <button
-                type="button"
-                className="rounded-lg px-2 py-1 text-sm text-ink-muted hover:bg-soft"
-                onClick={() => setOpen(false)}
-                aria-label={locale === "en" ? "Close" : "Tutup"}
-                title={locale === "en" ? "Close" : "Tutup"}
-              >
-                ✕
-              </button>
-            </div>
-
-            <ul className="max-h-56 space-y-1 overflow-y-auto">
-              {folders.map((f) => (
-                <li key={f.id}>
-                  <label className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2 hover:bg-soft">
-                    <input
-                      type="checkbox"
-                      checked={selected.has(f.id)}
-                      disabled={busy}
-                      onChange={() => void toggleFolder(f.id)}
-                    />
-                    <span className="text-sm font-medium text-ink">
-                      {f.is_default
-                        ? locale === "en"
-                          ? "Uncategorized"
-                          : "Tanpa kategori"
-                        : f.name}
-                    </span>
-                  </label>
-                </li>
-              ))}
-            </ul>
-
-            <form onSubmit={createFolder} className="mt-3 flex gap-2">
-              <input
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                placeholder={
-                  locale === "en" ? "New folder name" : "Nama folder baru"
-                }
-                className="field-control min-w-0 flex-1 rounded-lg px-3 py-2 text-sm"
-              />
-              <button
-                type="submit"
-                disabled={busy || !newName.trim()}
-                className="rounded-lg bg-soft px-3 py-2 text-sm font-medium text-ink hover:bg-secondary/40 disabled:opacity-50"
-              >
-                {locale === "en" ? "Add" : "Tambah"}
-              </button>
-            </form>
-
-            {savedAnywhere ? (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => void unsaveEverywhere()}
-                className="mt-3 w-full rounded-lg py-2 text-sm text-red-600 hover:bg-red-50"
-              >
-                {locale === "en" ? "Remove from all folders" : "Hapus dari semua folder"}
-              </button>
-            ) : null}
-
-            {msg ? <p className="mt-2 text-xs text-red-600">{msg}</p> : null}
-          </div>
-        </div>
-      ) : null}
+      {dialog}
     </>
   );
 }

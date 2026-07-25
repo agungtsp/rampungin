@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Sora } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SiteAnalytics } from "@/components/SiteAnalytics";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -139,6 +141,8 @@ export default async function RootLayout({
               <SiteFooter />
             </div>
             <SiteAnalytics />
+            <Analytics />
+            <SpeedInsights />
           </ThemeProvider>
         </LocaleProvider>
       </body>

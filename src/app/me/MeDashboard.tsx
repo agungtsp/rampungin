@@ -5,10 +5,8 @@ import { useRouter } from "next/navigation";
 import { LocaleLink } from "@/components/LocaleLink";
 import { FileUploadField } from "@/components/FileUploadField";
 import { SocialLinks } from "@/components/SocialLinks";
-import { VisibilityControls } from "@/components/VisibilityControls";
 import { useLocale } from "@/lib/i18n";
 import { localePath } from "@/lib/i18n/paths";
-import { promptDetailPath, promptEditPath } from "@/lib/paths";
 import {
   SOCIAL_PLATFORMS,
   normalizeSocialUrl,
@@ -16,19 +14,6 @@ import {
 } from "@/lib/social";
 import { publicImageUrl, resolveAvatarUrl } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/client";
-import type { VisibilityIntent } from "@/lib/types";
-import {
-  applyVisibilityIntent,
-  isEffectivelyPublic,
-} from "@/lib/visibility";
-
-type PromptRow = {
-  id: string;
-  title: string;
-  is_public: boolean;
-  public_until: string | null;
-  mode: string;
-};
 
 type Props = {
   initialUsername: string;
@@ -36,23 +21,7 @@ type Props = {
   initialBio: string;
   initialAvatarUrl: string | null;
   initialSocials: SocialLinksData;
-  prompts: PromptRow[];
 };
-
-function defaultVisibilityIntent(p: {
-  is_public: boolean;
-  public_until: string | null;
-}): VisibilityIntent {
-  if (!p.is_public) return { kind: "private" };
-  if (!p.public_until) return { kind: "public" };
-  const hours = Math.max(
-    1,
-    Math.round(
-      (new Date(p.public_until).getTime() - Date.now()) / 3600000,
-    ),
-  );
-  return { kind: "timed", hours };
-}
 
 export function MeDashboard({
   initialUsername,
@@ -60,7 +29,6 @@ export function MeDashboard({
   initialBio,
   initialAvatarUrl,
   initialSocials,
-  prompts,
 }: Props) {
   const router = useRouter();
   const { locale } = useLocale();
@@ -80,7 +48,6 @@ export function MeDashboard({
   const [profileOk, setProfileOk] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState("");
-  const [intents, setIntents] = useState<Record<string, VisibilityIntent>>({});
 
   function setSocial(column: keyof typeof socials, value: string) {
     setSocials((s) => ({ ...s, [column]: value }));
@@ -210,31 +177,6 @@ export function MeDashboard({
     router.refresh();
   }
 
-  async function applyVisibility(promptId: string) {
-    const prompt = prompts.find((p) => p.id === promptId);
-    const intent = intents[promptId] ?? (prompt ? defaultVisibilityIntent(prompt) : null);
-    if (!intent) return;
-    let visibility;
-    try {
-      visibility = applyVisibilityIntent(intent);
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Invalid");
-      return;
-    }
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("prompts")
-      .update({
-        is_public: visibility.is_public,
-        public_until: visibility.public_until
-          ? visibility.public_until.toISOString()
-          : null,
-      })
-      .eq("id", promptId);
-    setMessage(error ? error.message : "Visibilitas berhasil diperbarui");
-    router.refresh();
-  }
-
   async function deleteAccount() {
     if (deleteConfirm !== "HAPUS" && deleteConfirm !== "DELETE") {
       setMessage("Ketik HAPUS atau DELETE untuk konfirmasi");
@@ -258,6 +200,12 @@ export function MeDashboard({
     <div className="mx-auto max-w-3xl space-y-10 px-4 py-10">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-ink">Akun saya</h1>
+        <LocaleLink
+          href="/my-prompts"
+          className="text-sm font-semibold text-primary-hover underline"
+        >
+          {locale === "en" ? "My prompts" : "Prompt saya"} →
+        </LocaleLink>
       </div>
 
       <form
@@ -407,68 +355,6 @@ export function MeDashboard({
           </div>
         </div>
       </form>
-
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Prompt saya</h2>
-          <LocaleLink
-            href="/prompts/new"
-            className="text-sm text-primary-hover underline"
-          >
-            Buat baru
-          </LocaleLink>
-        </div>
-        {prompts.map((p) => {
-          const pub = isEffectivelyPublic(p.is_public, p.public_until);
-          const badge = !p.is_public
-            ? "Privat"
-            : p.public_until
-              ? pub
-                ? "Publik terbatas"
-                : "Kedaluwarsa"
-              : "Publik";
-          return (
-            <div
-              key={p.id}
-              className="space-y-3 rounded-xl border border-primary/10 bg-white p-4 shadow-card"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <LocaleLink
-                    href={promptDetailPath(username, p.id)}
-                    className="font-medium underline"
-                  >
-                    {p.title}
-                  </LocaleLink>
-                  <p className="text-xs text-ink/60">
-                    {p.mode} · {badge}
-                  </p>
-                </div>
-                <LocaleLink
-                  href={promptEditPath(username, p.id)}
-                  className="text-sm underline"
-                >
-                  Edit
-                </LocaleLink>
-              </div>
-              <VisibilityControls
-                value={intents[p.id] ?? defaultVisibilityIntent(p)}
-                onChange={(intent) =>
-                  setIntents((m) => ({ ...m, [p.id]: intent }))
-                }
-              />
-              <button
-                type="button"
-                className="field-control rounded-lg px-3 py-1.5 text-sm"
-                title="Terapkan visibilitas"
-                onClick={() => applyVisibility(p.id)}
-              >
-                Terapkan visibilitas
-              </button>
-            </div>
-          );
-        })}
-      </section>
 
       <section className="space-y-3 rounded-xl border border-red-200 bg-red-50 p-4">
         <h2 className="font-semibold text-red-900">Hapus akun</h2>

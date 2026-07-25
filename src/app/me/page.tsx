@@ -30,12 +30,6 @@ export default async function MePage() {
     .eq("id", user.id)
     .maybeSingle();
 
-  const { data: prompts } = await supabase
-    .from("prompts")
-    .select("id, title, is_public, public_until, mode")
-    .eq("author_id", user.id)
-    .order("created_at", { ascending: false });
-
   return (
     <MeDashboard
       initialUsername={profile?.username ?? ""}
@@ -48,7 +42,6 @@ export default async function MePage() {
         youtube_url: profile?.youtube_url ?? null,
         linkedin_url: profile?.linkedin_url ?? null,
       }}
-      prompts={prompts ?? []}
     />
   );
 }
