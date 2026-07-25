@@ -7,8 +7,8 @@ import {
 
 const DEFAULT_ID = `Cara memakai prompt ini
 
-1. Isi form parameter di halaman ini (jika ada), lalu klik Hasilkan prompt / Salin.
-2. Buka ChatGPT (chatgpt.com) atau Google AI Studio (aistudio.google.com) di tab baru — atau pakai tombol shortcut setelah Hasilkan.
+1. Isi form parameter di halaman ini (jika ada), lalu klik Generate Prompt. Setelah itu baru bisa Salin.
+2. Buka ChatGPT (chatgpt.com) atau Google AI Studio (aistudio.google.com) di tab baru — atau pakai tombol shortcut setelah Generate Prompt.
 3. Buat chat baru (jika belum via shortcut), lalu tempel (paste) seluruh teks hasil prompt ke kolom chat.
 4. Tekan Enter / Kirim. Sesuaikan jawaban AI jika perlu (misalnya minta versi lebih singkat atau lebih formal).
 
@@ -20,8 +20,8 @@ Tips
 
 const DEFAULT_EN = `How to use this prompt
 
-1. Fill in the parameter form on this page (if any), then click Generate prompt / Copy.
-2. Open ChatGPT (chatgpt.com) or Google AI Studio (aistudio.google.com) in a new tab — or use the shortcut buttons after Generate.
+1. Fill in the parameter form on this page (if any), then click Generate Prompt. Copy is available after that.
+2. Open ChatGPT (chatgpt.com) or Google AI Studio (aistudio.google.com) in a new tab — or use the shortcut buttons after Generate Prompt.
 3. Start a new chat (if not opened via shortcut), then paste the full generated prompt text into the message box.
 4. Press Enter / Send. Refine the AI reply if needed (e.g. ask for a shorter or more formal version).
 

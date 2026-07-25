@@ -118,21 +118,64 @@ export default async function ProfilePage({
     rating_avg?: number | null;
     rating_count?: number | null;
     ai_platform?: string | null;
+    owner_pinned_at?: string | null;
+    admin_pin_global?: boolean | null;
+    admin_pin_category?: boolean | null;
   };
   let prompts: PRow[] = [];
   {
     const selectWith =
-      "id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, body, title_en, description_en, body_en, tags, tags_en, image_path_en, rating_avg, rating_count, ai_platform";
+      "id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, body, title_en, description_en, body_en, tags, tags_en, image_path_en, rating_avg, rating_count, ai_platform, owner_pinned_at, admin_pin_global, admin_pin_category";
     const selectBase =
       "id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, body, tags";
     let q = supabase
       .from("prompts")
       .select(selectWith)
       .eq("author_id", profile.id)
+      .order("owner_pinned_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false });
     q = applyLocaleAvailabilityFilter(q, locale);
     const first = await q.range(from, to);
-    if (first.error?.message?.includes("title_en")) {
+    if (
+      first.error?.message?.includes("owner_pinned_at") ||
+      first.error?.message?.includes("admin_pin_global")
+    ) {
+      let qFallback = supabase
+        .from("prompts")
+        .select(
+          "id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, body, title_en, description_en, body_en, tags, tags_en, image_path_en, rating_avg, rating_count, ai_platform",
+        )
+        .eq("author_id", profile.id)
+        .order("created_at", { ascending: false });
+      qFallback = applyLocaleAvailabilityFilter(qFallback, locale);
+      const fb = await qFallback.range(from, to);
+      if (fb.error?.message?.includes("title_en")) {
+        if (locale === "en") {
+          prompts = [];
+        } else {
+          const second = await supabase
+            .from("prompts")
+            .select(selectBase)
+            .eq("author_id", profile.id)
+            .order("created_at", { ascending: false })
+            .range(from, to);
+          prompts = (second.data as PRow[] | null) ?? [];
+        }
+      } else if (fb.error?.message?.includes("generate_count")) {
+        let q2 = supabase
+          .from("prompts")
+          .select(
+            "id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, body, title_en, description_en, body_en, tags, tags_en, image_path_en, rating_avg, rating_count, ai_platform",
+          )
+          .eq("author_id", profile.id)
+          .order("created_at", { ascending: false });
+        q2 = applyLocaleAvailabilityFilter(q2, locale);
+        const second = await q2.range(from, to);
+        prompts = (second.data as PRow[] | null) ?? [];
+      } else {
+        prompts = (fb.data as PRow[] | null) ?? [];
+      }
+    } else if (first.error?.message?.includes("title_en")) {
       if (locale === "en") {
         prompts = [];
       } else {
@@ -148,9 +191,10 @@ export default async function ProfilePage({
       let q2 = supabase
         .from("prompts")
         .select(
-          "id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, body, title_en, description_en, body_en, tags, tags_en, image_path_en, rating_avg, rating_count, ai_platform",
+          "id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, body, title_en, description_en, body_en, tags, tags_en, image_path_en, rating_avg, rating_count, ai_platform, owner_pinned_at, admin_pin_global, admin_pin_category",
         )
         .eq("author_id", profile.id)
+        .order("owner_pinned_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false });
       q2 = applyLocaleAvailabilityFilter(q2, locale);
       const second = await q2.range(from, to);
@@ -174,6 +218,7 @@ export default async function ProfilePage({
     }
   }
   prompts = filterByLocale(prompts, locale);
+  const pinnedOnPage = prompts.filter((p) => p.owner_pinned_at);
 
   let initiallyFollowing = false;
   if (user && user.id !== profile.id) {
@@ -279,12 +324,66 @@ export default async function ProfilePage({
         </span>
       </div>
 
+      {page === 1 && pinnedOnPage.length > 0 ? (
+        <section className="space-y-3">
+          <h3 className="font-display text-lg font-semibold tracking-tight text-ink">
+            {locale === "en" ? "Editor picks" : "Pilihan editor"}
+          </h3>
+          <div className="marketplace-grid">
+            {pinnedOnPage.map((p) => {
+              const loc = localizePrompt(
+                {
+                  title: p.title,
+                  description: p.description,
+                  body: p.body ?? "",
+                  tags: p.tags ?? null,
+                  image_path: p.image_path,
+                  title_en: p.title_en,
+                  description_en: p.description_en,
+                  body_en: p.body_en,
+                  tags_en: p.tags_en,
+                  image_path_en: p.image_path_en,
+                },
+                locale,
+              );
+              return (
+                <PromptCard
+                  key={`pin-${p.id}`}
+                  id={p.id}
+                  title={loc.title}
+                  description={loc.description}
+                  mode={p.mode}
+                  category={p.category}
+                  like_count={p.like_count}
+                  copy_count={p.copy_count}
+                  generate_count={p.generate_count ?? 0}
+                  is_public={p.is_public}
+                  public_until={p.public_until}
+                  authorUsername={profile.username}
+                  imageUrl={publicImageUrl(loc.imagePath)}
+                  rating_avg={p.rating_avg}
+                  rating_count={p.rating_count}
+                  ai_platform={p.ai_platform}
+                  isLoggedIn={Boolean(user)}
+                  editorPick
+                  adminPinned={Boolean(
+                    p.admin_pin_global || p.admin_pin_category,
+                  )}
+                />
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
+
       <PaginationShell
         skeleton={<PromptGridSkeleton count={perPage} />}
         content={
           <>
             <section className="marketplace-grid">
-              {(prompts ?? []).map((p) => {
+              {(prompts ?? [])
+                .filter((p) => !(page === 1 && p.owner_pinned_at))
+                .map((p) => {
                 const loc = localizePrompt(
                   {
                     title: p.title,
@@ -319,6 +418,10 @@ export default async function ProfilePage({
                     rating_count={p.rating_count}
                     ai_platform={p.ai_platform}
                     isLoggedIn={Boolean(user)}
+                    editorPick={Boolean(p.owner_pinned_at)}
+                    adminPinned={Boolean(
+                      p.admin_pin_global || p.admin_pin_category,
+                    )}
                   />
                 );
               })}

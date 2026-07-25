@@ -84,6 +84,9 @@ export function SiteHeader({ initialUsername = null }: Props) {
       <LocaleLink href="/trending" prefetch className={navLinkClass}>
         {t("navTrending")}
       </LocaleLink>
+      <LocaleLink href="/editor-picks" prefetch className={navLinkClass}>
+        {t("navEditorPicks")}
+      </LocaleLink>
       <LocaleLink href="/people" prefetch className={navLinkClass}>
         {t("navCreators")}
       </LocaleLink>

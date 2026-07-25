@@ -126,6 +126,8 @@ function CardGrid({
             ai_platform={p.ai_platform}
             isLoggedIn={isLoggedIn}
             priority={index < priorityCount}
+            editorPick={Boolean(p.owner_pinned_at)}
+            adminPinned={Boolean(p.admin_pin_global || p.admin_pin_category)}
           />
         );
       })}

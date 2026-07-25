@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { DisqusComments } from "@/components/DisqusComments";
 import { MediaPreview } from "@/components/MediaPreview";
 import { PromptForm } from "@/components/PromptForm";
+import { PromptPinControls } from "@/components/PromptPinControls";
 import { PromptUsageGuide } from "@/components/PromptUsageGuide";
 import { SaveToFolderButton } from "@/components/SaveToFolderButton";
 import { SocialBar } from "@/components/SocialBar";
@@ -18,6 +19,7 @@ import { localePath } from "@/lib/i18n/paths";
 import { getServerLocale } from "@/lib/i18n/server";
 import { promptDetailPath, promptEditPath } from "@/lib/paths";
 import { asOne, PROMPT_AUTHOR_FULL } from "@/lib/relations";
+import { isAdmin } from "@/lib/roles";
 import { absoluteUrl, buildPageMetadata } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { publicImageUrl } from "@/lib/storage";
@@ -131,6 +133,8 @@ export default async function ProfilePromptDetailPage({
   );
   const isOwner = user?.id === prompt.author_id;
   if (!effectivelyPublic && !isOwner) notFound();
+
+  const viewerIsAdmin = user ? await isAdmin(supabase, user.id) : false;
 
   const { data: fields } = await supabase
     .from("prompt_fields")
@@ -326,6 +330,19 @@ export default async function ProfilePromptDetailPage({
           isLoggedIn={Boolean(user)}
         />
       </div>
+
+      {isOwner || viewerIsAdmin ? (
+        <PromptPinControls
+          promptId={prompt.id}
+          category={prompt.category}
+          isOwner={isOwner}
+          isAdmin={viewerIsAdmin}
+          isPublic={effectivelyPublic}
+          initialOwnerPinned={Boolean(prompt.owner_pinned_at)}
+          initialAdminPinGlobal={Boolean(prompt.admin_pin_global)}
+          initialAdminPinCategory={Boolean(prompt.admin_pin_category)}
+        />
+      ) : null}
 
       <PromptForm
         promptId={prompt.id}

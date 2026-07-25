@@ -74,8 +74,8 @@ const id: TutorialCopy = {
           ],
         },
         {
-          title: "Hasilkan & salin",
-          body: "Klik “Hasilkan prompt” untuk melihat hasil akhir, lalu “Salin” untuk menyalin ke clipboard. Prompt statis dapat langsung disalin.",
+          title: "Generate Prompt & salin",
+          body: "Klik “Generate Prompt” untuk melihat hasil akhir, lalu “Salin” untuk menyalin ke clipboard. Berlaku untuk prompt dengan form maupun tanpa form.",
         },
       ],
     },
@@ -199,8 +199,8 @@ const en: TutorialCopy = {
           ],
         },
         {
-          title: "Generate & copy",
-          body: "Click “Generate prompt” to see the final result, then “Copy” to copy it to the clipboard. Static prompts can be copied directly.",
+          title: "Generate Prompt & copy",
+          body: "Click “Generate Prompt” to see the final result, then “Copy” to copy it to the clipboard. Applies to prompts with or without a form.",
         },
       ],
     },

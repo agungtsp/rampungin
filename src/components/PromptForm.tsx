@@ -60,8 +60,8 @@ export function PromptForm({
   const { locale, t } = useLocale();
   const platform = parseAiPlatform(aiPlatform);
   const [values, setValues] = useState<Record<string, string>>({});
-  const [output, setOutput] = useState(mode === "static" ? body : "");
-  const [hasGenerated, setHasGenerated] = useState(mode === "static");
+  const [output, setOutput] = useState("");
+  const [hasGenerated, setHasGenerated] = useState(false);
   const [donateOpen, setDonateOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [invalidKeys, setInvalidKeys] = useState<string[]>([]);
@@ -301,12 +301,10 @@ export function PromptForm({
         <button
           type="button"
           onClick={() => void generate()}
-          title={
-            locale === "en" ? "Generate prompt text" : "Hasilkan teks prompt"
-          }
+          title="Generate Prompt"
           className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover"
         >
-          {locale === "en" ? "Generate prompt" : "Hasilkan prompt"}
+          Generate Prompt
         </button>
         {hasGenerated ? (
           <button

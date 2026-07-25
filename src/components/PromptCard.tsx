@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { LocaleLink } from "./LocaleLink";
@@ -39,6 +39,10 @@ type Props = {
   priority?: boolean;
   /** When set, show an Edit control (owner/manage views). */
   editHref?: string | null;
+  editorPick?: boolean;
+  adminPinned?: boolean;
+  /** Extra controls under edit (e.g. owner pin on my-prompts). */
+  manageControls?: ReactNode;
 };
 
 export function PromptCard({
@@ -59,6 +63,9 @@ export function PromptCard({
   isLoggedIn = false,
   priority = false,
   editHref = null,
+  editorPick = false,
+  adminPinned = false,
+  manageControls = null,
 }: Props) {
   const { locale, t } = useLocale();
   const pub = isEffectivelyPublic(is_public, public_until);
@@ -86,6 +93,7 @@ export function PromptCard({
             {editLabel}
           </LocaleLink>
         ) : null}
+        {manageControls}
         <SaveToFolderButton
           promptId={id}
           promptPath={href}
@@ -145,6 +153,16 @@ export function PromptCard({
               <span className="rounded-md bg-ink/80 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:text-[11px]">
                 {aiPlatformBadge(ai_platform)}
               </span>
+              {editorPick ? (
+                <span className="rounded-md bg-amber-500 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:text-[11px]">
+                  {t("editorPickBadge")}
+                </span>
+              ) : null}
+              {adminPinned ? (
+                <span className="rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-white sm:text-[11px]">
+                  {t("adminPinnedBadge")}
+                </span>
+              ) : null}
             </div>
 
             {!pub ? (

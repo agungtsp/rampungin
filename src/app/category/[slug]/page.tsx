@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CategoryChips } from "@/components/CategoryChips";
+import { LocaleLink } from "@/components/LocaleLink";
 import { PaginationControls } from "@/components/PaginationControls";
 import {
   PaginationShell,
@@ -19,6 +20,10 @@ import {
 } from "@/lib/i18n";
 import { getServerLocale } from "@/lib/i18n/server";
 import {
+  getCachedCategoryFeatured,
+  type HomePromptRow,
+} from "@/lib/home-data";
+import {
   clampPage,
   pageRange,
   parsePage,
@@ -30,6 +35,7 @@ import {
   LIST_SELECT_BASE_GEN,
   LIST_SELECT_WITH_GEN,
   applyLocaleAvailabilityFilter,
+  selectMissingPinColumns,
 } from "@/lib/prompt-select";
 import { asOne } from "@/lib/relations";
 import { buildPageMetadata } from "@/lib/seo";
@@ -80,6 +86,9 @@ type Row = {
   rating_avg?: number | null;
   rating_count?: number | null;
   ai_platform?: string | null;
+  admin_pin_global?: boolean | null;
+  admin_pin_category?: boolean | null;
+  owner_pinned_at?: string | null;
   profiles: { username: string } | { username: string }[] | null;
 };
 
@@ -126,6 +135,14 @@ export default async function CategoryPage({
 
   let res = await attempt(LIST_SELECT_WITH_GEN);
   let prompts: Row[] = [];
+  if (selectMissingPinColumns(res.error?.message)) {
+    res = await attempt(
+      LIST_SELECT_WITH_GEN.replace(
+        /, admin_pin_global, admin_pin_category, admin_pinned_at, owner_pinned_at/,
+        "",
+      ),
+    );
+  }
   if (res.error?.message?.includes("title_en")) {
     if (locale === "en") {
       prompts = [];
@@ -148,6 +165,51 @@ export default async function CategoryPage({
   }
   prompts = filterByLocale(prompts, locale) as Row[];
   const t = (key: Parameters<typeof translate>[1]) => translate(locale, key);
+  const featured =
+    page === 1 ? await getCachedCategoryFeatured(locale, slug) : [];
+
+  function renderCard(p: Row | HomePromptRow, priority = false) {
+    const author = asOne(p.profiles ?? null);
+    const loc = localizePrompt(
+      {
+        title: p.title,
+        description: p.description,
+        body: p.body ?? "",
+        tags: p.tags ?? null,
+        image_path: p.image_path,
+        title_en: p.title_en,
+        description_en: p.description_en,
+        body_en: p.body_en,
+        tags_en: p.tags_en,
+        image_path_en: p.image_path_en,
+      },
+      locale,
+    );
+    return (
+      <PromptCard
+        key={p.id}
+        id={p.id}
+        title={loc.title}
+        description={loc.description}
+        mode={p.mode}
+        category={p.category}
+        like_count={p.like_count}
+        copy_count={p.copy_count}
+        generate_count={p.generate_count ?? 0}
+        is_public={p.is_public}
+        public_until={p.public_until}
+        authorUsername={author?.username}
+        imageUrl={publicImageUrl(loc.imagePath)}
+        rating_avg={p.rating_avg}
+        rating_count={p.rating_count}
+        ai_platform={p.ai_platform}
+        isLoggedIn={isLoggedIn}
+        priority={priority}
+        editorPick={Boolean(p.owner_pinned_at)}
+        adminPinned={Boolean(p.admin_pin_global || p.admin_pin_category)}
+      />
+    );
+  }
 
   return (
     <main className="mx-auto max-w-7xl px-3 sm:px-6">
@@ -166,50 +228,36 @@ export default async function CategoryPage({
       </div>
 
       <div className="space-y-8 py-8">
+        {featured.length > 0 ? (
+          <section className="space-y-4">
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <h2 className="font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">
+                  {t("categoryFeatured")}
+                </h2>
+                <p className="mt-0.5 text-sm text-ink-muted">
+                  {t("categoryFeaturedSub")}
+                </p>
+              </div>
+              <LocaleLink
+                href="/editor-picks"
+                className="text-sm font-semibold text-primary hover:underline"
+              >
+                {t("navEditorPicks")}
+              </LocaleLink>
+            </div>
+            <div className="marketplace-grid">
+              {featured.map((p, i) => renderCard(p, i < 2))}
+            </div>
+          </section>
+        ) : null}
+
         <PaginationShell
           skeleton={<PromptGridSkeleton count={perPage} />}
           content={
             <>
               <section className="marketplace-grid">
-                {prompts.map((p) => {
-                  const author = asOne(p.profiles);
-                  const loc = localizePrompt(
-                    {
-                      title: p.title,
-                      description: p.description,
-                      body: p.body ?? "",
-                      tags: p.tags ?? null,
-                      image_path: p.image_path,
-                      title_en: p.title_en,
-                      description_en: p.description_en,
-                      body_en: p.body_en,
-                      tags_en: p.tags_en,
-                      image_path_en: p.image_path_en,
-                    },
-                    locale,
-                  );
-                  return (
-                    <PromptCard
-                      key={p.id}
-                      id={p.id}
-                      title={loc.title}
-                      description={loc.description}
-                      mode={p.mode}
-                      category={p.category}
-                      like_count={p.like_count}
-                      copy_count={p.copy_count}
-                      generate_count={p.generate_count ?? 0}
-                      is_public={p.is_public}
-                      public_until={p.public_until}
-                      authorUsername={author?.username}
-                      imageUrl={publicImageUrl(loc.imagePath)}
-                      rating_avg={p.rating_avg}
-                      rating_count={p.rating_count}
-                      ai_platform={p.ai_platform}
-                      isLoggedIn={isLoggedIn}
-                    />
-                  );
-                })}
+                {prompts.map((p) => renderCard(p))}
               </section>
 
               {!prompts.length && (

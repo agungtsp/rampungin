@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { LocaleLink } from "@/components/LocaleLink";
+import { OwnerPinButton } from "@/components/OwnerPinButton";
 import { PromptCard } from "@/components/PromptCard";
 import { localizePrompt, preferredDisplayLocale, translate } from "@/lib/i18n";
 import { getServerLocale } from "@/lib/i18n/server";
@@ -11,10 +12,12 @@ import {
   LIST_SELECT_BASE,
   LIST_SELECT_BASE_GEN,
   LIST_SELECT_WITH_GEN,
+  selectMissingPinColumns,
 } from "@/lib/prompt-select";
 import { noIndexMetadata } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { publicImageUrl } from "@/lib/storage";
+import { isEffectivelyPublic } from "@/lib/visibility";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale();
@@ -47,6 +50,9 @@ type PromptRow = {
   rating_avg?: number | null;
   rating_count?: number | null;
   ai_platform?: string | null;
+  owner_pinned_at?: string | null;
+  admin_pin_global?: boolean | null;
+  admin_pin_category?: boolean | null;
 };
 
 export default async function MyPromptsPage() {
@@ -74,9 +80,18 @@ export default async function MyPromptsPage() {
       .from("prompts")
       .select(select)
       .eq("author_id", user.id)
+      .order("owner_pinned_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false });
 
   let res = await attempt(LIST_SELECT_WITH_GEN);
+  if (selectMissingPinColumns(res.error?.message)) {
+    res = await attempt(
+      LIST_SELECT_WITH_GEN.replace(
+        /, admin_pin_global, admin_pin_category, admin_pinned_at, owner_pinned_at/,
+        "",
+      ),
+    );
+  }
   if (res.error?.message?.includes("title_en")) {
     res = await attempt(LIST_SELECT_BASE_GEN);
   }
@@ -147,8 +162,22 @@ export default async function MyPromptsPage() {
                   ai_platform={p.ai_platform}
                   isLoggedIn
                   priority={index < 4}
+                  editorPick={Boolean(p.owner_pinned_at)}
+                  adminPinned={Boolean(
+                    p.admin_pin_global || p.admin_pin_category,
+                  )}
                   editHref={
                     username ? promptEditPath(username, p.id) : `/prompts/${p.id}/edit`
+                  }
+                  manageControls={
+                    <OwnerPinButton
+                      promptId={p.id}
+                      isPublic={isEffectivelyPublic(
+                        p.is_public,
+                        p.public_until,
+                      )}
+                      initialPinned={Boolean(p.owner_pinned_at)}
+                    />
                   }
                 />
               );
