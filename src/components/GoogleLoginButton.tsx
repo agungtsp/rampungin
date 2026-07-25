@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { trackLogin } from "@/lib/analytics";
 import { useLocale } from "@/lib/i18n";
 import { localePath } from "@/lib/i18n/paths";
 
@@ -15,6 +16,7 @@ export function GoogleLoginButton() {
       : localePath(locale, rawNext);
 
   async function login() {
+    trackLogin("google");
     const supabase = createClient();
     const origin = window.location.origin;
     await supabase.auth.signInWithOAuth({

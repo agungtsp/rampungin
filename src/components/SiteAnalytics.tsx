@@ -1,16 +1,32 @@
-import Script from "next/script";
+"use client";
 
-function gaId(): string {
-  return (process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "").trim();
-}
+import { Suspense, useEffect } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import Script from "next/script";
+import { getGaMeasurementId, trackPageView } from "@/lib/analytics";
 
 function histatsId(): string {
   return (process.env.NEXT_PUBLIC_HISTATS_ID ?? "").trim();
 }
 
+/** Tracks App Router navigations so GA sees every virtual page view. */
+function GaRouteTracker() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (!getGaMeasurementId()) return;
+    const qs = searchParams?.toString();
+    const url = qs ? `${pathname}?${qs}` : pathname;
+    trackPageView(url);
+  }, [pathname, searchParams]);
+
+  return null;
+}
+
 /** Google Analytics 4 (gtag.js) + Histats — only load when env IDs are set. */
 export function SiteAnalytics() {
-  const ga = gaId();
+  const ga = getGaMeasurementId();
   const histats = histatsId();
 
   if (!ga && !histats) return null;
@@ -27,16 +43,22 @@ export function SiteAnalytics() {
             {`
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
+              window.gtag = gtag;
               gtag('js', new Date());
-              gtag('config', '${ga}', { anonymize_ip: true });
+              gtag('config', '${ga}', {
+                anonymize_ip: true,
+                send_page_view: false
+              });
             `}
           </Script>
+          <Suspense fallback={null}>
+            <GaRouteTracker />
+          </Suspense>
         </>
       ) : null}
 
       {histats ? (
         <>
-          {/* Histats.com START */}
           <Script id="histats-init" strategy="lazyOnload">
             {`
               var _Hasync = _Hasync || [];
@@ -64,7 +86,6 @@ export function SiteAnalytics() {
               />
             </a>
           </noscript>
-          {/* Histats.com END */}
         </>
       ) : null}
     </>

@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useLocale } from "@/lib/i18n";
+import { trackSavePrompt } from "@/lib/analytics";
 import { localePath } from "@/lib/i18n/paths";
 import { createClient } from "@/lib/supabase/client";
 
@@ -134,7 +135,10 @@ export function SaveToFolderButton({
         .eq("prompt_id", promptId)
         .eq("folder_id", folderId);
       if (error) setMsg(error.message);
-      else next.delete(folderId);
+      else {
+        next.delete(folderId);
+        trackSavePrompt(promptId, "unsave");
+      }
     } else {
       const { error } = await supabase.from("saved_prompts").insert({
         user_id: user.id,
@@ -142,7 +146,10 @@ export function SaveToFolderButton({
         folder_id: folderId,
       });
       if (error) setMsg(error.message);
-      else next.add(folderId);
+      else {
+        next.add(folderId);
+        trackSavePrompt(promptId, "save");
+      }
     }
     setSelected(next);
     setSavedAnywhere(next.size > 0);

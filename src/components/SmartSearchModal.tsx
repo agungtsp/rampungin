@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocale } from "@/lib/i18n";
+import { trackSearch } from "@/lib/analytics";
 import { localePath } from "@/lib/i18n/paths";
 
 export const OPEN_SMART_SEARCH_EVENT = "rampungin:open-smart-search";
@@ -93,6 +94,7 @@ export function SmartSearchButton({
     const t = tag.trim();
     if (t) sp.set("tag", t);
     setOpen(false);
+    trackSearch(intent, t || undefined);
     window.location.assign(`${localePath(locale, "/")}?${sp.toString()}`);
   }
 

@@ -64,7 +64,7 @@ export function SiteFooter() {
             rel="noopener noreferrer"
             className="transition hover:text-ink hover:underline"
           >
-            © {year} agungtsp
+            © {year} {locale === "en" ? "by" : "oleh"} agungtsp
           </a>
         </p>
       </div>

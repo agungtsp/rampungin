@@ -4,6 +4,11 @@ import { useCallback, useMemo, useState } from "react";
 import { DonateModal } from "@/components/DonateModal";
 import { chatgptPromptUrl, geminiPromptUrl } from "@/lib/ai-shortcuts";
 import { parseAiPlatform, type AiPlatform } from "@/lib/ai-platform";
+import {
+  trackCopyPrompt,
+  trackGeneratePrompt,
+  trackOpenAiShortcut,
+} from "@/lib/analytics";
 import { useLocale } from "@/lib/i18n";
 import {
   getMissingRequiredFields,
@@ -156,6 +161,7 @@ export function PromptForm({
     setInvalidKeys([]);
     setHasGenerated(true);
     maybeOpenDonate();
+    trackGeneratePrompt(promptId, mode);
     await trackGenerate();
   }
 
@@ -164,6 +170,7 @@ export function PromptForm({
     await navigator.clipboard.writeText(output);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+    trackCopyPrompt(promptId, mode);
     await trackCopy();
   }
 
@@ -332,6 +339,7 @@ export function PromptForm({
                 href={chatgptPromptUrl(output)}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackOpenAiShortcut("chatgpt", promptId)}
                 className="rounded-full bg-soft px-4 py-2 text-sm font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-secondary/30"
                 title={
                   locale === "en" ? "Open in ChatGPT" : "Buka di ChatGPT"
@@ -345,6 +353,7 @@ export function PromptForm({
                 href={geminiPromptUrl(output)}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackOpenAiShortcut("gemini", promptId)}
                 className="rounded-full bg-soft px-4 py-2 text-sm font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-secondary/30"
                 title={
                   locale === "en"

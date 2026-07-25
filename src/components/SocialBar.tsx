@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
+import { trackEvent, trackShare } from "@/lib/analytics";
 import { useLocale } from "@/lib/i18n";
 import { localePath } from "@/lib/i18n/paths";
 import { createClient } from "@/lib/supabase/client";
@@ -200,6 +201,9 @@ export function SocialBar({
     }
     setLiked(Boolean(data));
     setLikes((n) => (data ? n + 1 : Math.max(0, n - 1)));
+    trackEvent(data ? "like_prompt" : "unlike_prompt", {
+      prompt_id: promptId,
+    });
   }
 
   function flash(msg: string) {
@@ -213,18 +217,21 @@ export function SocialBar({
   }
 
   function shareFacebook() {
+    trackShare("facebook", promptId);
     openShareWindow(
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`,
     );
   }
 
   function shareX() {
+    trackShare("x", promptId);
     openShareWindow(
       `https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(title)}`,
     );
   }
 
   function shareThreads() {
+    trackShare("threads", promptId);
     const text = `${title}\n\n${window.location.href}`;
     openShareWindow(
       `https://www.threads.net/intent/post?text=${encodeURIComponent(text)}`,
@@ -232,6 +239,7 @@ export function SocialBar({
   }
 
   async function shareInstagram() {
+    trackShare("instagram", promptId);
     try {
       await navigator.clipboard.writeText(window.location.href);
       flash("Tautan disalin — tempel di Instagram Stories atau postingan");
@@ -242,6 +250,7 @@ export function SocialBar({
   }
 
   async function copyLink() {
+    trackShare("copy_link", promptId);
     try {
       await navigator.clipboard.writeText(window.location.href);
       flash("Tautan disalin");
