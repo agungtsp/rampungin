@@ -4,7 +4,7 @@ import { localePath } from "@/lib/i18n/paths";
 import { promptEditPath } from "@/lib/paths";
 import { createClient } from "@/lib/supabase/server";
 
-/** Legacy /prompts/[id]/edit → /profile/{username}/{id}/edit */
+/** Legacy /prompts/[id]/edit → /profile/{username}/prompt/{id}/edit */
 export default async function LegacyPromptEditRedirect({
   params,
 }: {

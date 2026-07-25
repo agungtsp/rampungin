@@ -68,7 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       if (p.public_until && new Date(p.public_until) < new Date()) continue;
       const lastModified = p.updated_at ? new Date(p.updated_at) : new Date();
       entries.push(
-        ...urlsFor(`/profile/${username}/${p.id}`, {
+        ...urlsFor(`/profile/${username}/prompt/${p.id}`, {
           priority: 0.8,
           changeFrequency: "weekly",
           lastModified,

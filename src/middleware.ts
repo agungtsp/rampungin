@@ -31,6 +31,7 @@ function pathNeedsAuth(barePath: string): boolean {
     barePath === "/my-prompts" ||
     barePath === "/prompts/new" ||
     /^\/prompts\/[^/]+\/edit$/.test(barePath) ||
+    /^\/profile\/[^/]+\/prompt\/[^/]+\/edit$/.test(barePath) ||
     /^\/profile\/[^/]+\/[^/]+\/edit$/.test(barePath)
   );
 }

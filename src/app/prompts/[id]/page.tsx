@@ -3,7 +3,7 @@ import { promptDetailPath } from "@/lib/paths";
 import { asOne, PROMPT_AUTHOR } from "@/lib/relations";
 import { createClient } from "@/lib/supabase/server";
 
-/** Legacy /prompts/[id] → /profile/{username}/{id} */
+/** Legacy /prompts/[id] → /profile/{username}/prompt/{id} */
 export default async function LegacyPromptRedirect({
   params,
 }: {
