@@ -1,16 +1,63 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { LOCALE_COOKIE } from "@/lib/i18n/locale";
+import {
+  detectPreferredLocale,
+  localePath,
+  stripLocalePrefix,
+} from "@/lib/i18n/paths";
+
+function isSkippedPath(pathname: string): boolean {
+  return (
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/auth/callback") ||
+    pathname.startsWith("/brand") ||
+    pathname.startsWith("/bg") ||
+    pathname === "/icon.svg" ||
+    pathname === "/apple-icon" ||
+    pathname === "/favicon.ico" ||
+    /\.[a-zA-Z0-9]+$/.test(pathname)
+  );
+}
 
 export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+  const { pathname, search } = request.nextUrl;
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) {
-    return supabaseResponse;
+  if (isSkippedPath(pathname)) {
+    return NextResponse.next();
   }
 
-  const supabase = createServerClient(url, key, {
+  const { locale: urlLocale, path: barePath } = stripLocalePrefix(pathname);
+
+  // No locale prefix → redirect to preferred locale
+  if (!urlLocale) {
+    const preferred = detectPreferredLocale(
+      request.cookies.get(LOCALE_COOKIE)?.value,
+    );
+    const url = request.nextUrl.clone();
+    url.pathname = localePath(preferred, barePath);
+    return NextResponse.redirect(url);
+  }
+
+  // Rewrite /id/foo → /foo while keeping cookie in sync
+  const rewriteUrl = request.nextUrl.clone();
+  rewriteUrl.pathname = barePath;
+
+  let response = NextResponse.rewrite(rewriteUrl);
+  response.cookies.set(LOCALE_COOKIE, urlLocale, {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: "lax",
+  });
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseKey) {
+    return response;
+  }
+
+  const supabase = createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
@@ -19,9 +66,14 @@ export async function middleware(request: NextRequest) {
         cookiesToSet.forEach(({ name, value }) =>
           request.cookies.set(name, value),
         );
-        supabaseResponse = NextResponse.next({ request });
+        response = NextResponse.rewrite(rewriteUrl);
+        response.cookies.set(LOCALE_COOKIE, urlLocale, {
+          path: "/",
+          maxAge: 60 * 60 * 24 * 365,
+          sameSite: "lax",
+        });
         cookiesToSet.forEach(({ name, value, options }) =>
-          supabaseResponse.cookies.set(name, value, options),
+          response.cookies.set(name, value, options),
         );
       },
     },
@@ -31,31 +83,28 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const path = request.nextUrl.pathname;
   const needsAuth =
-    path === "/me" ||
-    path === "/prompts/new" ||
-    /^\/prompts\/[^/]+\/edit$/.test(path) ||
-    /^\/profile\/[^/]+\/[^/]+\/edit$/.test(path);
+    barePath === "/me" ||
+    barePath === "/prompts/new" ||
+    /^\/prompts\/[^/]+\/edit$/.test(barePath) ||
+    /^\/profile\/[^/]+\/[^/]+\/edit$/.test(barePath);
 
   if (needsAuth && !user) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/auth";
-    redirectUrl.searchParams.set("next", path);
+    redirectUrl.pathname = localePath(urlLocale, "/auth");
+    redirectUrl.search = "";
+    redirectUrl.searchParams.set(
+      "next",
+      `${localePath(urlLocale, barePath)}${search}`,
+    );
     return NextResponse.redirect(redirectUrl);
   }
 
-  return supabaseResponse;
+  return response;
 }
 
 export const config = {
-  // Only run on routes that need session refresh / auth gate — keeps public pages fast
   matcher: [
-    "/me",
-    "/me/:path*",
-    "/prompts/new",
-    "/prompts/:id/edit",
-    "/profile/:username/:id/edit",
-    "/auth/callback",
+    "/((?!_next/static|_next/image|.*\\..*|api/|auth/callback).*)",
   ],
 };

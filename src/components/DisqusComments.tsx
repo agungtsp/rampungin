@@ -22,8 +22,21 @@ declare global {
   }
 }
 
+/** Accept shortname, or common mistakes like "foo.disqus.com" / full embed URL. */
+function normalizeDisqusShortname(raw: string | undefined): string {
+  let s = (raw ?? "").trim();
+  if (!s) return "";
+  s = s.replace(/^https?:\/\//i, "");
+  s = s.replace(/\/embed\.js$/i, "");
+  s = s.replace(/\.disqus\.com.*$/i, "");
+  s = s.replace(/\/+$/, "");
+  return s.trim();
+}
+
 export function DisqusComments({ identifier, url, title }: Props) {
-  const shortname = process.env.NEXT_PUBLIC_DISQUS_SHORTNAME?.trim();
+  const shortname = normalizeDisqusShortname(
+    process.env.NEXT_PUBLIC_DISQUS_SHORTNAME,
+  );
   const loadedFor = useRef<string | null>(null);
 
   useEffect(() => {
@@ -75,16 +88,11 @@ export function DisqusComments({ identifier, url, title }: Props) {
       <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
         Komentar Disqus belum dikonfigurasi. Set{" "}
         <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_DISQUS_SHORTNAME</code>{" "}
-        di <code className="rounded bg-amber-100 px-1">.env</code> (dari{" "}
-        <a
-          href="https://disqus.com/admin/create/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline"
-        >
-          Disqus Admin
-        </a>
-        ), lalu restart <code className="rounded bg-amber-100 px-1">npm run dev</code>.
+        ke shortname saja (contoh:{" "}
+        <code className="rounded bg-amber-100 px-1">rampungin</code>, bukan{" "}
+        <code className="rounded bg-amber-100 px-1">rampungin.disqus.com</code>
+        ) di <code className="rounded bg-amber-100 px-1">.env</code>, lalu
+        restart <code className="rounded bg-amber-100 px-1">npm run dev</code>.
       </div>
     );
   }

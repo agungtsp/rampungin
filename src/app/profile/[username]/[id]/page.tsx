@@ -5,6 +5,12 @@ import { MediaPreview } from "@/components/MediaPreview";
 import { PromptForm } from "@/components/PromptForm";
 import { SocialBar } from "@/components/SocialBar";
 import { categoryEmoji, categoryLabel } from "@/lib/categories";
+import {
+  isAvailableInLocale,
+  localizePrompt,
+} from "@/lib/i18n";
+import { localePath } from "@/lib/i18n/paths";
+import { getServerLocale } from "@/lib/i18n/server";
 import { promptDetailPath, promptEditPath } from "@/lib/paths";
 import { asOne, PROMPT_AUTHOR_FULL } from "@/lib/relations";
 import { createClient } from "@/lib/supabase/server";
@@ -72,14 +78,53 @@ export default async function ProfilePromptDetailPage({
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "";
   const absoluteUrl = siteUrl ? `${siteUrl}${detailPath}` : detailPath;
 
-  const modeLabel = prompt.mode === "template" ? "Template" : "Siap pakai";
+  const locale = await getServerLocale();
+  const available = isAvailableInLocale(
+    {
+      title: prompt.title,
+      description: prompt.description,
+      body: prompt.body,
+      tags: prompt.tags,
+      title_en: prompt.title_en,
+      description_en: prompt.description_en,
+      body_en: prompt.body_en,
+      tags_en: prompt.tags_en,
+    },
+    locale,
+  );
+  if (!available && !isOwner) notFound();
+
+  const localized = localizePrompt(
+    {
+      title: prompt.title,
+      description: prompt.description,
+      body: prompt.body,
+      tags: prompt.tags,
+      image_path: prompt.image_path,
+      title_en: prompt.title_en,
+      description_en: prompt.description_en,
+      body_en: prompt.body_en,
+      tags_en: prompt.tags_en,
+      image_path_en: prompt.image_path_en,
+    },
+    available ? locale : "id",
+  );
+
+  const modeLabel =
+    prompt.mode === "template"
+      ? locale === "en"
+        ? "Template"
+        : "Template"
+      : locale === "en"
+        ? "Ready to use"
+        : "Siap pakai";
 
   return (
     <main className="mx-auto max-w-3xl space-y-8 px-4 py-8 sm:px-6 sm:py-12">
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <Link
-            href={`/category/${prompt.category ?? "lainnya"}`}
+            href={localePath(locale, `/category/${prompt.category ?? "lainnya"}`)}
             className="rounded-full bg-soft px-2.5 py-1 font-medium text-primary-hover transition hover:bg-primary/15"
           >
             {categoryEmoji(prompt.category)} {categoryLabel(prompt.category)}
@@ -100,17 +145,17 @@ export default async function ProfilePromptDetailPage({
           )}
         </div>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-          {prompt.title}
+          {localized.title}
         </h1>
-        {prompt.description && (
+        {localized.description && (
           <p className="text-base leading-relaxed text-ink-muted">
-            {prompt.description}
+            {localized.description}
           </p>
         )}
         <p className="text-sm text-ink-faint">
-          oleh{" "}
+          {locale === "en" ? "by " : "oleh "}
           <Link
-            href={`/profile/${author.username}`}
+            href={localePath(locale, `/profile/${author.username}`)}
             className="font-medium text-primary hover:underline"
           >
             @{author.username}
@@ -119,7 +164,7 @@ export default async function ProfilePromptDetailPage({
             <>
               {" · "}
               <Link
-                href={promptEditPath(author.username, id)}
+                href={localePath(locale, promptEditPath(author.username, id))}
                 className="text-ink-muted hover:underline"
               >
                 Edit
@@ -130,7 +175,7 @@ export default async function ProfilePromptDetailPage({
       </div>
 
       <MediaPreview
-        imageUrl={publicImageUrl(prompt.image_path)}
+        imageUrl={publicImageUrl(localized.imagePath)}
         videoUrl={prompt.video_url}
         category={prompt.category}
       />
@@ -138,7 +183,7 @@ export default async function ProfilePromptDetailPage({
       <PromptForm
         promptId={prompt.id}
         mode={prompt.mode}
-        body={prompt.body}
+        body={localized.body}
         fields={fields ?? []}
         isPublic={prompt.is_public}
         publicUntil={prompt.public_until}
@@ -150,7 +195,7 @@ export default async function ProfilePromptDetailPage({
       <SocialBar
         promptId={prompt.id}
         promptPath={detailPath}
-        title={prompt.title}
+        title={localized.title}
         initialLiked={initialLiked}
         likeCount={prompt.like_count}
         canEngage={effectivelyPublic}
@@ -162,7 +207,7 @@ export default async function ProfilePromptDetailPage({
         <DisqusComments
           identifier={prompt.id}
           url={absoluteUrl}
-          title={prompt.title}
+          title={localized.title}
         />
       )}
     </main>

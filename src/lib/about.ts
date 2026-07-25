@@ -6,30 +6,18 @@ export type DonateLink = {
   label: string;
   href: string;
   hint?: string;
-  /** Embed as iframe (e.g. Saweria QR widget) instead of opening a new tab */
-  embed?: boolean;
 };
 
 export function getCreatorUsername(): string {
   return process.env.NEXT_PUBLIC_CREATOR_USERNAME?.trim() || "agungtsp";
 }
 
-/** True when URL is a Saweria (or similar) QR/widget page meant for iframe embed. */
-export function isDonateWidgetUrl(href: string): boolean {
-  try {
-    const u = new URL(href);
-    return (
-      u.hostname.includes("saweria.co") &&
-      (u.pathname.includes("/widgets/") || u.searchParams.has("streamKey"))
-    );
-  } catch {
-    return /saweria\.co\/widgets\//i.test(href);
-  }
-}
+const DEFAULT_SAWERIA = "https://saweria.co/agungtsp";
 
 export function getDonateLinks(): DonateLink[] {
   const links: DonateLink[] = [];
-  const saweria = process.env.NEXT_PUBLIC_DONATE_SAWERIA?.trim();
+  const saweria =
+    process.env.NEXT_PUBLIC_DONATE_SAWERIA?.trim() || DEFAULT_SAWERIA;
   const trakteer = process.env.NEXT_PUBLIC_DONATE_TRAKTEER?.trim();
   const paypal = process.env.NEXT_PUBLIC_DONATE_PAYPAL?.trim();
   const customUrl = process.env.NEXT_PUBLIC_DONATE_URL?.trim();
@@ -37,19 +25,17 @@ export function getDonateLinks(): DonateLink[] {
     process.env.NEXT_PUBLIC_DONATE_LABEL?.trim() || "Kirim donasi";
 
   if (saweria) {
-    const embed = isDonateWidgetUrl(saweria);
     links.push({
       key: "saweria",
-      label: "Saweria",
+      label: "Donasi via Saweria",
       href: saweria,
-      hint: embed ? "Scan QRIS atau e-wallet" : "Cepat via e-wallet atau QRIS",
-      embed,
+      hint: "Buka halaman Saweria",
     });
   }
   if (trakteer) {
     links.push({
       key: "trakteer",
-      label: "Trakteer",
+      label: "Donasi via Trakteer",
       href: trakteer,
       hint: "Dukung dengan trakteeran",
     });
@@ -57,7 +43,7 @@ export function getDonateLinks(): DonateLink[] {
   if (paypal) {
     links.push({
       key: "paypal",
-      label: "PayPal",
+      label: "Donasi via PayPal",
       href: paypal,
     });
   }
@@ -66,7 +52,6 @@ export function getDonateLinks(): DonateLink[] {
       key: "custom",
       label: customLabel,
       href: customUrl,
-      embed: isDonateWidgetUrl(customUrl),
     });
   }
   return links;

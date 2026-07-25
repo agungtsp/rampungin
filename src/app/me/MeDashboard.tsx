@@ -1,20 +1,23 @@
 "use client";
 
-import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { VisibilityControls } from "@/components/VisibilityControls";
+import { LocaleLink } from "@/components/LocaleLink";
 import { SocialLinks } from "@/components/SocialLinks";
+import { VisibilityControls } from "@/components/VisibilityControls";
 import { promptDetailPath, promptEditPath } from "@/lib/paths";
-import { applyVisibilityIntent } from "@/lib/visibility";
-import { isEffectivelyPublic } from "@/lib/visibility";
 import {
   SOCIAL_PLATFORMS,
   normalizeSocialUrl,
   type SocialLinksData,
 } from "@/lib/social";
-import type { VisibilityIntent } from "@/lib/types";
+import { publicImageUrl, resolveAvatarUrl } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/client";
+import type { VisibilityIntent } from "@/lib/types";
+import {
+  applyVisibilityIntent,
+  isEffectivelyPublic,
+} from "@/lib/visibility";
 
 type PromptRow = {
   id: string;
@@ -28,6 +31,7 @@ type Props = {
   initialUsername: string;
   initialDisplayName: string;
   initialBio: string;
+  initialAvatarUrl: string | null;
   initialSocials: SocialLinksData;
   prompts: PromptRow[];
 };
@@ -36,6 +40,7 @@ export function MeDashboard({
   initialUsername,
   initialDisplayName,
   initialBio,
+  initialAvatarUrl,
   initialSocials,
   prompts,
 }: Props) {
@@ -43,6 +48,8 @@ export function MeDashboard({
   const [username, setUsername] = useState(initialUsername);
   const [displayName, setDisplayName] = useState(initialDisplayName);
   const [bio, setBio] = useState(initialBio);
+  const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [socials, setSocials] = useState({
     threads_url: initialSocials.threads_url ?? "",
     instagram_url: initialSocials.instagram_url ?? "",
@@ -71,10 +78,41 @@ export function MeDashboard({
       return;
     }
 
+    let nextAvatar = avatarUrl;
+    if (avatarFile) {
+      const okType = ["image/jpeg", "image/png", "image/webp"].includes(
+        avatarFile.type,
+      );
+      if (!okType) {
+        setMessage("Foto harus jpg/png/webp");
+        setBusy(false);
+        return;
+      }
+      if (avatarFile.size > 2 * 1024 * 1024) {
+        setMessage("Ukuran foto maksimal 2MB");
+        setBusy(false);
+        return;
+      }
+      const ext = avatarFile.name.split(".").pop() || "jpg";
+      const path = `${user.id}/avatar-${crypto.randomUUID()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("prompt-images")
+        .upload(path, avatarFile, { upsert: false });
+      if (uploadError) {
+        setMessage(`Upload foto gagal: ${uploadError.message}`);
+        setBusy(false);
+        return;
+      }
+      nextAvatar = publicImageUrl(path);
+      setAvatarUrl(nextAvatar);
+      setAvatarFile(null);
+    }
+
     const payload = {
       username: username.toLowerCase().trim(),
       display_name: displayName.trim() || null,
       bio: bio.trim() || null,
+      avatar_url: nextAvatar,
       threads_url: normalizeSocialUrl(socials.threads_url) || null,
       instagram_url: normalizeSocialUrl(socials.instagram_url) || null,
       youtube_url: normalizeSocialUrl(socials.youtube_url) || null,
@@ -139,12 +177,6 @@ export function MeDashboard({
     window.location.href = "/";
   }
 
-  async function logout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    window.location.href = "/";
-  }
-
   const inputClass =
     "w-full rounded-lg border border-primary/15 bg-white text-ink px-3 py-2 text-sm shadow-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20";
 
@@ -152,13 +184,6 @@ export function MeDashboard({
     <div className="mx-auto max-w-3xl space-y-10 px-4 py-10">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-ink">Akun saya</h1>
-        <button
-          type="button"
-          onClick={logout}
-          className="text-sm text-primary-hover underline"
-        >
-          Keluar
-        </button>
       </div>
 
       <form
@@ -169,7 +194,8 @@ export function MeDashboard({
           <div>
             <h2 className="text-lg font-semibold text-ink">Edit profil</h2>
             <p className="text-sm text-ink/60">
-              Nama, bio, dan tautan media sosial yang tampil di halaman publik.
+              Nama, bio, foto, dan tautan media sosial yang tampil di halaman
+              publik.
             </p>
           </div>
           <SocialLinks
@@ -181,6 +207,33 @@ export function MeDashboard({
             }}
             size="sm"
           />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="h-20 w-20 overflow-hidden rounded-2xl bg-soft ring-1 ring-secondary/50">
+            {resolveAvatarUrl(avatarUrl) ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={resolveAvatarUrl(avatarUrl) ?? undefined}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-primary font-display text-2xl font-bold text-white">
+                {(displayName || username || "?").slice(0, 1).toUpperCase()}
+              </div>
+            )}
+          </div>
+          <label className="block space-y-1">
+            <span className="text-sm font-medium">Foto profil</span>
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={(e) => setAvatarFile(e.target.files?.[0] ?? null)}
+              className="block text-sm"
+            />
+            <p className="text-xs text-ink-muted">jpg/png/webp, maks. 2MB</p>
+          </label>
         </div>
 
         <label className="block space-y-1">
@@ -247,21 +300,24 @@ export function MeDashboard({
           >
             {busy ? "Menyimpan…" : "Simpan profil"}
           </button>
-          <Link
+          <LocaleLink
             href={`/profile/${username}`}
             className="text-sm text-primary-hover underline"
           >
             Lihat halaman publik →
-          </Link>
+          </LocaleLink>
         </div>
       </form>
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Prompt saya</h2>
-          <Link href="/prompts/new" className="text-sm text-primary-hover underline">
+          <LocaleLink
+            href="/prompts/new"
+            className="text-sm text-primary-hover underline"
+          >
             Buat baru
-          </Link>
+          </LocaleLink>
         </div>
         {prompts.map((p) => {
           const pub = isEffectivelyPublic(p.is_public, p.public_until);
@@ -279,22 +335,22 @@ export function MeDashboard({
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <Link
+                  <LocaleLink
                     href={promptDetailPath(username, p.id)}
                     className="font-medium underline"
                   >
                     {p.title}
-                  </Link>
+                  </LocaleLink>
                   <p className="text-xs text-ink/60">
                     {p.mode} · {badge}
                   </p>
                 </div>
-                <Link
+                <LocaleLink
                   href={promptEditPath(username, p.id)}
                   className="text-sm underline"
                 >
                   Edit
-                </Link>
+                </LocaleLink>
               </div>
               <VisibilityControls
                 value={

@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { useLocale } from "@/lib/i18n";
+import { localePath } from "@/lib/i18n/paths";
 import { PAGE_SIZE_OPTIONS, type PageSize } from "@/lib/pagination";
 import { usePaginationNav } from "./PaginationShell";
 
@@ -36,6 +38,7 @@ export function PaginationControls({
   total,
   params = {},
 }: Props) {
+  const { t, locale } = useLocale();
   const router = useRouter();
   const nav = usePaginationNav();
   const [localPending, startLocalTransition] = useTransition();
@@ -47,7 +50,9 @@ export function PaginationControls({
   const to = Math.min(safePage * perPage, total);
 
   function go(nextPage: number, nextPerPage: number = perPage) {
-    const href = hrefFor(basePath, params, nextPage, nextPerPage);
+    const raw = hrefFor(basePath, params, nextPage, nextPerPage);
+    const [pathPart, qs] = raw.split("?");
+    const href = localePath(locale, pathPart || "/") + (qs ? `?${qs}` : "");
     if (nav) {
       nav.navigate(href);
       return;
@@ -68,16 +73,17 @@ export function PaginationControls({
       aria-busy={pending}
     >
       <p className="text-sm text-ink-muted">
-        Menampilkan{" "}
+        {t("paginationShowing")}{" "}
         <span className="font-semibold text-ink">
           {from}–{to}
         </span>{" "}
-        dari <span className="font-semibold text-ink">{total}</span>
+        {t("paginationOf")}{" "}
+        <span className="font-semibold text-ink">{total}</span>
       </p>
 
       <div className="flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-sm text-ink-muted">
-          <span>Per halaman</span>
+          <span>{t("perPage")}</span>
           <select
             className="rounded-lg bg-soft px-2 py-1.5 text-sm text-ink outline-none ring-1 ring-secondary/50 focus:ring-primary"
             value={perPage}
@@ -99,7 +105,7 @@ export function PaginationControls({
             disabled={pending || safePage <= 1}
             onClick={() => go(safePage - 1)}
           >
-            Sebelumnya
+            {t("prev")}
           </button>
           <span className="px-2 text-sm tabular-nums text-ink-muted">
             {safePage} / {totalPages}
@@ -110,7 +116,7 @@ export function PaginationControls({
             disabled={pending || safePage >= totalPages}
             onClick={() => go(safePage + 1)}
           >
-            Berikutnya
+            {t("next")}
           </button>
         </div>
       </div>

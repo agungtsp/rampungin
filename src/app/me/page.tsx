@@ -26,6 +26,7 @@ export default async function MePage() {
       initialUsername={profile?.username ?? ""}
       initialDisplayName={profile?.display_name ?? ""}
       initialBio={profile?.bio ?? ""}
+      initialAvatarUrl={profile?.avatar_url ?? null}
       initialSocials={{
         threads_url: profile?.threads_url ?? null,
         instagram_url: profile?.instagram_url ?? null,

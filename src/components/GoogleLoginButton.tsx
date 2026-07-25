@@ -2,10 +2,17 @@
 
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useLocale } from "@/lib/i18n";
+import { localePath } from "@/lib/i18n/paths";
 
 export function GoogleLoginButton() {
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/";
+  const { locale } = useLocale();
+  const rawNext = searchParams.get("next") || localePath(locale, "/");
+  const next =
+    rawNext.startsWith("/id") || rawNext.startsWith("/en")
+      ? rawNext
+      : localePath(locale, rawNext);
 
   async function login() {
     const supabase = createClient();
@@ -24,7 +31,7 @@ export function GoogleLoginButton() {
       onClick={login}
       className="w-full rounded-xl bg-primary-hover px-4 py-3 text-white hover:bg-primary-hover"
     >
-      Lanjutkan dengan Google
+      {locale === "en" ? "Continue with Google" : "Lanjutkan dengan Google"}
     </button>
   );
 }

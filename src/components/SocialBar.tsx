@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
+import { useLocale } from "@/lib/i18n";
+import { localePath } from "@/lib/i18n/paths";
 import { createClient } from "@/lib/supabase/client";
 
 type Props = {
@@ -155,6 +157,7 @@ export function SocialBar({
   isLoggedIn,
   showShare,
 }: Props) {
+  const { locale } = useLocale();
   const [liked, setLiked] = useState(initialLiked);
   const [likes, setLikes] = useState(likeCount);
   const [message, setMessage] = useState<string | null>(null);
@@ -180,7 +183,12 @@ export function SocialBar({
 
   async function toggleLike() {
     if (!isLoggedIn) {
-      window.location.href = `/auth?next=${encodeURIComponent(promptPath)}`;
+      const next = encodeURIComponent(
+        promptPath.startsWith("/id") || promptPath.startsWith("/en")
+          ? promptPath
+          : localePath(locale, promptPath),
+      );
+      window.location.href = `${localePath(locale, "/auth")}?next=${next}`;
       return;
     }
     if (!canEngage) return;
@@ -340,10 +348,14 @@ export function SocialBar({
 
         {!isLoggedIn && (
           <Link
-            href={`/auth?next=${encodeURIComponent(promptPath)}`}
+            href={`${localePath(locale, "/auth")}?next=${encodeURIComponent(
+              promptPath.startsWith("/id") || promptPath.startsWith("/en")
+                ? promptPath
+                : localePath(locale, promptPath),
+            )}`}
             className="text-sm text-primary hover:underline"
           >
-            Masuk untuk menyukai
+            {locale === "en" ? "Sign in to like" : "Masuk untuk menyukai"}
           </Link>
         )}
       </div>

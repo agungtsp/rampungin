@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useLocale } from "@/lib/i18n";
+import { localePath } from "@/lib/i18n/paths";
 
 export const OPEN_SMART_SEARCH_EVENT = "rampungin:open-smart-search";
 
@@ -37,6 +39,7 @@ export function SmartSearchButton({
   variant?: "icon" | "bar";
 }) {
   const router = useRouter();
+  const { locale } = useLocale();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [tag, setTag] = useState("");
@@ -92,7 +95,7 @@ export function SmartSearchButton({
     const t = tag.trim();
     if (t) sp.set("tag", t);
     setOpen(false);
-    router.push(`/?${sp.toString()}`);
+    router.push(`${localePath(locale, "/")}?${sp.toString()}`);
   }
 
   const modal =

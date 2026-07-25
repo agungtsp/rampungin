@@ -5,12 +5,24 @@ import {
 } from "@/components/PaginationShell";
 import { PromptCard } from "@/components/PromptCard";
 import {
+  filterByLocale,
+  localizePrompt,
+} from "@/lib/i18n";
+import { getServerLocale } from "@/lib/i18n/server";
+import {
   clampPage,
   pageRange,
   parsePage,
   parsePageSize,
 } from "@/lib/pagination";
-import { asOne, PROMPT_AUTHOR } from "@/lib/relations";
+import {
+  LIST_SELECT,
+  LIST_SELECT_BASE,
+  LIST_SELECT_BASE_GEN,
+  LIST_SELECT_WITH_GEN,
+  applyLocaleAvailabilityFilter,
+} from "@/lib/prompt-select";
+import { asOne } from "@/lib/relations";
 import { createClient } from "@/lib/supabase/server";
 import { publicImageUrl } from "@/lib/storage";
 import { trendingScore } from "@/lib/trending";
@@ -27,6 +39,13 @@ type Row = {
   is_public: boolean;
   public_until: string | null;
   image_path: string | null;
+  body?: string | null;
+  title_en?: string | null;
+  description_en?: string | null;
+  body_en?: string | null;
+  tags?: string[] | null;
+  tags_en?: string[] | null;
+  image_path_en?: string | null;
   profiles: { username: string } | { username: string }[] | null;
 };
 
@@ -38,33 +57,47 @@ export default async function TrendingPage({
   const sp = await searchParams;
   const perPage = parsePageSize(sp.perPage);
   let page = parsePage(sp.page);
+  const locale = await getServerLocale();
   const supabase = await createClient();
 
-  let rows: Row[] = [];
-  const withGen = await supabase
-    .from("prompts")
-    .select(
-      `id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, ${PROMPT_AUTHOR}`,
-    )
-    .order("like_count", { ascending: false })
-    .order("copy_count", { ascending: false })
-    .limit(120);
-  if (withGen.error?.message?.includes("generate_count")) {
-    const fallback = await supabase
+  const attempt = async (select: string) => {
+    let q = supabase
       .from("prompts")
-      .select(
-        `id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, ${PROMPT_AUTHOR}`,
-      )
+      .select(select)
       .order("like_count", { ascending: false })
       .order("copy_count", { ascending: false })
       .limit(120);
-    if (fallback.error) console.error("trending query failed:", fallback.error.message);
-    rows = (fallback.data as Row[] | null) ?? [];
+    return applyLocaleAvailabilityFilter(q, locale);
+  };
+
+  let res = await attempt(LIST_SELECT_WITH_GEN);
+  let rows: Row[] = [];
+  if (res.error?.message?.includes("title_en")) {
+    if (locale === "en") {
+      rows = [];
+    } else {
+      res = await attempt(LIST_SELECT_BASE_GEN);
+      if (res.error?.message?.includes("generate_count")) {
+        res = await attempt(LIST_SELECT_BASE);
+      }
+      rows = (res.data as unknown as Row[] | null) ?? [];
+    }
+  } else if (res.error?.message?.includes("generate_count")) {
+    res = await attempt(LIST_SELECT);
+    if (res.error?.message?.includes("title_en")) {
+      rows =
+        locale === "en"
+          ? []
+          : ((await attempt(LIST_SELECT_BASE)).data as unknown as Row[] | null) ??
+            [];
+    } else {
+      rows = (res.data as unknown as Row[] | null) ?? [];
+    }
   } else {
-    if (withGen.error) console.error("trending query failed:", withGen.error.message);
-    rows = (withGen.data as Row[] | null) ?? [];
+    rows = (res.data as unknown as Row[] | null) ?? [];
   }
 
+  rows = filterByLocale(rows, locale) as Row[];
   const ranked = [...rows].sort(
     (a, b) =>
       trendingScore(b.like_count, b.copy_count, b.generate_count ?? 0) -
@@ -83,7 +116,9 @@ export default async function TrendingPage({
           Trending
         </h1>
         <p className="text-ink-muted">
-          Prompt paling banyak digunakan — berdasarkan suka, salin, dan generate.
+          {locale === "en"
+            ? "Most used prompts — based on likes, copies, and generates."
+            : "Prompt paling banyak digunakan — berdasarkan suka, salin, dan generate."}
         </p>
       </div>
       <PaginationShell
@@ -92,12 +127,25 @@ export default async function TrendingPage({
           <section className="marketplace-grid">
             {pageItems.map((p) => {
               const author = asOne(p.profiles);
+              const loc = localizePrompt(
+                {
+                  title: p.title,
+                  description: p.description,
+                  body: p.body ?? "",
+                  tags: p.tags ?? null,
+                  title_en: p.title_en,
+                  description_en: p.description_en,
+                  body_en: p.body_en,
+                  tags_en: p.tags_en,
+                },
+                locale,
+              );
               return (
                 <PromptCard
                   key={p.id}
                   id={p.id}
-                  title={p.title}
-                  description={p.description}
+                  title={loc.title}
+                  description={loc.description}
                   mode={p.mode}
                   category={p.category}
                   like_count={p.like_count}

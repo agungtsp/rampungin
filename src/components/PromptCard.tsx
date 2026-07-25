@@ -1,7 +1,9 @@
 "use client";
 
-import Link from "next/link";
+"use client";
+
 import { useState } from "react";
+import { LocaleLink } from "./LocaleLink";
 import { categoryEmoji, categoryLabel } from "@/lib/categories";
 import { defaultCoverUrl, promptCoverUrl } from "@/lib/cover";
 import { promptDetailPath } from "@/lib/paths";
@@ -43,7 +45,7 @@ export function PromptCard({
   const [src, setSrc] = useState(() => promptCoverUrl(imageUrl, category));
 
   return (
-    <Link href={href} className="card-hover group block min-w-0">
+    <LocaleLink href={href} className="card-hover group block min-w-0">
       <article className="overflow-hidden rounded-xl bg-white shadow-card ring-1 ring-black/[0.06] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-card-hover">
         <div className="relative aspect-square overflow-hidden bg-soft">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -77,7 +79,7 @@ export function PromptCard({
               Privat
             </span>
           ) : (
-            <span className="absolute bottom-1.5 right-1.5 rounded-md bg-soft0 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-sm sm:bottom-2 sm:right-2 sm:text-[10px]">
+            <span className="absolute bottom-1.5 right-1.5 rounded-md bg-black/55 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-sm sm:bottom-2 sm:right-2 sm:text-[10px]">
               Gratis
             </span>
           )}
@@ -102,6 +104,6 @@ export function PromptCard({
           </div>
         </div>
       </article>
-    </Link>
+    </LocaleLink>
   );
 }

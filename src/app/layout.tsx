@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { DM_Sans, Sora } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { LocaleProvider } from "@/lib/i18n";
+import { getServerLocale } from "@/lib/i18n/server";
 import "./globals.css";
 
 const sans = DM_Sans({
@@ -26,22 +28,26 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getServerLocale();
+
   return (
-    <html lang="id">
+    <html lang={locale}>
       <body
         className={`${sans.variable} ${display.variable} relative flex min-h-screen flex-col font-sans text-ink antialiased`}
       >
-        <div className="ai-site-bg" aria-hidden="true" />
-        <div className="relative z-10 flex min-h-screen flex-col">
-          <SiteHeader />
-          <div className="flex-1">{children}</div>
-          <SiteFooter />
-        </div>
+        <LocaleProvider initialLocale={locale}>
+          <div className="ai-site-bg" aria-hidden="true" />
+          <div className="relative z-10 flex min-h-screen flex-col">
+            <SiteHeader />
+            <div className="flex-1">{children}</div>
+            <SiteFooter />
+          </div>
+        </LocaleProvider>
       </body>
     </html>
   );

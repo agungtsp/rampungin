@@ -1,4 +1,7 @@
-import Link from "next/link";
+"use client";
+
+import { LocaleLink } from "@/components/LocaleLink";
+import { useLocale } from "@/lib/i18n";
 
 type Props = {
   username: string;
@@ -13,10 +16,11 @@ export function ProfileCard({
   bio,
   avatarUrl,
 }: Props) {
+  const { locale } = useLocale();
   const initial = (displayName || username).slice(0, 1).toUpperCase();
 
   return (
-    <Link
+    <LocaleLink
       href={`/profile/${username}`}
       className="card-hover group flex gap-3 rounded-2xl bg-white p-4 ring-1 ring-secondary/50 transition hover:-translate-y-0.5 hover:shadow-card-hover hover:ring-secondary/25"
     >
@@ -40,9 +44,11 @@ export function ProfileCard({
         {bio ? (
           <p className="mt-1 line-clamp-2 text-sm text-ink-muted">{bio}</p>
         ) : (
-          <p className="mt-1 text-sm text-ink-faint">Belum ada bio</p>
+          <p className="mt-1 text-sm text-ink-faint">
+            {locale === "en" ? "No bio yet" : "Belum ada bio"}
+          </p>
         )}
       </div>
-    </Link>
+    </LocaleLink>
   );
 }

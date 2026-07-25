@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale } from "@/lib/i18n";
+import { localePath } from "@/lib/i18n/paths";
 import { createClient } from "@/lib/supabase/client";
 
 type Props = {
@@ -18,6 +20,7 @@ export function FollowButton({
   isLoggedIn,
   isSelf,
 }: Props) {
+  const { locale } = useLocale();
   const [following, setFollowing] = useState(initiallyFollowing);
   const [busy, setBusy] = useState(false);
 
@@ -25,8 +28,10 @@ export function FollowButton({
 
   async function toggle() {
     if (!isLoggedIn) {
-      const next = encodeURIComponent(`/profile/${profileUsername}`);
-      window.location.href = `/auth?next=${next}`;
+      const next = encodeURIComponent(
+        localePath(locale, `/profile/${profileUsername}`),
+      );
+      window.location.href = `${localePath(locale, "/auth")}?next=${next}`;
       return;
     }
     setBusy(true);
@@ -62,7 +67,13 @@ export function FollowButton({
       onClick={toggle}
       className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:opacity-60"
     >
-      {following ? "Mengikuti" : "Ikuti"}
+      {following
+        ? locale === "en"
+          ? "Following"
+          : "Mengikuti"
+        : locale === "en"
+          ? "Follow"
+          : "Ikuti"}
     </button>
   );
 }

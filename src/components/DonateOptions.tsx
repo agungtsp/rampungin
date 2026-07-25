@@ -5,44 +5,35 @@ import {
   type DonateLink,
 } from "@/lib/about";
 
-function DonateEmbed({ link }: { link: DonateLink }) {
+function MoneyIcon({ className }: { className?: string }) {
   return (
-    <div className="overflow-hidden rounded-2xl bg-soft ring-1 ring-primary/15">
-      <div className="border-b border-secondary/40 px-4 py-3">
-        <p className="text-sm font-semibold text-ink">{link.label}</p>
-        {link.hint ? (
-          <p className="text-xs text-ink-muted">{link.hint}</p>
-        ) : null}
-      </div>
-      <div className="bg-white p-2 sm:p-3">
-        <iframe
-          src={link.href}
-          title={`${link.label} QR donasi`}
-          className="mx-auto block h-[380px] w-full max-w-[320px] rounded-xl border-0 bg-white"
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          allow="payment *"
-        />
-      </div>
-    </div>
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <rect x="2" y="6" width="20" height="12" rx="2" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M6 12h.01M18 12h.01" />
+    </svg>
   );
 }
 
-function DonateExternalLink({ link }: { link: DonateLink }) {
+function DonateLinkButton({ link }: { link: DonateLink }) {
   return (
     <a
       href={link.href}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-4 ring-1 ring-secondary/50 transition hover:ring-secondary/30 hover:shadow-card"
+      className="flex w-full items-center justify-center gap-2.5 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-hover"
     >
-      <div>
-        <p className="font-semibold text-ink">{link.label}</p>
-        {link.hint ? (
-          <p className="text-sm text-ink-muted">{link.hint}</p>
-        ) : null}
-      </div>
-      <span className="shrink-0 text-sm font-semibold text-primary">Buka →</span>
+      <MoneyIcon className="h-5 w-5" />
+      {link.label}
     </a>
   );
 }
@@ -58,8 +49,6 @@ export function DonateOptions({ compact = false, onNavigate }: Props) {
   const links = getDonateLinks();
   const bank = getBankDonation();
   const hasDonate = links.length > 0 || bank;
-  const embeds = links.filter((l) => l.embed);
-  const externals = links.filter((l) => !l.embed);
 
   if (!hasDonate) {
     return (
@@ -82,13 +71,9 @@ export function DonateOptions({ compact = false, onNavigate }: Props) {
   }
 
   return (
-    <div className={compact ? "space-y-3" : "space-y-3"}>
-      {embeds.map((link) => (
-        <DonateEmbed key={link.key} link={link} />
-      ))}
-
-      {externals.map((link) => (
-        <DonateExternalLink key={link.key} link={link} />
+    <div className="space-y-3">
+      {links.map((link) => (
+        <DonateLinkButton key={link.key} link={link} />
       ))}
 
       {bank ? (

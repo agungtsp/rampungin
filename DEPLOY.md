@@ -37,7 +37,17 @@ Project → **Settings → Environment Variables** → isi untuk **Production** 
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → API → `anon` `public` | Ya |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase → API → `service_role` (rahasia) | Hanya jika script/server memakainya |
 | `NEXT_PUBLIC_SITE_URL` | `https://rampungin.vercel.app` (tanpa slash akhir) | Ya (share/Disqus/absolute URL) |
-| `NEXT_PUBLIC_DISQUS_SHORTNAME` | shortname Disqus | Opsional |
+| `NEXT_PUBLIC_DISQUS_SHORTNAME` | shortname Disqus (bukan `*.disqus.com`) | Opsional |
+
+### Database migration (i18n)
+
+Jalankan di Supabase SQL Editor:
+
+`supabase/migrations/20260725120000_prompt_i18n.sql`
+
+Menambah kolom `title_en`, `description_en`, `body_en`, `tags_en`.
+
+---
 | `NEXT_PUBLIC_CREATOR_USERNAME` | `agungtsp` | Opsional |
 | `NEXT_PUBLIC_DONATE_*` | link donasi | Opsional |
 
