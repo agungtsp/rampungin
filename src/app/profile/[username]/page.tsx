@@ -75,11 +75,14 @@ export default async function ProfilePage({
     tags?: string[] | null;
     tags_en?: string[] | null;
     image_path_en?: string | null;
+    rating_avg?: number | null;
+    rating_count?: number | null;
+    ai_platform?: string | null;
   };
   let prompts: PRow[] = [];
   {
     const selectWith =
-      "id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, body, title_en, description_en, body_en, tags, tags_en, image_path_en";
+      "id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, body, title_en, description_en, body_en, tags, tags_en, image_path_en, rating_avg, rating_count, ai_platform";
     const selectBase =
       "id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path";
     let q = supabase
@@ -255,6 +258,9 @@ export default async function ProfilePage({
                     public_until={p.public_until}
                     authorUsername={profile.username}
                     imageUrl={publicImageUrl(loc.imagePath)}
+                    rating_avg={p.rating_avg}
+                    rating_count={p.rating_count}
+                    ai_platform={p.ai_platform}
                   />
                 );
               })}

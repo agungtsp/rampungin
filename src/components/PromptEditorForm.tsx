@@ -3,11 +3,18 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { VisibilityControls } from "@/components/VisibilityControls";
+import { TermsAcceptance } from "@/components/TermsAcceptance";
 import { CATEGORIES, DEFAULT_CATEGORY } from "@/lib/categories";
+import {
+  AI_PLATFORMS,
+  parseAiPlatform,
+  type AiPlatform,
+} from "@/lib/ai-platform";
 import { useLocale } from "@/lib/i18n";
 import { isAvailableInLocale } from "@/lib/i18n/prompt";
 import { localePath } from "@/lib/i18n/paths";
 import { promptDetailPath } from "@/lib/paths";
+import { defaultUsageGuidePlaceholder } from "@/lib/usage-guide";
 import { applyVisibilityIntent } from "@/lib/visibility";
 import {
   usesOptions,
@@ -32,6 +39,9 @@ type Existing = {
   video_url: string | null;
   image_path: string | null;
   image_path_en?: string | null;
+  ai_platform?: AiPlatform | string | null;
+  usage_guide?: string | null;
+  usage_guide_en?: string | null;
   is_public: boolean;
   public_until: string | null;
   fields: PromptFieldInput[];
@@ -85,6 +95,13 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
   const [imagePathEn, setImagePathEn] = useState(
     existing?.image_path_en ?? null,
   );
+  const [aiPlatform, setAiPlatform] = useState<AiPlatform>(
+    parseAiPlatform(existing?.ai_platform),
+  );
+  const [usageGuide, setUsageGuide] = useState(existing?.usage_guide ?? "");
+  const [usageGuideEn, setUsageGuideEn] = useState(
+    existing?.usage_guide_en ?? "",
+  );
   const [fields, setFields] = useState<PromptFieldInput[]>(
     existing?.fields?.length
       ? existing.fields
@@ -113,6 +130,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
   });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   function updateField(index: number, patch: Partial<PromptFieldInput>) {
     setFields((rows) =>
@@ -129,6 +147,15 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
     e.preventDefault();
     setBusy(true);
     setError(null);
+    if (!acceptedTerms) {
+      setError(
+        locale === "en"
+          ? "You must accept the Terms & Conditions to publish a prompt."
+          : "Anda harus menyetujui Syarat & Ketentuan untuk mempublikasikan prompt.",
+      );
+      setBusy(false);
+      return;
+    }
     const supabase = createClient();
     const {
       data: { user },
@@ -241,6 +268,8 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       tags: draft.tags,
       video_url: videoUrl.trim() || null,
       image_path: nextImagePath,
+      ai_platform: aiPlatform,
+      usage_guide: usageGuide.trim() || null,
       is_public: visibility.is_public,
       public_until: visibility.public_until
         ? visibility.public_until.toISOString()
@@ -260,6 +289,8 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       body_en: okEn ? draft.body_en : null,
       tags_en: okEn ? draft.tags_en : [],
       image_path_en: nextImagePathEn,
+      usage_guide: okId ? usageGuide.trim() || null : null,
+      usage_guide_en: okEn ? usageGuideEn.trim() || null : null,
     };
 
     let promptId = existing?.id;
@@ -393,7 +424,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
           {isId ? "Judul (ID)" : "Title (EN)"}
         </span>
         <input
-          className="w-full rounded-lg border px-3 py-2"
+          className="field-control w-full rounded-lg px-3 py-2"
           value={isId ? title : titleEn}
           onChange={(e) =>
             isId ? setTitle(e.target.value) : setTitleEn(e.target.value)
@@ -406,7 +437,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
           {isId ? "Deskripsi (ID)" : "Description (EN)"}
         </span>
         <textarea
-          className="w-full rounded-lg border px-3 py-2"
+          className="field-control w-full rounded-lg px-3 py-2"
           rows={2}
           value={isId ? description : descriptionEn}
           onChange={(e) =>
@@ -420,7 +451,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       <label className="block space-y-1">
         <span className="text-sm font-medium">Kategori</span>
         <select
-          className="w-full rounded-lg border px-3 py-2"
+          className="field-control w-full rounded-lg px-3 py-2"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         >
@@ -430,6 +461,52 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
             </option>
           ))}
         </select>
+      </label>
+
+      <label className="block space-y-1">
+        <span className="text-sm font-medium">
+          {locale === "en" ? "AI platform label" : "Label platform AI"}
+        </span>
+        <select
+          className="field-control w-full rounded-lg px-3 py-2"
+          value={aiPlatform}
+          onChange={(e) => setAiPlatform(parseAiPlatform(e.target.value))}
+        >
+          {AI_PLATFORMS.map((p) => (
+            <option key={p.value} value={p.value}>
+              {locale === "en" ? p.labelEn : p.labelId}
+            </option>
+          ))}
+        </select>
+        <p className="text-xs text-ink-muted">
+          {locale === "en"
+            ? "Shown on cards and detail: ChatGPT, Gemini, or All."
+            : "Tampil di kartu dan detail: ChatGPT, Gemini, atau Semua."}
+        </p>
+      </label>
+
+      <label className="block space-y-1">
+        <span className="text-sm font-medium">
+          {isId
+            ? "Tutorial penggunaan (ID)"
+            : "Usage tutorial (EN)"}
+        </span>
+        <textarea
+          className="field-control w-full rounded-lg px-3 py-2 text-sm"
+          rows={8}
+          value={isId ? usageGuide : usageGuideEn}
+          onChange={(e) =>
+            isId
+              ? setUsageGuide(e.target.value)
+              : setUsageGuideEn(e.target.value)
+          }
+          placeholder={defaultUsageGuidePlaceholder(isId ? "id" : "en")}
+        />
+        <p className="text-xs text-ink-muted">
+          {locale === "en"
+            ? "Optional. Leave blank to use the default copy-paste guide for ChatGPT/Gemini."
+            : "Opsional. Kosongkan untuk memakai panduan default copy-paste ke ChatGPT/Gemini."}
+        </p>
       </label>
 
       <div className="flex gap-2">
@@ -460,7 +537,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
               : "Prompt body (EN)"}
         </span>
         <textarea
-          className="w-full rounded-lg border px-3 py-2 font-mono text-sm"
+          className="field-control w-full rounded-lg px-3 py-2 font-mono text-sm"
           rows={8}
           value={isId ? body : bodyEn}
           onChange={(e) =>
@@ -503,13 +580,13 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
               className="grid gap-2 rounded-lg bg-soft/40 p-3 sm:grid-cols-2"
             >
               <input
-                className="rounded border px-2 py-1 text-sm"
+                className="field-control rounded px-2 py-1 text-sm"
                 value={f.label}
                 onChange={(e) => updateField(i, { label: e.target.value })}
                 placeholder="Label"
               />
               <select
-                className="rounded border px-2 py-1 text-sm"
+                className="field-control rounded px-2 py-1 text-sm"
                 value={f.field_type}
                 onChange={(e) =>
                   updateField(i, {
@@ -536,7 +613,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
               <p className="text-xs text-ink/60">key: {`{{${f.field_key}}}`}</p>
               {usesOptions(f.field_type) && (
                 <input
-                  className="rounded border px-2 py-1 text-sm sm:col-span-2"
+                  className="field-control rounded px-2 py-1 text-sm sm:col-span-2"
                   placeholder="Opsi dipisah koma (cth: Formal, Santai, Lucu)"
                   value={(f.options ?? []).join(", ")}
                   onChange={(e) =>
@@ -559,7 +636,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
           {isId ? "Tags ID (pisah koma)" : "Tags EN (comma-separated)"}
         </span>
         <input
-          className="w-full rounded-lg border px-3 py-2"
+          className="field-control w-full rounded-lg px-3 py-2"
           value={isId ? tags : tagsEn}
           onChange={(e) =>
             isId ? setTags(e.target.value) : setTagsEn(e.target.value)
@@ -596,7 +673,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       <label className="block space-y-1">
         <span className="text-sm font-medium">URL video (opsional)</span>
         <input
-          className="w-full rounded-lg border px-3 py-2"
+          className="field-control w-full rounded-lg px-3 py-2"
           value={videoUrl}
           onChange={(e) => setVideoUrl(e.target.value)}
           placeholder="https://youtube.com/..."
@@ -604,6 +681,8 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       </label>
 
       <VisibilityControls value={intent} onChange={setIntent} />
+
+      <TermsAcceptance checked={acceptedTerms} onChange={setAcceptedTerms} />
 
       {error && (
         <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
@@ -613,7 +692,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
 
       <button
         type="submit"
-        disabled={busy}
+        disabled={busy || !acceptedTerms}
         className="rounded-xl bg-primary-hover px-5 py-3 text-white disabled:opacity-60"
       >
         {busy ? "Menyimpan…" : "Simpan prompt"}

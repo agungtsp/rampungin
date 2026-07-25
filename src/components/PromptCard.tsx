@@ -1,9 +1,9 @@
 "use client";
 
-"use client";
-
 import { useState } from "react";
 import { LocaleLink } from "./LocaleLink";
+import { SaveToFolderButton } from "./SaveToFolderButton";
+import { aiPlatformBadge } from "@/lib/ai-platform";
 import { categoryEmoji, categoryLabel } from "@/lib/categories";
 import { defaultCoverUrl, promptCoverUrl } from "@/lib/cover";
 import { promptDetailPath } from "@/lib/paths";
@@ -22,6 +22,10 @@ type Props = {
   public_until: string | null;
   authorUsername?: string | null;
   imageUrl?: string | null;
+  rating_avg?: number | null;
+  rating_count?: number | null;
+  ai_platform?: string | null;
+  isLoggedIn?: boolean;
 };
 
 export function PromptCard({
@@ -36,6 +40,10 @@ export function PromptCard({
   public_until,
   authorUsername,
   imageUrl,
+  rating_avg = 0,
+  rating_count = 0,
+  ai_platform,
+  isLoggedIn = false,
 }: Props) {
   const pub = isEffectivelyPublic(is_public, public_until);
   const href = authorUsername
@@ -43,67 +51,88 @@ export function PromptCard({
     : `/prompts/${id}`;
   const fallback = defaultCoverUrl(category);
   const [src, setSrc] = useState(() => promptCoverUrl(imageUrl, category));
+  const avg = Number(rating_avg) || 0;
+  const rcount = Number(rating_count) || 0;
 
   return (
-    <LocaleLink href={href} className="card-hover group block min-w-0">
-      <article className="overflow-hidden rounded-xl bg-white shadow-card ring-1 ring-black/[0.06] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-card-hover">
-        <div className="relative aspect-square overflow-hidden bg-soft">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={src}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-            onError={() => {
-              if (src !== fallback) setSrc(fallback);
-            }}
-          />
+    <div className="card-hover group relative min-w-0">
+      <div className="absolute right-1.5 top-1.5 z-10 sm:right-2 sm:top-2">
+        <SaveToFolderButton
+          promptId={id}
+          promptPath={href}
+          isLoggedIn={isLoggedIn}
+          compact
+        />
+      </div>
+      <LocaleLink href={href} className="block">
+        <article className="overflow-hidden rounded-xl bg-white shadow-card ring-1 ring-black/[0.06] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-card-hover">
+          <div className="relative aspect-square overflow-hidden bg-soft">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={src}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              onError={() => {
+                if (src !== fallback) setSrc(fallback);
+              }}
+            />
 
-          <div className="absolute left-1.5 top-1.5 flex max-w-[calc(100%-0.75rem)] flex-wrap gap-1 sm:left-2 sm:top-2">
-            <span className="max-w-full truncate rounded-md bg-white px-1.5 py-0.5 text-[10px] font-semibold text-ink shadow-sm sm:text-[11px]">
-              <span className="sm:hidden">{categoryEmoji(category)}</span>
-              <span className="hidden sm:inline">
-                {categoryEmoji(category)} {categoryLabel(category)}
+            <div className="absolute left-1.5 top-1.5 flex max-w-[calc(100%-3rem)] flex-wrap gap-1 sm:left-2 sm:top-2">
+              <span className="max-w-full truncate rounded-md bg-white px-1.5 py-0.5 text-[10px] font-semibold text-ink shadow-sm sm:text-[11px]">
+                <span className="sm:hidden">{categoryEmoji(category)}</span>
+                <span className="hidden sm:inline">
+                  {categoryEmoji(category)} {categoryLabel(category)}
+                </span>
               </span>
-            </span>
-            {mode === "template" ? (
-              <span className="hidden rounded-md bg-primary-hover px-1.5 py-0.5 text-[10px] font-medium text-white min-[400px]:inline sm:text-[11px]">
-                Template
+              {mode === "template" ? (
+                <span className="hidden rounded-md bg-primary-hover px-1.5 py-0.5 text-[10px] font-medium text-white min-[400px]:inline sm:text-[11px]">
+                  Template
+                </span>
+              ) : null}
+              <span className="rounded-md bg-ink/80 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:text-[11px]">
+                {aiPlatformBadge(ai_platform)}
               </span>
-            ) : null}
+            </div>
+
+            {!pub ? (
+              <span className="absolute bottom-1.5 left-1.5 rounded-md bg-primary-hover/85 px-1.5 py-0.5 text-[10px] font-medium text-white sm:bottom-2 sm:left-2">
+                Privat
+              </span>
+            ) : (
+              <span className="absolute bottom-1.5 right-1.5 rounded-md bg-black/55 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-sm sm:bottom-2 sm:right-2 sm:text-[10px]">
+                Gratis
+              </span>
+            )}
           </div>
 
-          {!pub ? (
-            <span className="absolute right-1.5 top-1.5 rounded-md bg-primary-hover/85 px-1.5 py-0.5 text-[10px] font-medium text-white sm:right-2 sm:top-2">
-              Privat
-            </span>
-          ) : (
-            <span className="absolute bottom-1.5 right-1.5 rounded-md bg-black/55 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-sm sm:bottom-2 sm:right-2 sm:text-[10px]">
-              Gratis
-            </span>
-          )}
-        </div>
-
-        <div className="space-y-1 p-2.5 sm:space-y-1.5 sm:p-3">
-          <h3 className="line-clamp-2 min-h-[2.25rem] text-[13px] font-semibold leading-snug text-ink group-hover:text-primary-hover sm:min-h-[2.5rem] sm:text-sm">
-            {title}
-          </h3>
-          <div className="flex items-center justify-between gap-1.5 text-[10px] text-ink-muted sm:text-[11px]">
-            <span className="min-w-0 truncate font-medium">
-              {authorUsername ? `@${authorUsername}` : "Anonim"}
-            </span>
-            <span className="shrink-0 tabular-nums">
-              ♥ {like_count}
-              <span className="mx-0.5 text-ink-faint sm:mx-1">·</span>
-              <span className="sm:hidden">{generate_count + copy_count}</span>
-              <span className="hidden sm:inline">
-                {generate_count + copy_count} digunakan
+          <div className="space-y-1 p-2.5 sm:space-y-1.5 sm:p-3">
+            <h3 className="line-clamp-2 min-h-[2.25rem] text-[13px] font-semibold leading-snug text-ink group-hover:text-primary-hover sm:min-h-[2.5rem] sm:text-sm">
+              {title}
+            </h3>
+            <div className="flex items-center justify-between gap-1.5 text-[10px] text-ink-muted sm:text-[11px]">
+              <span className="min-w-0 truncate font-medium">
+                {authorUsername ? `@${authorUsername}` : "Anonim"}
               </span>
-            </span>
+              <span className="shrink-0 tabular-nums">
+                {rcount > 0 ? (
+                  <>
+                    ★ {avg.toFixed(1)}
+                    <span className="mx-0.5 text-ink-faint sm:mx-1">·</span>
+                  </>
+                ) : null}
+                ♥ {like_count}
+                <span className="mx-0.5 text-ink-faint sm:mx-1">·</span>
+                <span className="sm:hidden">{generate_count + copy_count}</span>
+                <span className="hidden sm:inline">
+                  {generate_count + copy_count} digunakan
+                </span>
+              </span>
+            </div>
           </div>
-        </div>
-      </article>
-    </LocaleLink>
+        </article>
+      </LocaleLink>
+    </div>
   );
 }

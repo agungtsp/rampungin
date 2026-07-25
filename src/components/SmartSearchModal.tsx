@@ -140,7 +140,7 @@ export function SmartSearchButton({
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Contoh: landing page SaaS B2B, debug API Postgres…"
-                    className="w-full rounded-xl bg-soft px-4 py-3 text-sm outline-none ring-1 ring-secondary/50 transition focus:bg-white text-ink focus:ring-2 focus:ring-primary/35"
+                    className="field-control w-full rounded-xl bg-soft px-4 py-3 text-sm outline-none transition focus:bg-white text-ink"
                   />
                 </label>
 
@@ -154,7 +154,7 @@ export function SmartSearchButton({
                     value={tag}
                     onChange={(e) => setTag(e.target.value)}
                     placeholder="saas, postgres, copywriting…"
-                    className="w-full rounded-xl bg-soft px-4 py-2.5 text-sm outline-none ring-1 ring-secondary/50 transition focus:bg-white text-ink focus:ring-2 focus:ring-primary/35"
+                    className="field-control w-full rounded-xl bg-soft px-4 py-2.5 text-sm outline-none transition focus:bg-white text-ink"
                   />
                 </label>
 

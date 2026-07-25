@@ -2,6 +2,9 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { DonateModal } from "@/components/DonateModal";
+import { chatgptPromptUrl, geminiPromptUrl } from "@/lib/ai-shortcuts";
+import { parseAiPlatform, type AiPlatform } from "@/lib/ai-platform";
+import { useLocale } from "@/lib/i18n";
 import {
   getMissingRequiredFields,
   interpolateTemplate,
@@ -27,16 +30,17 @@ type Props = {
   isPublic: boolean;
   publicUntil: string | null;
   initialGenerateCount?: number;
+  aiPlatform?: AiPlatform | string | null;
 };
 
 const baseInputClass =
-  "w-full rounded-xl px-3 py-2.5 text-sm outline-none ring-1 transition focus:ring-2";
+  "field-control w-full rounded-xl px-3 py-2.5 text-sm outline-none transition";
 
 const okInputClass =
-  "bg-white ring-black/[0.08] focus:ring-primary/30";
+  "bg-white text-ink";
 
 const errInputClass =
-  "bg-rose-100 ring-rose-400 text-rose-950 placeholder:text-rose-400/80 focus:ring-rose-400/50";
+  "field-control-error bg-rose-100 text-rose-950 placeholder:text-rose-400/80";
 
 export function PromptForm({
   promptId,
@@ -46,7 +50,10 @@ export function PromptForm({
   isPublic,
   publicUntil,
   initialGenerateCount = 0,
+  aiPlatform = "all",
 }: Props) {
+  const { locale } = useLocale();
+  const platform = parseAiPlatform(aiPlatform);
   const [values, setValues] = useState<Record<string, string>>({});
   const [output, setOutput] = useState("");
   const [hasGenerated, setHasGenerated] = useState(false);
@@ -121,6 +128,7 @@ export function PromptForm({
   }
 
   async function generate() {
+    let next = "";
     if (mode === "template") {
       const missing = getMissingRequiredFields(fields, values);
       if (missing.length) {
@@ -129,10 +137,11 @@ export function PromptForm({
         setHasGenerated(false);
         return;
       }
-      setOutput(interpolateTemplate(body, values));
+      next = interpolateTemplate(body, values);
     } else {
-      setOutput(body);
+      next = body;
     }
+    setOutput(next);
     setError(null);
     setInvalidKeys([]);
     setHasGenerated(true);
@@ -155,7 +164,7 @@ export function PromptForm({
   return (
     <div className="space-y-5">
       {mode === "template" && fields.length > 0 && (
-        <div className="space-y-4 rounded-2xl bg-white p-5 ring-1 ring-black/[0.07]">
+        <div className="space-y-4 rounded-2xl bg-white p-5 ring-1 ring-ink/20">
           {fields.map((f) => {
             const invalid = isInvalid(f.field_key);
             return (
@@ -198,7 +207,7 @@ export function PromptForm({
                               ? "bg-primary text-white"
                               : invalid
                                 ? "bg-white text-rose-900 ring-1 ring-rose-300"
-                                : "bg-soft text-ink ring-1 ring-black/[0.08] hover:ring-black/[0.14]"
+                                : "bg-soft text-ink ring-1 ring-ink/20 hover:ring-ink/35"
                           }`}
                         >
                           {opt}
@@ -222,7 +231,7 @@ export function PromptForm({
                               ? "bg-primary text-white"
                               : invalid
                                 ? "bg-white text-rose-900 ring-1 ring-rose-300"
-                                : "bg-soft text-ink ring-1 ring-black/[0.08] hover:ring-black/[0.14]"
+                                : "bg-soft text-ink ring-1 ring-ink/20 hover:ring-ink/35"
                           }`}
                         >
                           {opt}
@@ -292,9 +301,49 @@ export function PromptForm({
       </div>
 
       {hasGenerated && output ? (
-        <pre className="whitespace-pre-wrap rounded-2xl bg-white p-4 text-sm leading-relaxed text-ink ring-1 ring-black/[0.07]">
-          {output}
-        </pre>
+        <div className="space-y-3">
+          <pre className="whitespace-pre-wrap rounded-2xl bg-white p-4 text-sm leading-relaxed text-ink ring-1 ring-ink/20">
+            {output}
+          </pre>
+          <div className="flex flex-wrap gap-2">
+            {(platform === "all" || platform === "chatgpt") && (
+              <a
+                href={chatgptPromptUrl(output)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full bg-soft px-4 py-2 text-sm font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-secondary/30"
+              >
+                {locale === "en" ? "Open in ChatGPT ↗" : "Buka di ChatGPT ↗"}
+              </a>
+            )}
+            {(platform === "all" || platform === "gemini") && (
+              <a
+                href={geminiPromptUrl(output)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full bg-soft px-4 py-2 text-sm font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-secondary/30"
+              >
+                {locale === "en" ? "Open in AI Studio ↗" : "Buka di AI Studio ↗"}
+              </a>
+            )}
+          </div>
+          <p className="text-xs text-ink-faint">
+            {locale === "en" ? (
+              <>
+                ChatGPT uses <code className="rounded bg-soft px-1">q</code>; AI
+                Studio uses <code className="rounded bg-soft px-1">prompt</code>{" "}
+                so the text is prefilled in a new tab.
+              </>
+            ) : (
+              <>
+                ChatGPT memakai <code className="rounded bg-soft px-1">q</code>;
+                AI Studio memakai{" "}
+                <code className="rounded bg-soft px-1">prompt</code> agar teks
+                langsung terisi di tab baru.
+              </>
+            )}
+          </p>
+        </div>
       ) : null}
 
       <DonateModal open={donateOpen} onClose={closeDonate} />

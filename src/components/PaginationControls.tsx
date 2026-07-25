@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState } from "react";
 import { useLocale } from "@/lib/i18n";
 import { localePath } from "@/lib/i18n/paths";
 import { PAGE_SIZE_OPTIONS, type PageSize } from "@/lib/pagination";
@@ -25,7 +24,8 @@ function hrefFor(
   for (const [k, v] of Object.entries(params)) {
     if (v != null && v !== "" && k !== "page" && k !== "perPage") sp.set(k, v);
   }
-  if (perPage !== 10) sp.set("perPage", String(perPage));
+  // Always include perPage so pages with non-10 defaults (e.g. home=20) stay correct
+  sp.set("perPage", String(perPage));
   if (page > 1) sp.set("page", String(page));
   const q = sp.toString();
   return q ? `${basePath}?${q}` : basePath;
@@ -39,10 +39,9 @@ export function PaginationControls({
   params = {},
 }: Props) {
   const { t, locale } = useLocale();
-  const router = useRouter();
   const nav = usePaginationNav();
-  const [localPending, startLocalTransition] = useTransition();
-  const pending = nav?.pending ?? localPending;
+  const [localPending, setLocalPending] = useState(false);
+  const pending = nav?.pending || localPending;
 
   const totalPages = Math.max(1, Math.ceil(total / perPage));
   const safePage = Math.min(Math.max(1, page), totalPages);
@@ -52,14 +51,13 @@ export function PaginationControls({
   function go(nextPage: number, nextPerPage: number = perPage) {
     const raw = hrefFor(basePath, params, nextPage, nextPerPage);
     const [pathPart, qs] = raw.split("?");
-    const href = localePath(locale, pathPart || "/") + (qs ? `?${qs}` : "");
-    if (nav) {
-      nav.navigate(href);
-      return;
-    }
-    startLocalTransition(() => {
-      router.push(href, { scroll: false });
-    });
+    const href =
+      localePath(locale, pathPart || "/") + (qs ? `?${qs}` : "");
+
+    // Soft client nav + locale rewrite often does not re-fetch RSC searchParams.
+    // Hard navigation reliably updates page / perPage.
+    setLocalPending(true);
+    window.location.assign(href);
   }
 
   const btn =
@@ -85,7 +83,7 @@ export function PaginationControls({
         <label className="flex items-center gap-2 text-sm text-ink-muted">
           <span>{t("perPage")}</span>
           <select
-            className="rounded-lg bg-soft px-2 py-1.5 text-sm text-ink outline-none ring-1 ring-secondary/50 focus:ring-primary"
+            className="field-control rounded-lg bg-soft px-2 py-1.5 text-sm text-ink outline-none"
             value={perPage}
             disabled={pending}
             onChange={(e) => go(1, Number(e.target.value))}

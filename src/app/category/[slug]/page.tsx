@@ -52,6 +52,9 @@ type Row = {
   tags_en?: string[] | null;
   tags?: string[] | null;
   image_path_en?: string | null;
+  rating_avg?: number | null;
+  rating_count?: number | null;
+  ai_platform?: string | null;
   profiles: { username: string } | { username: string }[] | null;
 };
 
@@ -168,6 +171,9 @@ export default async function CategoryPage({
                       public_until={p.public_until}
                       authorUsername={author?.username}
                       imageUrl={publicImageUrl(loc.imagePath)}
+                      rating_avg={p.rating_avg}
+                      rating_count={p.rating_count}
+                      ai_platform={p.ai_platform}
                     />
                   );
                 })}

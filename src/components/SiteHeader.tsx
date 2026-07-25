@@ -7,6 +7,7 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { LocaleLink } from "./LocaleLink";
 import { RampunginLogo } from "./RampunginLogo";
 import { SmartSearchButton } from "./SmartSearchModal";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 import { UserMenu } from "./UserMenu";
 
 const navLinkClass =
@@ -62,11 +63,13 @@ export function SiteHeader() {
       <LocaleLink href="/people" prefetch className={navLinkClass}>
         {t("navCreators")}
       </LocaleLink>
+      {username ? (
+        <LocaleLink href="/saved" prefetch className={navLinkClass}>
+          {t("navSaved")}
+        </LocaleLink>
+      ) : null}
       <LocaleLink href="/tutorial" prefetch className={navLinkClass}>
         {t("navGuide")}
-      </LocaleLink>
-      <LocaleLink href="/about" prefetch className={navLinkClass}>
-        {t("navAbout")}
       </LocaleLink>
     </>
   );
@@ -94,6 +97,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <ThemeSwitcher />
           <LanguageSwitcher />
           <LocaleLink
             href="/prompts/new"

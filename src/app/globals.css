@@ -13,8 +13,9 @@
   --color-ink: #0f172a;
   --color-ink-muted: #334155;
   --color-ink-faint: #64748b;
+  --color-canvas: #ffffff;
+  --color-panel: #ffffff;
 
-  /* Align default blue/slate scales to the same palette */
   --color-blue-50: #dbeafe;
   --color-blue-100: #dbeafe;
   --color-blue-200: #93c5fd;
@@ -44,9 +45,33 @@
   --shadow-card-hover: 0 4px 12px rgba(37, 99, 235, 0.12), 0 20px 40px -20px rgba(29, 78, 216, 0.22);
 }
 
+html.dark {
+  --color-primary: #3b82f6;
+  --color-primary-hover: #60a5fa;
+  --color-secondary: #1e3a5f;
+  --color-soft: #1a2332;
+  --color-ink: #e2e8f0;
+  --color-ink-muted: #94a3b8;
+  --color-ink-faint: #64748b;
+  --color-canvas: #0b1220;
+  --color-panel: #111827;
+
+  --color-blue-50: #1a2332;
+  --color-blue-100: #1e293b;
+  --color-blue-200: #1e3a5f;
+  --color-slate-50: #1a2332;
+  --color-slate-100: #1e293b;
+  --color-slate-200: #334155;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px -12px rgba(0, 0, 0, 0.55);
+  --shadow-card-hover: 0 4px 12px rgba(59, 130, 246, 0.18), 0 20px 40px -20px rgba(0, 0, 0, 0.65);
+
+  color-scheme: dark;
+}
+
 body {
-  color: #0f172a;
-  background: #ffffff;
+  color: var(--color-ink);
+  background: var(--color-canvas);
   font-family: var(--font-sans);
 }
 
@@ -55,7 +80,6 @@ a {
   text-decoration: none;
 }
 
-/* Ensure interactive links also show pointer (nav, chips, etc.) */
 a[href] {
   cursor: pointer;
 }
@@ -73,19 +97,108 @@ select:disabled,
   cursor: not-allowed;
 }
 
-/* Blue (primary) button/surfaces → white text */
+/* Form fields — clear edge in light & dark (ink token flips with theme) */
+.field-control {
+  border: 1.5px solid color-mix(in srgb, var(--color-ink) 28%, transparent);
+  background-color: var(--color-panel);
+  color: var(--color-ink);
+  box-shadow: none;
+}
+
+.field-control::placeholder {
+  color: var(--color-ink-faint);
+}
+
+.field-control:hover:not(:disabled):not(:focus) {
+  border-color: color-mix(in srgb, var(--color-ink) 42%, transparent);
+}
+
+.field-control:focus,
+.field-control:focus-visible {
+  border-color: color-mix(in srgb, var(--color-primary) 70%, transparent);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 22%, transparent);
+}
+
+.field-control-error {
+  border-color: #fb7185 !important;
+  background-color: #ffe4e6;
+  color: #4c0519;
+}
+
+.field-control-error:focus,
+.field-control-error:focus-visible {
+  border-color: #e11d48 !important;
+  box-shadow: 0 0 0 3px rgb(244 63 94 / 0.25);
+}
+
+html.dark .field-control-error {
+  background-color: #4c0519;
+  color: #fecdd3;
+}
+
+/* Bare Tailwind `border` on inputs (editor, profile, etc.) */
+input.border:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+textarea.border,
+select.border {
+  border-width: 1.5px;
+  border-color: color-mix(in srgb, var(--color-ink) 28%, transparent);
+  background-color: var(--color-panel);
+  color: var(--color-ink);
+}
+
+input.border:not([type="checkbox"]):not([type="radio"]):not([type="file"]):hover:not(:disabled):not(:focus),
+textarea.border:hover:not(:disabled):not(:focus),
+select.border:hover:not(:disabled):not(:focus) {
+  border-color: color-mix(in srgb, var(--color-ink) 42%, transparent);
+}
+
+input.border:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+textarea.border:focus,
+select.border:focus {
+  border-color: color-mix(in srgb, var(--color-primary) 70%, transparent);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 22%, transparent);
+}
+
 .bg-primary,
 .bg-primary-hover {
   color: #ffffff;
 }
 
-/* White buttons → black (ink) text */
-button.bg-white,
-a.bg-white {
-  color: #0f172a;
+html.dark .bg-white {
+  background-color: var(--color-panel) !important;
+  color: var(--color-ink);
 }
 
-/* Orange / amber surfaces → black text for contrast */
+html.dark .bg-white\/95 {
+  background-color: color-mix(in srgb, var(--color-panel) 95%, transparent) !important;
+}
+
+html.dark .bg-white\/15 {
+  background-color: rgb(255 255 255 / 0.1) !important;
+}
+
+html.dark .bg-white\/10 {
+  background-color: rgb(255 255 255 / 0.08) !important;
+}
+
+html.dark .text-white {
+  color: #ffffff;
+}
+
+html.dark .bg-primary,
+html.dark .bg-primary-hover,
+html.dark a.bg-primary,
+html.dark button.bg-primary {
+  color: #ffffff !important;
+}
+
+button.bg-white,
+a.bg-white {
+  color: var(--color-ink);
+}
+
 :is(
   .bg-orange-50,
   .bg-orange-100,
@@ -117,6 +230,18 @@ a.bg-white {
   color: #0f172a;
 }
 
+html.dark :is(.bg-amber-50, .bg-amber-100, .bg-orange-50) {
+  background-color: #422006 !important;
+  color: #fde68a !important;
+}
+
+html.dark :is(.bg-red-50) {
+  background-color: #450a0a !important;
+}
+
+html.dark :is(.text-red-600, .text-red-800) {
+  color: #fca5a5 !important;
+}
 
 .ai-site-bg {
   pointer-events: none;
@@ -124,8 +249,7 @@ a.bg-white {
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  background-color: #ffffff;
-  /* Keep bg on its own layer; no transform animation (causes scroll flicker) */
+  background-color: var(--color-canvas);
   transform: translateZ(0);
   contain: strict;
 }
@@ -138,6 +262,13 @@ a.bg-white {
     radial-gradient(ellipse 55% 45% at 12% 8%, rgba(37, 99, 235, 0.1), transparent 60%),
     radial-gradient(ellipse 50% 40% at 88% 12%, rgba(147, 197, 253, 0.28), transparent 55%),
     radial-gradient(ellipse 45% 35% at 70% 88%, rgba(219, 234, 254, 0.85), transparent 55%);
+}
+
+html.dark .ai-site-bg::before {
+  background:
+    radial-gradient(ellipse 55% 45% at 12% 8%, rgba(59, 130, 246, 0.18), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 88% 12%, rgba(30, 58, 95, 0.55), transparent 55%),
+    radial-gradient(ellipse 45% 35% at 70% 88%, rgba(15, 23, 42, 0.9), transparent 55%);
 }
 
 .ai-site-bg::after {
@@ -153,6 +284,14 @@ a.bg-white {
     48px 48px,
     48px 48px;
   opacity: 0.18;
+}
+
+html.dark .ai-site-bg::after {
+  opacity: 0.08;
+  background-image:
+    url("/bg/ai-prompt-pattern.svg"),
+    linear-gradient(rgba(147, 197, 253, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(147, 197, 253, 0.04) 1px, transparent 1px);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -61,6 +61,15 @@ export function UserMenu({ username }: Props) {
           >
             {t("editProfile")}
           </LocaleLink>
+          <LocaleLink
+            role="menuitem"
+            href="/saved"
+            prefetch
+            onClick={() => setOpen(false)}
+            className="block px-3.5 py-2 text-sm text-ink transition hover:bg-soft"
+          >
+            {t("navSaved")}
+          </LocaleLink>
           <button
             role="menuitem"
             type="button"

@@ -46,6 +46,9 @@ type Row = {
   tags?: string[] | null;
   tags_en?: string[] | null;
   image_path_en?: string | null;
+  rating_avg?: number | null;
+  rating_count?: number | null;
+  ai_platform?: string | null;
   profiles: { username: string } | { username: string }[] | null;
 };
 
@@ -133,10 +136,12 @@ export default async function TrendingPage({
                   description: p.description,
                   body: p.body ?? "",
                   tags: p.tags ?? null,
+                  image_path: p.image_path,
                   title_en: p.title_en,
                   description_en: p.description_en,
                   body_en: p.body_en,
                   tags_en: p.tags_en,
+                  image_path_en: p.image_path_en,
                 },
                 locale,
               );
@@ -154,7 +159,10 @@ export default async function TrendingPage({
                   is_public={p.is_public}
                   public_until={p.public_until}
                   authorUsername={author?.username}
-                  imageUrl={publicImageUrl(p.image_path)}
+                  imageUrl={publicImageUrl(loc.imagePath)}
+                  rating_avg={p.rating_avg}
+                  rating_count={p.rating_count}
+                  ai_platform={p.ai_platform}
                 />
               );
             })}

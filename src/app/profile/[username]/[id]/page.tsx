@@ -3,7 +3,11 @@ import { notFound } from "next/navigation";
 import { DisqusComments } from "@/components/DisqusComments";
 import { MediaPreview } from "@/components/MediaPreview";
 import { PromptForm } from "@/components/PromptForm";
+import { PromptUsageGuide } from "@/components/PromptUsageGuide";
+import { SaveToFolderButton } from "@/components/SaveToFolderButton";
 import { SocialBar } from "@/components/SocialBar";
+import { StarRating } from "@/components/StarRating";
+import { aiPlatformBadge } from "@/lib/ai-platform";
 import { categoryEmoji, categoryLabel } from "@/lib/categories";
 import {
   isAvailableInLocale,
@@ -64,6 +68,7 @@ export default async function ProfilePromptDetailPage({
     .order("sort_order");
 
   let initialLiked = false;
+  let initialUserStars: number | null = null;
   if (user) {
     const { data: like } = await supabase
       .from("likes")
@@ -72,6 +77,14 @@ export default async function ProfilePromptDetailPage({
       .eq("user_id", user.id)
       .maybeSingle();
     initialLiked = Boolean(like);
+    const { data: rating } = await supabase
+      .from("prompt_ratings")
+      .select("stars")
+      .eq("prompt_id", id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    initialUserStars =
+      typeof rating?.stars === "number" ? rating.stars : null;
   }
 
   const detailPath = promptDetailPath(author.username, id);
@@ -132,6 +145,9 @@ export default async function ProfilePromptDetailPage({
           <span className="rounded-full bg-soft px-2.5 py-1 font-medium text-ink-muted ring-1 ring-black/[0.06]">
             {modeLabel}
           </span>
+          <span className="rounded-full bg-white px-2.5 py-1 font-semibold text-primary-hover ring-1 ring-primary/20">
+            {aiPlatformBadge(prompt.ai_platform)}
+          </span>
           {prompt.public_until && effectivelyPublic && (
             <span className="rounded-full bg-amber-50 px-2.5 py-1 text-amber-900 ring-1 ring-amber-200/80">
               Publik sampai{" "}
@@ -180,6 +196,23 @@ export default async function ProfilePromptDetailPage({
         category={prompt.category}
       />
 
+      <div className="flex flex-wrap items-center gap-3">
+        <StarRating
+          promptId={prompt.id}
+          promptPath={detailPath}
+          initialAvg={Number(prompt.rating_avg) || 0}
+          initialCount={Number(prompt.rating_count) || 0}
+          initialUserStars={initialUserStars}
+          isLoggedIn={Boolean(user)}
+          canRate={effectivelyPublic}
+        />
+        <SaveToFolderButton
+          promptId={prompt.id}
+          promptPath={detailPath}
+          isLoggedIn={Boolean(user)}
+        />
+      </div>
+
       <PromptForm
         promptId={prompt.id}
         mode={prompt.mode}
@@ -190,6 +223,14 @@ export default async function ProfilePromptDetailPage({
         initialGenerateCount={
           typeof prompt.generate_count === "number" ? prompt.generate_count : 0
         }
+        aiPlatform={prompt.ai_platform}
+      />
+
+      <PromptUsageGuide
+        locale={available ? locale : "id"}
+        aiPlatform={prompt.ai_platform}
+        usageGuide={prompt.usage_guide}
+        usageGuideEn={prompt.usage_guide_en}
       />
 
       <SocialBar

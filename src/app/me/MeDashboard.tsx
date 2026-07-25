@@ -178,7 +178,7 @@ export function MeDashboard({
   }
 
   const inputClass =
-    "w-full rounded-lg border border-primary/15 bg-white text-ink px-3 py-2 text-sm shadow-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20";
+    "field-control w-full rounded-lg bg-white text-ink px-3 py-2 text-sm outline-none";
 
   return (
     <div className="mx-auto max-w-3xl space-y-10 px-4 py-10">
@@ -367,7 +367,7 @@ export function MeDashboard({
               />
               <button
                 type="button"
-                className="rounded-lg border px-3 py-1.5 text-sm"
+                className="field-control rounded-lg px-3 py-1.5 text-sm"
                 onClick={() => applyVisibility(p.id)}
               >
                 Terapkan visibilitas
@@ -385,7 +385,7 @@ export function MeDashboard({
           mengonfirmasi.
         </p>
         <input
-          className="w-full rounded-lg border px-3 py-2"
+          className="field-control w-full rounded-lg px-3 py-2"
           value={deleteConfirm}
           onChange={(e) => setDeleteConfirm(e.target.value)}
         />

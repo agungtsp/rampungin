@@ -86,11 +86,11 @@ export function VisibilityControls({ value, onChange }: Props) {
               min={1}
               value={customHours}
               onChange={(e) => setCustomHours(e.target.value)}
-              className="w-24 rounded-lg border px-2 py-1 text-sm"
+              className="field-control w-24 rounded-lg px-2 py-1 text-sm"
             />
             <button
               type="button"
-              className="rounded-lg border bg-white px-3 py-1 text-sm text-ink"
+              className="field-control rounded-lg bg-white px-3 py-1 text-sm text-ink"
               onClick={() => {
                 const hours = Number(customHours);
                 if (!Number.isFinite(hours) || hours <= 0) return;

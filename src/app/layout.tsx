@@ -4,6 +4,9 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { LocaleProvider } from "@/lib/i18n";
 import { getServerLocale } from "@/lib/i18n/server";
+import { themeClass, THEME_COOKIE } from "@/lib/theme";
+import { ThemeProvider } from "@/lib/theme/ThemeProvider";
+import { getServerTheme } from "@/lib/theme/server";
 import "./globals.css";
 
 const sans = DM_Sans({
@@ -28,25 +31,38 @@ export const metadata: Metadata = {
   },
 };
 
+const themeInitScript = `(function(){try{var m=document.cookie.match(/(?:^|; )${THEME_COOKIE}=([^;]*)/);var t=m?decodeURIComponent(m[1]):"light";if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.style.colorScheme="dark";}else{document.documentElement.style.colorScheme="light";}}catch(e){}})();`;
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const locale = await getServerLocale();
+  const theme = await getServerTheme();
 
   return (
-    <html lang={locale}>
+    <html
+      lang={locale}
+      className={themeClass(theme)}
+      style={{ colorScheme: theme }}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body
         className={`${sans.variable} ${display.variable} relative flex min-h-screen flex-col font-sans text-ink antialiased`}
       >
         <LocaleProvider initialLocale={locale}>
-          <div className="ai-site-bg" aria-hidden="true" />
-          <div className="relative z-10 flex min-h-screen flex-col">
-            <SiteHeader />
-            <div className="flex-1">{children}</div>
-            <SiteFooter />
-          </div>
+          <ThemeProvider initialTheme={theme}>
+            <div className="ai-site-bg" aria-hidden="true" />
+            <div className="relative z-10 flex min-h-screen flex-col">
+              <SiteHeader />
+              <div className="flex-1">{children}</div>
+              <SiteFooter />
+            </div>
+          </ThemeProvider>
         </LocaleProvider>
       </body>
     </html>

@@ -85,6 +85,7 @@ export async function middleware(request: NextRequest) {
 
   const needsAuth =
     barePath === "/me" ||
+    barePath === "/saved" ||
     barePath === "/prompts/new" ||
     /^\/prompts\/[^/]+\/edit$/.test(barePath) ||
     /^\/profile\/[^/]+\/[^/]+\/edit$/.test(barePath);

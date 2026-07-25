@@ -122,16 +122,25 @@ const id: TutorialCopy = {
       subtitle: "Dukung kreator lain dan kelola prompt milikmu.",
       steps: [
         {
-          title: "Suka & komentar",
-          body: "Setelah masuk, kamu dapat menyukai prompt publik. Komentar menggunakan Disqus di halaman detail prompt.",
+          title: "Suka, rating & komentar",
+          body: "Setelah masuk, kamu dapat menyukai prompt publik dan memberi rating bintang 1–5 di halaman detail. Komentar memakai Disqus.",
+        },
+        {
+          title: "Simpan prompt ke folder",
+          body: "Klik ikon bookmark pada kartu atau tombol Simpan di detail, lalu pilih folder (atau Tanpa kategori). Kelola di menu Tersimpan.",
+          points: [
+            "Buat, ubah nama, atau hapus folder",
+            "Hapus dari satu folder atau dari semua folder",
+            "Folder Tanpa kategori dibuat otomatis dan tidak bisa dihapus",
+          ],
         },
         {
           title: "Ikuti kreator",
           body: "Buka profil kreator dan tekan Ikuti untuk mengikuti karya mereka.",
         },
         {
-          title: "Kelola akun",
-          body: "Di halaman Akun saya (/me) kamu dapat mengubah username, foto & profil, mengatur ulang visibilitas prompt, atau menghapus akun secara permanen.",
+          title: "Kelola akun & syarat",
+          body: "Di Akun saya (/me) kamu dapat mengubah profil. Saat membuat/mengedit prompt, wajib mencentang Syarat & Ketentuan (tanggung jawab konten ada pada kreator).",
         },
       ],
     },
@@ -238,16 +247,25 @@ const en: TutorialCopy = {
       subtitle: "Support other creators and manage your own prompts.",
       steps: [
         {
-          title: "Likes & comments",
-          body: "After signing in, you can like public prompts. Comments use Disqus on the prompt detail page.",
+          title: "Likes, ratings & comments",
+          body: "After signing in, you can like public prompts and leave a 1–5 star rating on the detail page. Comments use Disqus.",
+        },
+        {
+          title: "Save prompts to folders",
+          body: "Click the bookmark on a card or Save on the detail page, then pick a folder (or Uncategorized). Manage everything under Saved.",
+          points: [
+            "Create, rename, or delete folders",
+            "Remove from one folder or unsave everywhere",
+            "Uncategorized is created automatically and cannot be deleted",
+          ],
         },
         {
           title: "Follow creators",
           body: "Open a creator’s profile and press Follow to follow their work.",
         },
         {
-          title: "Manage your account",
-          body: "On My account (/me) you can change username, photo & profile, reset prompt visibility, or permanently delete your account.",
+          title: "Account & terms",
+          body: "On My account (/me) you can update your profile. When creating/editing a prompt, you must accept the Terms (creators are responsible for their content).",
         },
       ],
     },
