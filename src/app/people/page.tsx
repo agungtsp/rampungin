@@ -4,16 +4,39 @@ import {
   ProfileListSkeleton,
 } from "@/components/PaginationShell";
 import { ProfileCard } from "@/components/ProfileCard";
+import { getServerLocale } from "@/lib/i18n/server";
 import {
   clampPage,
   pageRange,
   parsePage,
   parsePageSize,
 } from "@/lib/pagination";
+import { buildPageMetadata } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
+import type { Metadata } from "next";
 
 function sanitizeQuery(raw: string): string {
   return raw.replace(/[%_,]/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
+}
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}): Promise<Metadata> {
+  const locale = await getServerLocale();
+  const sp = await searchParams;
+  const q = sanitizeQuery(sp.q ?? "");
+  return buildPageMetadata({
+    locale,
+    barePath: "/people",
+    title: locale === "en" ? "Creators" : "Kreator",
+    description:
+      locale === "en"
+        ? "Discover prompt creators on Rampungin."
+        : "Temukan kreator prompt di Rampungin.",
+    noIndex: Boolean(q),
+  });
 }
 
 export default async function PeoplePage({

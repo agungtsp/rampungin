@@ -67,6 +67,8 @@ export function TermsAcceptance({ checked, onChange }: Props) {
                 type="button"
                 onClick={() => setOpen(false)}
                 className="rounded-lg px-2 py-1 text-sm text-ink-muted hover:bg-soft"
+                aria-label={locale === "en" ? "Close" : "Tutup"}
+                title={locale === "en" ? "Close" : "Tutup"}
               >
                 ✕
               </button>

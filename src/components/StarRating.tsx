@@ -19,10 +19,12 @@ function Star({
   filled,
   onClick,
   disabled,
+  label,
 }: {
   filled: boolean;
   onClick: () => void;
   disabled?: boolean;
+  label: string;
 }) {
   return (
     <button
@@ -30,7 +32,8 @@ function Star({
       disabled={disabled}
       onClick={onClick}
       className="p-0.5 text-amber-400 transition hover:scale-110 disabled:cursor-default disabled:opacity-60"
-      aria-label="star"
+      aria-label={label}
+      title={label}
     >
       <svg
         width="22"
@@ -115,6 +118,11 @@ export function StarRating({
                 filled={n <= display}
                 disabled={busy || !canRate}
                 onClick={() => void rate(n)}
+                label={
+                  locale === "en"
+                    ? `Rate ${n} star${n > 1 ? "s" : ""}`
+                    : `Beri ${n} bintang`
+                }
               />
             </span>
           ))}

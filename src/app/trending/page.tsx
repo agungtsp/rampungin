@@ -23,9 +23,24 @@ import {
   applyLocaleAvailabilityFilter,
 } from "@/lib/prompt-select";
 import { asOne } from "@/lib/relations";
+import { buildPageMetadata } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { publicImageUrl } from "@/lib/storage";
 import { trendingScore } from "@/lib/trending";
+import type { Metadata } from "next";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale();
+  return buildPageMetadata({
+    locale,
+    barePath: "/trending",
+    title: locale === "en" ? "Trending prompts" : "Prompt trending",
+    description:
+      locale === "en"
+        ? "Most used AI prompts on Rampungin — ranked by likes, copies, and generates."
+        : "Prompt AI paling banyak digunakan di Rampungin — berdasarkan suka, salin, dan generate.",
+  });
+}
 
 type Row = {
   id: string;
@@ -62,6 +77,10 @@ export default async function TrendingPage({
   let page = parsePage(sp.page);
   const locale = await getServerLocale();
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isLoggedIn = Boolean(user);
 
   const attempt = async (select: string) => {
     let q = supabase
@@ -163,6 +182,7 @@ export default async function TrendingPage({
                   rating_avg={p.rating_avg}
                   rating_count={p.rating_count}
                   ai_platform={p.ai_platform}
+                  isLoggedIn={isLoggedIn}
                 />
               );
             })}

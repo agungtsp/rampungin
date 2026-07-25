@@ -22,7 +22,7 @@ type Props = {
 export function SaveToFolderButton({
   promptId,
   promptPath,
-  isLoggedIn,
+  isLoggedIn: _isLoggedIn = false,
   compact = false,
 }: Props) {
   const { locale } = useLocale();
@@ -51,6 +51,15 @@ export function SaveToFolderButton({
 
   async function load() {
     const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      setFolders([]);
+      setSelected(new Set());
+      setSavedAnywhere(false);
+      return;
+    }
     await supabase.rpc("ensure_default_save_folder");
     const { data: folderRows } = await supabase
       .from("save_folders")
@@ -68,11 +77,33 @@ export function SaveToFolderButton({
     setSavedAnywhere(ids.size > 0);
   }
 
+  // Bookmark state on mount only when logged in (avoids N× auth storms for guests)
   useEffect(() => {
-    if (!open || !isLoggedIn) return;
+    if (!_isLoggedIn) return;
+    let cancelled = false;
+    void (async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+      const { data } = await supabase
+        .from("saved_prompts")
+        .select("folder_id")
+        .eq("prompt_id", promptId)
+        .limit(1);
+      if (!cancelled) setSavedAnywhere((data?.length ?? 0) > 0);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [promptId, _isLoggedIn]);
+
+  useEffect(() => {
+    if (!open) return;
     void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, isLoggedIn, promptId]);
+  }, [open, promptId]);
 
   async function openPicker(e: React.MouseEvent) {
     e.preventDefault();
@@ -80,6 +111,7 @@ export function SaveToFolderButton({
     if (!(await ensureAuth())) return;
     setOpen(true);
     setMsg(null);
+    void load();
   }
 
   async function toggleFolder(folderId: string) {
@@ -179,6 +211,7 @@ export function SaveToFolderButton({
         type="button"
         onClick={openPicker}
         title={savedAnywhere ? savedLabel : label}
+        aria-label={savedAnywhere ? savedLabel : label}
         className={
           compact
             ? `rounded-md bg-white/95 p-1.5 shadow-sm ring-1 ring-black/5 transition hover:bg-white ${
@@ -224,6 +257,8 @@ export function SaveToFolderButton({
                 type="button"
                 className="rounded-lg px-2 py-1 text-sm text-ink-muted hover:bg-soft"
                 onClick={() => setOpen(false)}
+                aria-label={locale === "en" ? "Close" : "Tutup"}
+                title={locale === "en" ? "Close" : "Tutup"}
               >
                 ✕
               </button>

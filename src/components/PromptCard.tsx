@@ -1,13 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import { LocaleLink } from "./LocaleLink";
-import { SaveToFolderButton } from "./SaveToFolderButton";
 import { aiPlatformBadge } from "@/lib/ai-platform";
 import { categoryEmoji, categoryLabel } from "@/lib/categories";
 import { defaultCoverUrl, promptCoverUrl } from "@/lib/cover";
 import { promptDetailPath } from "@/lib/paths";
 import { isEffectivelyPublic } from "@/lib/visibility";
+
+const SaveToFolderButton = dynamic(
+  () =>
+    import("./SaveToFolderButton").then((m) => ({
+      default: m.SaveToFolderButton,
+    })),
+  { ssr: false, loading: () => null },
+);
 
 type Props = {
   id: string;
@@ -26,6 +35,7 @@ type Props = {
   rating_count?: number | null;
   ai_platform?: string | null;
   isLoggedIn?: boolean;
+  priority?: boolean;
 };
 
 export function PromptCard({
@@ -44,6 +54,7 @@ export function PromptCard({
   rating_count = 0,
   ai_platform,
   isLoggedIn = false,
+  priority = false,
 }: Props) {
   const pub = isEffectivelyPublic(is_public, public_until);
   const href = authorUsername
@@ -51,8 +62,10 @@ export function PromptCard({
     : `/prompts/${id}`;
   const fallback = defaultCoverUrl(category);
   const [src, setSrc] = useState(() => promptCoverUrl(imageUrl, category));
+  const [useFallbackImg, setUseFallbackImg] = useState(false);
   const avg = Number(rating_avg) || 0;
   const rcount = Number(rating_count) || 0;
+  const isRemote = src.startsWith("http");
 
   return (
     <div className="card-hover group relative min-w-0">
@@ -67,17 +80,37 @@ export function PromptCard({
       <LocaleLink href={href} className="block">
         <article className="overflow-hidden rounded-xl bg-white shadow-card ring-1 ring-black/[0.06] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-card-hover">
           <div className="relative aspect-square overflow-hidden bg-soft">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={src}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-              onError={() => {
-                if (src !== fallback) setSrc(fallback);
-              }}
-            />
+            {isRemote && !useFallbackImg ? (
+              <Image
+                src={src}
+                alt={title}
+                title={title}
+                fill
+                sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 20vw"
+                className="object-cover transition duration-500 group-hover:scale-105"
+                priority={priority}
+                loading={priority ? "eager" : "lazy"}
+                onError={() => {
+                  if (src !== fallback) {
+                    setSrc(fallback);
+                    setUseFallbackImg(true);
+                  }
+                }}
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={src}
+                alt={title}
+                title={title}
+                loading={priority ? "eager" : "lazy"}
+                decoding="async"
+                className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                onError={() => {
+                  if (src !== fallback) setSrc(fallback);
+                }}
+              />
+            )}
 
             <div className="absolute left-1.5 top-1.5 flex max-w-[calc(100%-3rem)] flex-wrap gap-1 sm:left-2 sm:top-2">
               <span className="max-w-full truncate rounded-md bg-white px-1.5 py-0.5 text-[10px] font-semibold text-ink shadow-sm sm:text-[11px]">

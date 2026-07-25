@@ -4,7 +4,9 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { VisibilityControls } from "@/components/VisibilityControls";
 import { TermsAcceptance } from "@/components/TermsAcceptance";
+import { FileUploadField } from "@/components/FileUploadField";
 import { CATEGORIES, DEFAULT_CATEGORY } from "@/lib/categories";
+import { publicImageUrl } from "@/lib/storage";
 import {
   AI_PLATFORMS,
   parseAiPlatform,
@@ -130,7 +132,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
   });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(Boolean(existing));
 
   function updateField(index: number, patch: Partial<PromptFieldInput>) {
     setFields((rows) =>
@@ -644,31 +646,40 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
         />
       </label>
 
-      <label className="block space-y-1">
-        <span className="text-sm font-medium">
-          {isId
+      <FileUploadField
+        key={contentLang}
+        label={
+          isId
             ? "Preview gambar ID (jpg/png/webp, max 2MB)"
-            : "Cover image EN (jpg/png/webp, max 2MB)"}
-        </span>
-        <input
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          onChange={(e) => {
-            const file = e.target.files?.[0] ?? null;
-            if (isId) setImageFile(file);
-            else setImageFileEn(file);
-          }}
-        />
-        <p className="text-xs text-ink-muted">
-          {isId
+            : "Cover image EN (jpg/png/webp, max 2MB)"
+        }
+        buttonLabel={isId ? "Pilih gambar ID" : "Choose EN cover"}
+        hint={
+          isId
             ? imagePath
               ? "Gambar ID sudah ada — pilih file baru untuk mengganti."
               : "Opsional. Tidak dipakai sebagai cover EN."
             : imagePathEn
               ? "Gambar EN sudah ada — pilih file baru untuk mengganti."
-              : "Opsional. Jika kosong, kartu EN tidak memakai cover ID."}
-        </p>
-      </label>
+              : "Opsional. Jika kosong, kartu EN tidak memakai cover ID."
+        }
+        showPreview
+        previewUrl={
+          isId
+            ? imagePath
+              ? publicImageUrl(imagePath)
+              : null
+            : imagePathEn
+              ? publicImageUrl(imagePathEn)
+              : null
+        }
+        previewAlt={isId ? "Cover prompt ID" : "Prompt cover EN"}
+        fileName={isId ? imageFile?.name : imageFileEn?.name}
+        onChange={(file) => {
+          if (isId) setImageFile(file);
+          else setImageFileEn(file);
+        }}
+      />
 
       <label className="block space-y-1">
         <span className="text-sm font-medium">URL video (opsional)</span>
@@ -677,6 +688,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
           value={videoUrl}
           onChange={(e) => setVideoUrl(e.target.value)}
           placeholder="https://youtube.com/..."
+          title="URL video opsional"
         />
       </label>
 
@@ -685,14 +697,34 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       <TermsAcceptance checked={acceptedTerms} onChange={setAcceptedTerms} />
 
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p
+          role="alert"
+          className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800"
+        >
           {error}
         </p>
       )}
 
+      {!acceptedTerms ? (
+        <p className="text-xs text-ink-muted">
+          {locale === "en"
+            ? "Accept the Terms to enable Save."
+            : "Centang Persyaratan agar tombol Simpan aktif."}
+        </p>
+      ) : null}
+
       <button
         type="submit"
         disabled={busy || !acceptedTerms}
+        title={
+          !acceptedTerms
+            ? locale === "en"
+              ? "Accept Terms first"
+              : "Centang Persyaratan dulu"
+            : busy
+              ? "Menyimpan…"
+              : "Simpan prompt"
+        }
         className="rounded-xl bg-primary-hover px-5 py-3 text-white disabled:opacity-60"
       >
         {busy ? "Menyimpan…" : "Simpan prompt"}

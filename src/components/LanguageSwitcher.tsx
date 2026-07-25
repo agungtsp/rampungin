@@ -50,6 +50,8 @@ export function LanguageSwitcher() {
           type="button"
           disabled={pending != null}
           onClick={() => pick("id")}
+          title="Bahasa Indonesia"
+          aria-label="Bahasa Indonesia"
           className={`rounded-full px-2 py-1 transition disabled:cursor-wait ${
             (pending ?? locale) === "id"
               ? "bg-primary text-white"
@@ -69,6 +71,8 @@ export function LanguageSwitcher() {
           type="button"
           disabled={pending != null}
           onClick={() => pick("en")}
+          title="English"
+          aria-label="English"
           className={`rounded-full px-2 py-1 transition disabled:cursor-wait ${
             (pending ?? locale) === "en"
               ? "bg-primary text-white"

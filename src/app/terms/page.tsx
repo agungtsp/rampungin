@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import { getTermsCopy } from "@/lib/i18n/terms-content";
 import { getServerLocale } from "@/lib/i18n/server";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale();
   const copy = getTermsCopy(locale);
-  return {
-    title: copy.metaTitle,
+  return buildPageMetadata({
+    locale,
+    barePath: "/terms",
+    title: copy.metaTitle.replace(/\s*[—|-]\s*Rampungin$/i, ""),
     description: copy.metaDescription,
-  };
+  });
 }
 
 export default async function TermsPage() {

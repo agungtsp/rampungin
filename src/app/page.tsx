@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { CategoryChips } from "@/components/CategoryChips";
+import { LocaleLink } from "@/components/LocaleLink";
 import { PaginationControls } from "@/components/PaginationControls";
 import {
   PaginationShell,
@@ -31,6 +31,7 @@ import {
   applyLocaleAvailabilityFilter,
 } from "@/lib/prompt-select";
 import { asOne } from "@/lib/relations";
+import { buildPageMetadata, siteCopy } from "@/lib/seo";
 import {
   buildOrIlikeFilter,
   categoryFromIntent,
@@ -38,6 +39,36 @@ import {
 } from "@/lib/smart-search";
 import { createClient } from "@/lib/supabase/server";
 import { publicImageUrl } from "@/lib/storage";
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}): Promise<Metadata> {
+  const locale = await getServerLocale();
+  const sp = await searchParams;
+  const q = sp.q?.trim();
+  const copy = siteCopy(locale);
+  if (q) {
+    return buildPageMetadata({
+      locale,
+      barePath: "/",
+      title:
+        locale === "en"
+          ? `Search: ${q} — Rampungin`
+          : `Cari: ${q} — Rampungin`,
+      description: copy.description,
+      noIndex: true,
+    });
+  }
+  return buildPageMetadata({
+    locale,
+    barePath: "/",
+    title: copy.title,
+    description: copy.description,
+  });
+}
 
 type PromptRow = {
   id: string;
@@ -64,10 +95,18 @@ type PromptRow = {
   profiles?: { username: string } | { username: string }[] | null;
 };
 
-function CardGrid({ items, locale }: { items: PromptRow[]; locale: Locale }) {
+function CardGrid({
+  items,
+  locale,
+  isLoggedIn = false,
+}: {
+  items: PromptRow[];
+  locale: Locale;
+  isLoggedIn?: boolean;
+}) {
   return (
     <div className="marketplace-grid">
-      {items.map((p) => {
+      {items.map((p, index) => {
         const author = asOne(p.profiles ?? null);
         const loc = localizePrompt(
           {
@@ -102,6 +141,8 @@ function CardGrid({ items, locale }: { items: PromptRow[]; locale: Locale }) {
             rating_avg={p.rating_avg}
             rating_count={p.rating_count}
             ai_platform={p.ai_platform}
+            isLoggedIn={isLoggedIn}
+            priority={index < 4}
           />
         );
       })}
@@ -127,7 +168,10 @@ export default async function HomePage({
   const locale = await getServerLocale();
   const t = (key: Parameters<typeof translate>[1]) => translate(locale, key);
   const supabase = await createClient();
-
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isLoggedIn = Boolean(user);
   const { count: catalogCount } = await supabase
     .from("prompts")
     .select("id", { count: "exact", head: true });
@@ -189,18 +233,18 @@ export default async function HomePage({
               {t("heroSubtitle")}
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:mt-6 sm:gap-3">
-              <Link
+              <LocaleLink
                 href="/prompts/new"
                 className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover sm:px-5"
               >
                 {t("heroShare")}
-              </Link>
-              <Link
+              </LocaleLink>
+              <LocaleLink
                 href="/trending"
                 className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-soft sm:px-5"
               >
                 {t("heroTrending")}
-              </Link>
+              </LocaleLink>
             </div>
           </div>
         </section>
@@ -222,14 +266,14 @@ export default async function HomePage({
                 </h2>
                 <p className="mt-0.5 text-sm text-ink-muted">{t("featuredSub")}</p>
               </div>
-              <Link
+              <LocaleLink
                 href="/trending"
                 className="text-sm font-semibold text-primary hover:underline"
               >
                 {t("seeAll")}
-              </Link>
+              </LocaleLink>
             </div>
-            <CardGrid items={featured} locale={locale} />
+            <CardGrid items={featured} locale={locale} isLoggedIn={isLoggedIn} />
           </section>
         ) : null}
 
@@ -250,15 +294,15 @@ export default async function HomePage({
                     ) : null}
                   </div>
                   {!q ? (
-                    <Link
+                    <LocaleLink
                       href="/trending"
                       className="text-sm font-semibold text-primary hover:underline"
                     >
                       {t("navTrending")}
-                    </Link>
+                    </LocaleLink>
                   ) : null}
                 </div>
-                <CardGrid items={prompts} locale={locale} />
+                <CardGrid items={prompts} locale={locale} isLoggedIn={isLoggedIn} />
               </section>
 
               {!prompts.length ? (

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { CategoryChips } from "@/components/CategoryChips";
 import { PaginationControls } from "@/components/PaginationControls";
 import {
@@ -30,8 +31,31 @@ import {
   applyLocaleAvailabilityFilter,
 } from "@/lib/prompt-select";
 import { asOne } from "@/lib/relations";
+import { buildPageMetadata } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { publicImageUrl } from "@/lib/storage";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const locale = await getServerLocale();
+  const label = categoryLabel(slug);
+  return buildPageMetadata({
+    locale,
+    barePath: `/category/${slug}`,
+    title:
+      locale === "en"
+        ? `${label} prompts`
+        : `Prompt ${label}`,
+    description:
+      locale === "en"
+        ? `Browse free ${label} AI prompts on Rampungin.`
+        : `Jelajahi prompt AI ${label} gratis di Rampungin.`,
+  });
+}
 
 type Row = {
   id: string;
@@ -73,6 +97,10 @@ export default async function CategoryPage({
   let page = parsePage(sp.page);
   const locale = await getServerLocale();
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isLoggedIn = Boolean(user);
 
   let countQuery = supabase
     .from("prompts")
@@ -174,6 +202,7 @@ export default async function CategoryPage({
                       rating_avg={p.rating_avg}
                       rating_count={p.rating_count}
                       ai_platform={p.ai_platform}
+                      isLoggedIn={isLoggedIn}
                     />
                   );
                 })}

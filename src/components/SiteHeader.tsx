@@ -1,58 +1,74 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { createClient } from "@/lib/supabase/client";
 import { useLocale } from "@/lib/i18n";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { LocaleLink } from "./LocaleLink";
 import { RampunginLogo } from "./RampunginLogo";
-import { SmartSearchButton } from "./SmartSearchModal";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { UserMenu } from "./UserMenu";
+
+const SmartSearchButton = dynamic(
+  () =>
+    import("./SmartSearchModal").then((m) => ({
+      default: m.SmartSearchButton,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="h-9 w-full max-w-md animate-pulse rounded-full bg-soft"
+        aria-hidden
+      />
+    ),
+  },
+);
 
 const navLinkClass =
   "whitespace-nowrap rounded-lg px-2.5 py-1.5 transition hover:bg-soft hover:text-ink";
 
-export function SiteHeader() {
+type Props = {
+  initialUsername?: string | null;
+};
+
+export function SiteHeader({ initialUsername = null }: Props) {
   const { t } = useLocale();
-  const [username, setUsername] = useState<string | null>(null);
-  const [ready, setReady] = useState(false);
+  const [username, setUsername] = useState<string | null>(initialUsername);
+  const [ready, setReady] = useState(initialUsername !== undefined);
+
+  useEffect(() => {
+    setUsername(initialUsername);
+    setReady(true);
+  }, [initialUsername]);
 
   useEffect(() => {
     const supabase = createClient();
-    let cancelled = false;
-
-    async function load() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (cancelled) return;
-      if (!user) {
-        setUsername(null);
-        setReady(true);
-        return;
-      }
-      const { data } = await supabase
-        .from("profiles")
-        .select("username")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (cancelled) return;
-      setUsername(data?.username ?? null);
-      setReady(true);
-    }
-
-    void load();
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
-      void load();
+    } = supabase.auth.onAuthStateChange(async (event) => {
+      if (event === "SIGNED_OUT") {
+        setUsername(null);
+        return;
+      }
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) {
+          setUsername(null);
+          return;
+        }
+        const { data } = await supabase
+          .from("profiles")
+          .select("username")
+          .eq("id", user.id)
+          .maybeSingle();
+        setUsername(data?.username ?? null);
+      }
     });
-
-    return () => {
-      cancelled = true;
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   const navLinks = (
@@ -81,6 +97,8 @@ export function SiteHeader() {
           href="/"
           className="group flex shrink-0 items-center gap-2.5"
           prefetch
+          title="Rampungin — Home"
+          aria-label="Rampungin home"
         >
           <RampunginLogo className="h-8 w-8 shadow-sm transition group-hover:scale-[1.04]" />
           <span className="hidden font-display text-[1.05rem] font-semibold tracking-tight text-ink sm:inline">
@@ -125,7 +143,6 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* Mobile / tablet: keep nav visible under the main bar */}
       <nav
         aria-label="Main"
         className="-mx-0 flex items-center gap-0.5 overflow-x-auto border-t border-secondary/40 px-3 py-1.5 text-sm font-medium text-ink-muted [scrollbar-width:none] sm:px-6 xl:hidden [&::-webkit-scrollbar]:hidden"

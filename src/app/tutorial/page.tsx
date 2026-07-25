@@ -4,14 +4,17 @@ import { CATEGORIES } from "@/lib/categories";
 import { getTutorialCopy } from "@/lib/i18n/tutorial-content";
 import { localePath } from "@/lib/i18n/paths";
 import { getServerLocale } from "@/lib/i18n/server";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale();
   const copy = getTutorialCopy(locale);
-  return {
-    title: copy.metaTitle,
+  return buildPageMetadata({
+    locale,
+    barePath: "/tutorial",
+    title: copy.metaTitle.replace(/\s*[—|-]\s*Rampungin$/i, ""),
     description: copy.metaDescription,
-  };
+  });
 }
 
 type Step = {

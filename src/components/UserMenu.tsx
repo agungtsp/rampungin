@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useLocale } from "@/lib/i18n";
+import { localePath } from "@/lib/i18n/paths";
 import { LocaleLink } from "./LocaleLink";
 
 type Props = {
@@ -10,7 +11,7 @@ type Props = {
 };
 
 export function UserMenu({ username }: Props) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -33,7 +34,7 @@ export function UserMenu({ username }: Props) {
   async function logout() {
     const supabase = createClient();
     await supabase.auth.signOut();
-    window.location.href = "/";
+    window.location.href = localePath(locale, "/");
   }
 
   return (
@@ -43,6 +44,10 @@ export function UserMenu({ username }: Props) {
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
+        title={`@${username}`}
+        aria-label={
+          locale === "en" ? `Account menu for @${username}` : `Menu akun @${username}`
+        }
         className="max-w-[7.5rem] truncate rounded-full bg-soft px-2.5 py-1.5 text-sm font-medium text-ink transition hover:bg-soft sm:max-w-none sm:px-3 sm:py-2"
       >
         @{username}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
   /** Stable thread id — use prompt UUID */
@@ -38,9 +38,27 @@ export function DisqusComments({ identifier, url, title }: Props) {
     process.env.NEXT_PUBLIC_DISQUS_SHORTNAME,
   );
   const loadedFor = useRef<string | null>(null);
+  const rootRef = useRef<HTMLElement | null>(null);
+  const [shouldLoad, setShouldLoad] = useState(false);
 
   useEffect(() => {
-    if (!shortname || typeof window === "undefined") return;
+    if (!shortname || !rootRef.current) return;
+    const el = rootRef.current;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setShouldLoad(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [shortname]);
+
+  useEffect(() => {
+    if (!shouldLoad || !shortname || typeof window === "undefined") return;
 
     const absoluteUrl = url.startsWith("http")
       ? url
@@ -81,7 +99,7 @@ export function DisqusComments({ identifier, url, title }: Props) {
       });
     }
     loadedFor.current = identifier;
-  }, [identifier, url, title, shortname]);
+  }, [shouldLoad, identifier, url, title, shortname]);
 
   if (!shortname) {
     return (
@@ -98,10 +116,16 @@ export function DisqusComments({ identifier, url, title }: Props) {
   }
 
   return (
-    <section className="space-y-3 rounded-2xl bg-white p-4 ring-1 ring-black/[0.07] sm:p-5">
+    <section
+      ref={rootRef}
+      className="space-y-3 rounded-2xl bg-white p-4 ring-1 ring-black/[0.07] sm:p-5"
+    >
       <h2 className="font-display text-lg font-semibold tracking-tight text-ink">
         Komentar
       </h2>
+      {!shouldLoad ? (
+        <p className="text-sm text-ink-muted">Memuat komentar…</p>
+      ) : null}
       <div id="disqus_thread" />
       <noscript>
         Aktifkan JavaScript untuk melihat komentar dari{" "}

@@ -16,8 +16,21 @@ function isSkippedPath(pathname: string): boolean {
     pathname.startsWith("/bg") ||
     pathname === "/icon.svg" ||
     pathname === "/apple-icon" ||
+    pathname === "/opengraph-image" ||
+    pathname === "/sitemap.xml" ||
+    pathname === "/robots.txt" ||
     pathname === "/favicon.ico" ||
     /\.[a-zA-Z0-9]+$/.test(pathname)
+  );
+}
+
+function pathNeedsAuth(barePath: string): boolean {
+  return (
+    barePath === "/me" ||
+    barePath === "/saved" ||
+    barePath === "/prompts/new" ||
+    /^\/prompts\/[^/]+\/edit$/.test(barePath) ||
+    /^\/profile\/[^/]+\/[^/]+\/edit$/.test(barePath)
   );
 }
 
@@ -51,6 +64,11 @@ export async function middleware(request: NextRequest) {
     sameSite: "lax",
   });
 
+  // Skip Supabase auth refresh on public pages (big TTFB win)
+  if (!pathNeedsAuth(barePath)) {
+    return response;
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!supabaseUrl || !supabaseKey) {
@@ -83,14 +101,7 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const needsAuth =
-    barePath === "/me" ||
-    barePath === "/saved" ||
-    barePath === "/prompts/new" ||
-    /^\/prompts\/[^/]+\/edit$/.test(barePath) ||
-    /^\/profile\/[^/]+\/[^/]+\/edit$/.test(barePath);
-
-  if (needsAuth && !user) {
+  if (!user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = localePath(urlLocale, "/auth");
     redirectUrl.search = "";

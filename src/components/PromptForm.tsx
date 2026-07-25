@@ -55,8 +55,8 @@ export function PromptForm({
   const { locale } = useLocale();
   const platform = parseAiPlatform(aiPlatform);
   const [values, setValues] = useState<Record<string, string>>({});
-  const [output, setOutput] = useState("");
-  const [hasGenerated, setHasGenerated] = useState(false);
+  const [output, setOutput] = useState(mode === "static" ? body : "");
+  const [hasGenerated, setHasGenerated] = useState(mode === "static");
   const [donateOpen, setDonateOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [invalidKeys, setInvalidKeys] = useState<string[]>([]);
@@ -64,6 +64,16 @@ export function PromptForm({
   const [generateCount, setGenerateCount] = useState(initialGenerateCount);
 
   const closeDonate = useCallback(() => setDonateOpen(false), []);
+
+  function maybeOpenDonate() {
+    try {
+      if (sessionStorage.getItem("rampungin_donate_seen") === "1") return;
+      sessionStorage.setItem("rampungin_donate_seen", "1");
+      setDonateOpen(true);
+    } catch {
+      setDonateOpen(true);
+    }
+  }
 
   function setValue(key: string, value: string) {
     setValues((v) => ({ ...v, [key]: value }));
@@ -145,7 +155,7 @@ export function PromptForm({
     setError(null);
     setInvalidKeys([]);
     setHasGenerated(true);
-    setDonateOpen(true);
+    maybeOpenDonate();
     await trackGenerate();
   }
 
@@ -282,21 +292,32 @@ export function PromptForm({
         <button
           type="button"
           onClick={() => void generate()}
+          title={
+            locale === "en" ? "Generate prompt text" : "Hasilkan teks prompt"
+          }
           className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover"
         >
-          Hasilkan prompt
+          {locale === "en" ? "Generate prompt" : "Hasilkan prompt"}
         </button>
         {hasGenerated ? (
           <button
             type="button"
             onClick={() => void copy()}
+            title={locale === "en" ? "Copy to clipboard" : "Salin ke clipboard"}
             className="rounded-full bg-white px-5 py-2.5 text-sm font-medium text-ink ring-1 ring-black/[0.1] transition hover:bg-soft"
           >
-            {copied ? "Tersalin" : "Salin"}
+            {copied
+              ? locale === "en"
+                ? "Copied"
+                : "Tersalin"
+              : locale === "en"
+                ? "Copy"
+                : "Salin"}
           </button>
         ) : null}
         <span className="text-xs text-ink-faint">
-          {generateCount} kali dihasilkan
+          {generateCount}{" "}
+          {locale === "en" ? "generations" : "kali dihasilkan"}
         </span>
       </div>
 
@@ -312,6 +333,9 @@ export function PromptForm({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-full bg-soft px-4 py-2 text-sm font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-secondary/30"
+                title={
+                  locale === "en" ? "Open in ChatGPT" : "Buka di ChatGPT"
+                }
               >
                 {locale === "en" ? "Open in ChatGPT ↗" : "Buka di ChatGPT ↗"}
               </a>
@@ -322,6 +346,11 @@ export function PromptForm({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-full bg-soft px-4 py-2 text-sm font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-secondary/30"
+                title={
+                  locale === "en"
+                    ? "Open in Google AI Studio"
+                    : "Buka di Google AI Studio"
+                }
               >
                 {locale === "en" ? "Open in AI Studio ↗" : "Buka di AI Studio ↗"}
               </a>

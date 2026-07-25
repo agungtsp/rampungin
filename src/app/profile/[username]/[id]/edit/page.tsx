@@ -1,5 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { PromptEditorForm } from "@/components/PromptEditorForm";
+import { getServerLocale } from "@/lib/i18n/server";
+import { localePath } from "@/lib/i18n/paths";
 import { createClient } from "@/lib/supabase/server";
 import type { PromptFieldInput, PromptMode } from "@/lib/types";
 
@@ -13,8 +15,13 @@ export default async function ProfilePromptEditPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect(`/auth?next=/profile/${username}/${id}/edit`);
-
+  if (!user) {
+    const locale = await getServerLocale();
+    const next = localePath(locale, `/profile/${username}/${id}/edit`);
+    redirect(
+      `${localePath(locale, "/auth")}?next=${encodeURIComponent(next)}`,
+    );
+  }
   const { data: profile } = await supabase
     .from("profiles")
     .select("username")

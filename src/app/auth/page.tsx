@@ -1,8 +1,19 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { FreeBadge } from "@/components/FreeBadge";
 import { GoogleLoginButton } from "@/components/GoogleLoginButton";
 import { getServerLocale } from "@/lib/i18n/server";
+import { noIndexMetadata } from "@/lib/seo";
 import { AuthErrorBanner } from "./AuthErrorBanner";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale();
+  return noIndexMetadata(
+    locale,
+    "/auth",
+    locale === "en" ? "Sign in" : "Masuk",
+  );
+}
 
 export default async function AuthPage() {
   const locale = await getServerLocale();

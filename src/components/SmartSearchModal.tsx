@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocale } from "@/lib/i18n";
@@ -38,7 +37,6 @@ export function SmartSearchButton({
 }: {
   variant?: "icon" | "bar";
 }) {
-  const router = useRouter();
   const { locale } = useLocale();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -95,7 +93,7 @@ export function SmartSearchButton({
     const t = tag.trim();
     if (t) sp.set("tag", t);
     setOpen(false);
-    router.push(`${localePath(locale, "/")}?${sp.toString()}`);
+    window.location.assign(`${localePath(locale, "/")}?${sp.toString()}`);
   }
 
   const modal =
@@ -105,7 +103,8 @@ export function SmartSearchButton({
             <button
               type="button"
               className="absolute inset-0 bg-ink/50 backdrop-blur-[2px]"
-              aria-label="Tutup pencarian"
+              aria-label={locale === "en" ? "Close search" : "Tutup pencarian"}
+              title={locale === "en" ? "Close search" : "Tutup pencarian"}
               onClick={close}
             />
             <div
@@ -188,6 +187,8 @@ export function SmartSearchButton({
         onClick={openModal}
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-label={locale === "en" ? "Search prompts" : "Cari prompt"}
+        title={locale === "en" ? "Search prompts" : "Cari prompt"}
         className={
           variant === "bar"
             ? "flex w-full min-w-0 items-center gap-2 rounded-full bg-soft px-3 py-2 text-left text-sm text-ink-muted transition hover:bg-soft sm:gap-2.5 sm:px-3.5 sm:py-2.5"

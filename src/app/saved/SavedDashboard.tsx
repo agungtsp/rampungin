@@ -4,6 +4,7 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import { LocaleLink } from "@/components/LocaleLink";
 import { useLocale } from "@/lib/i18n";
 import { promptDetailPath } from "@/lib/paths";
+import { asOne, PROMPT_AUTHOR } from "@/lib/relations";
 import { createClient } from "@/lib/supabase/client";
 import { publicImageUrl } from "@/lib/storage";
 
@@ -31,9 +32,7 @@ function authorUsername(
     ? never
     : NonNullable<SavedItem["prompt"]>["profiles"],
 ): string | undefined {
-  if (!profiles) return undefined;
-  if (Array.isArray(profiles)) return profiles[0]?.username;
-  return profiles.username;
+  return asOne(profiles)?.username;
 }
 
 export function SavedDashboard() {
@@ -72,7 +71,7 @@ export function SavedDashboard() {
     const { data, error } = await supabase
       .from("saved_prompts")
       .select(
-        `folder_id, created_at, prompt:prompts(id, title, title_en, image_path, image_path_en, profiles(username))`,
+        `folder_id, created_at, prompt:prompts(id, title, title_en, image_path, image_path_en, ${PROMPT_AUTHOR})`,
       )
       .eq("folder_id", folderId)
       .order("created_at", { ascending: false });
@@ -372,7 +371,8 @@ export function SavedDashboard() {
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={cover}
-                          alt=""
+                          alt={title}
+                          title={title}
                           className="h-full w-full object-cover"
                         />
                       ) : null}

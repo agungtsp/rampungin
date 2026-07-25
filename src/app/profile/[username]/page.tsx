@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { FollowButton } from "@/components/FollowButton";
 import { LocaleLink } from "@/components/LocaleLink";
 import { PaginationControls } from "@/components/PaginationControls";
@@ -17,8 +18,47 @@ import {
   parsePageSize,
 } from "@/lib/pagination";
 import { applyLocaleAvailabilityFilter } from "@/lib/prompt-select";
+import { buildPageMetadata } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { publicImageUrl, resolveAvatarUrl } from "@/lib/storage";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}): Promise<Metadata> {
+  const { username } = await params;
+  const locale = await getServerLocale();
+  const supabase = await createClient();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username, display_name, bio, avatar_url")
+    .eq("username", username)
+    .maybeSingle();
+
+  if (!profile) {
+    return buildPageMetadata({
+      locale,
+      barePath: `/profile/${username}`,
+      title: `@${username}`,
+      noIndex: true,
+    });
+  }
+
+  const name = profile.display_name || profile.username;
+  return buildPageMetadata({
+    locale,
+    barePath: `/profile/${profile.username}`,
+    title: `${name} (@${profile.username})`,
+    description:
+      profile.bio?.slice(0, 160) ||
+      (locale === "en"
+        ? `AI prompts by @${profile.username} on Rampungin`
+        : `Prompt AI dari @${profile.username} di Rampungin`),
+    image: resolveAvatarUrl(profile.avatar_url),
+    type: "profile",
+  });
+}
 
 export default async function ProfilePage({
   params,
@@ -148,7 +188,8 @@ export default async function ProfilePage({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={avatarSrc}
-                    alt=""
+                    alt={displayName}
+                    title={displayName}
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -261,6 +302,7 @@ export default async function ProfilePage({
                     rating_avg={p.rating_avg}
                     rating_count={p.rating_count}
                     ai_platform={p.ai_platform}
+                    isLoggedIn={Boolean(user)}
                   />
                 );
               })}

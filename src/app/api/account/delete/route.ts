@@ -24,7 +24,8 @@ export async function POST() {
         .remove(files.map((f) => `${user.id}/${f.name}`));
     }
 
-    await admin.from("profiles").delete().eq("id", user.id);
+    // Delete auth user first. profiles (and dependents) cascade via FK.
+    // Never delete profile before auth — a failed deleteUser would orphan the login.
     const { error } = await admin.auth.admin.deleteUser(user.id);
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

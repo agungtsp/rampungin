@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { DisqusComments } from "@/components/DisqusComments";
 import { MediaPreview } from "@/components/MediaPreview";
 import { PromptForm } from "@/components/PromptForm";
@@ -17,9 +18,75 @@ import { localePath } from "@/lib/i18n/paths";
 import { getServerLocale } from "@/lib/i18n/server";
 import { promptDetailPath, promptEditPath } from "@/lib/paths";
 import { asOne, PROMPT_AUTHOR_FULL } from "@/lib/relations";
+import { absoluteUrl, buildPageMetadata } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { publicImageUrl } from "@/lib/storage";
 import { isEffectivelyPublic } from "@/lib/visibility";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ username: string; id: string }>;
+}): Promise<Metadata> {
+  const { username, id } = await params;
+  const locale = await getServerLocale();
+  const supabase = await createClient();
+  const { data: prompt } = await supabase
+    .from("prompts")
+    .select(
+      `title, description, title_en, description_en, image_path, image_path_en, is_public, public_until, created_at, ${PROMPT_AUTHOR_FULL}`,
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!prompt) {
+    return buildPageMetadata({
+      locale,
+      barePath: `/profile/${username}/${id}`,
+      title: "Prompt",
+      noIndex: true,
+    });
+  }
+
+  const author = asOne(
+    prompt.profiles as
+      | { username: string; display_name: string | null }
+      | { username: string; display_name: string | null }[]
+      | null,
+  );
+  const localized = localizePrompt(
+    {
+      title: prompt.title,
+      description: prompt.description,
+      body: "",
+      tags: null,
+      image_path: prompt.image_path,
+      title_en: prompt.title_en,
+      description_en: prompt.description_en,
+      body_en: null,
+      tags_en: null,
+      image_path_en: prompt.image_path_en,
+    },
+    locale,
+  );
+  const cover = publicImageUrl(localized.imagePath);
+  const bare = promptDetailPath(author?.username || username, id);
+
+  return buildPageMetadata({
+    locale,
+    barePath: bare,
+    title: localized.title,
+    description:
+      localized.description?.slice(0, 160) ||
+      (locale === "en"
+        ? `Free AI prompt by @${author?.username || username} on Rampungin`
+        : `Prompt AI gratis dari @${author?.username || username} di Rampungin`),
+    image: cover,
+    type: "article",
+    publishedTime: prompt.created_at,
+    noIndex: !isEffectivelyPublic(prompt.is_public, prompt.public_until),
+  });
+}
 
 export default async function ProfilePromptDetailPage({
   params,
@@ -87,11 +154,9 @@ export default async function ProfilePromptDetailPage({
       typeof rating?.stars === "number" ? rating.stars : null;
   }
 
-  const detailPath = promptDetailPath(author.username, id);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "";
-  const absoluteUrl = siteUrl ? `${siteUrl}${detailPath}` : detailPath;
-
   const locale = await getServerLocale();
+  const detailPath = promptDetailPath(author.username, id);
+  const pageAbsoluteUrl = absoluteUrl(localePath(locale, detailPath));
   const available = isAvailableInLocale(
     {
       title: prompt.title,
@@ -132,9 +197,42 @@ export default async function ProfilePromptDetailPage({
         ? "Ready to use"
         : "Siap pakai";
 
+  const coverUrl = publicImageUrl(localized.imagePath);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: localized.title,
+    description: localized.description,
+    url: pageAbsoluteUrl,
+    image: coverUrl || undefined,
+    datePublished: prompt.created_at,
+    dateModified: prompt.updated_at,
+    inLanguage: available ? locale : "id",
+    author: {
+      "@type": "Person",
+      name: author.display_name || author.username,
+      url: absoluteUrl(localePath(locale, `/profile/${author.username}`)),
+    },
+    isAccessibleForFree: true,
+    ...(Number(prompt.rating_count) > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: Number(prompt.rating_avg) || 0,
+            ratingCount: Number(prompt.rating_count) || 0,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+      : {}),
+  };
+
   return (
     <main className="mx-auto max-w-3xl space-y-8 px-4 py-8 sm:px-6 sm:py-12">
-      <div className="space-y-3">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />      <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <Link
             href={localePath(locale, `/category/${prompt.category ?? "lainnya"}`)}
@@ -247,7 +345,7 @@ export default async function ProfilePromptDetailPage({
       {effectivelyPublic && (
         <DisqusComments
           identifier={prompt.id}
-          url={absoluteUrl}
+          url={pageAbsoluteUrl}
           title={localized.title}
         />
       )}

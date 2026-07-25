@@ -1,4 +1,6 @@
 import { notFound, redirect } from "next/navigation";
+import { getServerLocale } from "@/lib/i18n/server";
+import { localePath } from "@/lib/i18n/paths";
 import { promptEditPath } from "@/lib/paths";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,8 +15,13 @@ export default async function LegacyPromptEditRedirect({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect(`/auth?next=/prompts/${id}/edit`);
-
+  if (!user) {
+    const locale = await getServerLocale();
+    const next = localePath(locale, `/prompts/${id}/edit`);
+    redirect(
+      `${localePath(locale, "/auth")}?next=${encodeURIComponent(next)}`,
+    );
+  }
   const { data: profile } = await supabase
     .from("profiles")
     .select("username")

@@ -8,21 +8,26 @@ import {
 } from "@/lib/about";
 import { localePath } from "@/lib/i18n/paths";
 import { getServerLocale } from "@/lib/i18n/server";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale();
   if (locale === "en") {
-    return {
-      title: "About & Donate — Rampungin",
+    return buildPageMetadata({
+      locale,
+      barePath: "/about",
+      title: "About & Donate",
       description:
         "Learn about Rampungin and support the free AI prompt marketplace.",
-    };
+    });
   }
-  return {
-    title: "Tentang & Donasi — Rampungin",
+  return buildPageMetadata({
+    locale,
+    barePath: "/about",
+    title: "Tentang & Donasi",
     description:
       "Kenali Rampungin dan dukung pengembangan marketplace prompt AI gratis.",
-  };
+  });
 }
 
 export default async function AboutPage() {
