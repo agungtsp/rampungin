@@ -15,6 +15,7 @@ import {
 import {
   filterByLocale,
   localizePrompt,
+  translate,
 } from "@/lib/i18n";
 import { getServerLocale } from "@/lib/i18n/server";
 import {
@@ -42,7 +43,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const locale = await getServerLocale();
-  const label = categoryLabel(slug);
+  const label = categoryLabel(slug, locale);
   return buildPageMetadata({
     locale,
     barePath: `/category/${slug}`,
@@ -146,15 +147,18 @@ export default async function CategoryPage({
     prompts = (res.data as unknown as Row[] | null) ?? [];
   }
   prompts = filterByLocale(prompts, locale) as Row[];
+  const t = (key: Parameters<typeof translate>[1]) => translate(locale, key);
 
   return (
     <main className="mx-auto max-w-7xl px-3 sm:px-6">
       <div className="space-y-2 border-b border-secondary/60 py-8">
         <h1 className="flex items-center gap-2 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
           <span>{categoryEmoji(slug)}</span>
-          {categoryLabel(slug)}
+          {categoryLabel(slug, locale)}
         </h1>
-        <p className="text-ink-muted">{total} prompt dalam kategori ini.</p>
+        <p className="text-ink-muted">
+          {total} {t("categoryCount")}
+        </p>
       </div>
 
       <div className="sticky top-14 z-30 -mx-3 sm:-mx-6">
@@ -210,7 +214,7 @@ export default async function CategoryPage({
 
               {!prompts.length && (
                 <p className="text-center text-ink-muted">
-                  Belum ada prompt dalam kategori ini.
+                  {t("emptyCategory")}
                 </p>
               )}
             </>

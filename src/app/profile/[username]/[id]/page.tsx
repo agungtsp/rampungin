@@ -238,7 +238,7 @@ export default async function ProfilePromptDetailPage({
             href={localePath(locale, `/category/${prompt.category ?? "lainnya"}`)}
             className="rounded-full bg-soft px-2.5 py-1 font-medium text-primary-hover transition hover:bg-primary/15"
           >
-            {categoryEmoji(prompt.category)} {categoryLabel(prompt.category)}
+            {categoryEmoji(prompt.category)} {categoryLabel(prompt.category, locale)}
           </Link>
           <span className="rounded-full bg-soft px-2.5 py-1 font-medium text-ink-muted ring-1 ring-black/[0.06]">
             {modeLabel}

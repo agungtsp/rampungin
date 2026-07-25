@@ -60,7 +60,7 @@ export function PromptCard({
   priority = false,
   editHref = null,
 }: Props) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const pub = isEffectivelyPublic(is_public, public_until);
   const href = authorUsername
     ? promptDetailPath(authorUsername, id)
@@ -71,7 +71,7 @@ export function PromptCard({
   const avg = Number(rating_avg) || 0;
   const rcount = Number(rating_count) || 0;
   const isRemote = src.startsWith("http");
-  const editLabel = locale === "en" ? "Edit" : "Edit";
+  const editLabel = t("edit");
 
   return (
     <div className="card-hover group relative min-w-0">
@@ -132,7 +132,7 @@ export function PromptCard({
               <span className="max-w-full truncate rounded-md bg-white px-1.5 py-0.5 text-[10px] font-semibold text-ink shadow-sm sm:text-[11px]">
                 <span className="sm:hidden">{categoryEmoji(category)}</span>
                 <span className="hidden sm:inline">
-                  {categoryEmoji(category)} {categoryLabel(category)}
+                  {categoryEmoji(category)} {categoryLabel(category, locale)}
                 </span>
               </span>
               {mode === "template" ? (
@@ -147,11 +147,11 @@ export function PromptCard({
 
             {!pub ? (
               <span className="absolute bottom-1.5 left-1.5 rounded-md bg-primary-hover/85 px-1.5 py-0.5 text-[10px] font-medium text-white sm:bottom-2 sm:left-2">
-                Privat
+                {t("private")}
               </span>
             ) : (
               <span className="absolute bottom-1.5 right-1.5 rounded-md bg-black/55 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white shadow-sm sm:bottom-2 sm:right-2 sm:text-[10px]">
-                Gratis
+                {t("free")}
               </span>
             )}
           </div>
@@ -162,7 +162,7 @@ export function PromptCard({
             </h3>
             <div className="flex items-center justify-between gap-1.5 text-[10px] text-ink-muted sm:text-[11px]">
               <span className="min-w-0 truncate font-medium">
-                {authorUsername ? `@${authorUsername}` : "Anonim"}
+                {authorUsername ? `@${authorUsername}` : t("anonymous")}
               </span>
               <span className="shrink-0 tabular-nums">
                 {rcount > 0 ? (
@@ -175,7 +175,7 @@ export function PromptCard({
                 <span className="mx-0.5 text-ink-faint sm:mx-1">·</span>
                 <span className="sm:hidden">{generate_count + copy_count}</span>
                 <span className="hidden sm:inline">
-                  {generate_count + copy_count} digunakan
+                  {generate_count + copy_count} {t("used")}
                 </span>
               </span>
             </div>

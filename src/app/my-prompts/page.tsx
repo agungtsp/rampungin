@@ -99,11 +99,7 @@ export default async function MyPromptsPage() {
           <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
             {t("myPrompts")}
           </h1>
-          <p className="mt-1 text-sm text-ink-muted">
-            {locale === "en"
-              ? "Manage prompts you have created."
-              : "Kelola prompt yang kamu buat."}
-          </p>
+          <p className="mt-1 text-sm text-ink-muted">{t("myPromptsSub")}</p>
         </div>
         <LocaleLink
           href="/prompts/new"
@@ -163,9 +159,7 @@ export default async function MyPromptsPage() {
           <p className="py-12 text-center text-ink-muted">
             {loadError
               ? `${t("loadError")}: ${loadError}`
-              : locale === "en"
-                ? "You have not created any prompts yet."
-                : "Belum ada prompt yang kamu buat."}{" "}
+              : t("emptyMyPrompts")}{" "}
             {!loadError ? (
               <LocaleLink
                 href="/prompts/new"

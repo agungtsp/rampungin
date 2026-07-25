@@ -1,6 +1,6 @@
 "use client";
 
-import { CATEGORIES } from "@/lib/categories";
+import { CATEGORIES, categoryLabel } from "@/lib/categories";
 import { useLocale } from "@/lib/i18n";
 import { LocaleLink } from "./LocaleLink";
 
@@ -10,7 +10,7 @@ type Props = {
 };
 
 export function CategoryChips({ counts, activeSlug }: Props) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
 
   return (
     <div className="border-b border-secondary/60 bg-white">
@@ -23,7 +23,7 @@ export function CategoryChips({ counts, activeSlug }: Props) {
               : "text-ink-muted hover:bg-soft hover:text-ink"
           }`}
         >
-          {locale === "en" ? "All" : "Semua"}
+          {t("allCategories")}
         </LocaleLink>
         {CATEGORIES.map((c) => {
           const active = c.slug === activeSlug;
@@ -39,7 +39,7 @@ export function CategoryChips({ counts, activeSlug }: Props) {
               }`}
             >
               <span aria-hidden>{c.emoji}</span>
-              <span>{c.label}</span>
+              <span>{categoryLabel(c.slug, locale)}</span>
               {count != null ? (
                 <span
                   className={`tabular-nums text-[10px] sm:text-[11px] ${

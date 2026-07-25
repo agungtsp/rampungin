@@ -1,16 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useLocale } from "@/lib/i18n";
 import type { VisibilityIntent } from "@/lib/types";
-
-const PRESETS = [
-  { label: "Selamanya", hours: null as number | null },
-  { label: "1 jam", hours: 1 },
-  { label: "6 jam", hours: 6 },
-  { label: "24 jam", hours: 24 },
-  { label: "72 jam", hours: 72 },
-  { label: "7 hari", hours: 168 },
-] as const;
 
 type Props = {
   value: VisibilityIntent;
@@ -18,18 +10,34 @@ type Props = {
 };
 
 export function VisibilityControls({ value, onChange }: Props) {
+  const { t } = useLocale();
   const [customHours, setCustomHours] = useState("12");
   const mode = value.kind === "private" ? "private" : "public";
 
+  const presets = useMemo(
+    () =>
+      [
+        { key: "forever", label: t("visibilityForever"), hours: null as number | null },
+        { key: "1h", label: t("visibility1h"), hours: 1 },
+        { key: "6h", label: t("visibility6h"), hours: 6 },
+        { key: "24h", label: t("visibility24h"), hours: 24 },
+        { key: "72h", label: t("visibility72h"), hours: 72 },
+        { key: "7d", label: t("visibility7d"), hours: 168 },
+      ] as const,
+    [t],
+  );
+
   const activePreset = useMemo(() => {
-    if (value.kind !== "timed") return value.kind === "public" ? "Selamanya" : null;
-    const match = PRESETS.find((p) => p.hours === value.hours);
-    return match?.label ?? "custom";
-  }, [value]);
+    if (value.kind !== "timed") {
+      return value.kind === "public" ? "forever" : null;
+    }
+    const match = presets.find((p) => p.hours === value.hours);
+    return match?.key ?? "custom";
+  }, [value, presets]);
 
   return (
     <div className="space-y-3 rounded-xl border border-primary/10 bg-soft/40 p-4">
-      <p className="text-sm font-semibold text-ink">Visibilitas</p>
+      <p className="text-sm font-semibold text-ink">{t("visibilityTitle")}</p>
       <div className="flex gap-2">
         <button
           type="button"
@@ -40,7 +48,7 @@ export function VisibilityControls({ value, onChange }: Props) {
           }`}
           onClick={() => onChange({ kind: "public" })}
         >
-          Publik
+          {t("visibilityPublic")}
         </button>
         <button
           type="button"
@@ -51,20 +59,20 @@ export function VisibilityControls({ value, onChange }: Props) {
           }`}
           onClick={() => onChange({ kind: "private" })}
         >
-          Privat
+          {t("visibilityPrivate")}
         </button>
       </div>
 
       {mode === "public" && (
         <div className="space-y-2">
-          <p className="text-xs text-ink-muted">Publik selama</p>
+          <p className="text-xs text-ink-muted">{t("visibilityPublicFor")}</p>
           <div className="flex flex-wrap gap-2">
-            {PRESETS.map((p) => (
+            {presets.map((p) => (
               <button
-                key={p.label}
+                key={p.key}
                 type="button"
                 className={`rounded-full px-3 py-1 text-xs ${
-                  activePreset === p.label
+                  activePreset === p.key
                     ? "bg-primary-hover text-white"
                     : "bg-white border text-ink"
                 }`}
@@ -97,7 +105,7 @@ export function VisibilityControls({ value, onChange }: Props) {
                 onChange({ kind: "timed", hours });
               }}
             >
-              Pakai jam custom
+              {t("visibilityCustom")}
             </button>
           </div>
         </div>

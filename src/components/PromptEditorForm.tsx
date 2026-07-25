@@ -1,11 +1,11 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { VisibilityControls } from "@/components/VisibilityControls";
 import { TermsAcceptance } from "@/components/TermsAcceptance";
 import { FileUploadField } from "@/components/FileUploadField";
-import { CATEGORIES, DEFAULT_CATEGORY } from "@/lib/categories";
+import { CATEGORIES, DEFAULT_CATEGORY, categoryLabel } from "@/lib/categories";
 import { publicImageUrl } from "@/lib/storage";
 import {
   AI_PLATFORMS,
@@ -74,8 +74,8 @@ function parseTags(raw: string): string[] {
 
 export function PromptEditorForm({ existing, authorUsername }: Props) {
   const router = useRouter();
-  const { locale } = useLocale();
-  const [contentLang, setContentLang] = useState<ContentLang>("id");
+  const { locale, t } = useLocale();
+  const [contentLang, setContentLang] = useState<ContentLang>(locale);
   const [title, setTitle] = useState(existing?.title ?? "");
   const [description, setDescription] = useState(existing?.description ?? "");
   const [body, setBody] = useState(existing?.body ?? "");
@@ -109,12 +109,12 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       ? existing.fields
       : [
           {
-            field_key: "topik",
-            label: "Topik",
+            field_key: locale === "en" ? "topic" : "topik",
+            label: locale === "en" ? "Topic" : "Topik",
             field_type: "text",
             required: true,
             sort_order: 0,
-            placeholder: "cth: marketing",
+            placeholder: locale === "en" ? "e.g. marketing" : "cth: marketing",
           },
         ],
   );
@@ -133,6 +133,10 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(Boolean(existing));
+
+  useEffect(() => {
+    setContentLang(locale);
+  }, [locale]);
 
   function updateField(index: number, patch: Partial<PromptFieldInput>) {
     setFields((rows) =>
@@ -163,7 +167,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      setError("Silakan masuk terlebih dahulu");
+      setError(t("editorNeedLogin"));
       setBusy(false);
       return;
     }
@@ -183,9 +187,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
     const okId = isAvailableInLocale(draft, "id");
     const okEn = isAvailableInLocale(draft, "en");
     if (!okId && !okEn) {
-      setError(
-        "Lengkapi minimal satu bahasa: judul dan isi (body) wajib diisi bersama.",
-      );
+      setError(t("editorNeedOneLang"));
       setBusy(false);
       return;
     }
@@ -194,7 +196,9 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
     try {
       visibility = applyVisibilityIntent(intent);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Visibilitas tidak valid");
+      setError(
+        err instanceof Error ? err.message : t("editorInvalidVisibility"),
+      );
       setBusy(false);
       return;
     }
@@ -207,11 +211,11 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
         file.type,
       );
       if (!okType) {
-        setError("Gambar harus jpg/png/webp");
+        setError(t("editorImageType"));
         return null;
       }
       if (file.size > 2 * 1024 * 1024) {
-        setError("Ukuran gambar maksimal 2MB");
+        setError(t("editorImageSize"));
         return null;
       }
       const ext = file.name.split(".").pop() || "jpg";
@@ -221,7 +225,9 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
         .upload(path, file, { upsert: false });
       if (uploadError) {
         setError(
-          `Upload gagal (${uploadError.message}). Prompt tetap bisa disimpan tanpa gambar baru.`,
+          locale === "en"
+            ? `Upload failed (${uploadError.message}). Prompt can still be saved without a new image.`
+            : `Upload gagal (${uploadError.message}). Prompt tetap bisa disimpan tanpa gambar baru.`,
         );
         return null;
       }
@@ -311,7 +317,9 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
         updateError = retry.error;
         if (!updateError) {
           setError(
-            "Kolom bahasa Inggris belum ada di database. Jalankan migrasi prompt_i18n di Supabase. Versi Indonesia tetap disimpan.",
+            locale === "en"
+              ? "English columns are missing in the database. Run the prompt_i18n migration. Indonesian version was saved."
+              : "Kolom bahasa Inggris belum ada di database. Jalankan migrasi prompt_i18n di Supabase. Versi Indonesia tetap disimpan.",
           );
         }
       }
@@ -337,12 +345,14 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
         insertError = retry.error;
         if (!insertError) {
           setError(
-            "Kolom bahasa Inggris belum ada di database. Jalankan migrasi prompt_i18n. Versi Indonesia tetap disimpan.",
+            locale === "en"
+              ? "English columns are missing in the database. Run the prompt_i18n migration. Indonesian version was saved."
+              : "Kolom bahasa Inggris belum ada di database. Jalankan migrasi prompt_i18n. Versi Indonesia tetap disimpan.",
           );
         }
       }
       if (insertError || !data) {
-        setError(insertError?.message ?? "Gagal membuat prompt");
+        setError(insertError?.message ?? t("editorCreateFail"));
         setBusy(false);
         return;
       }
@@ -393,7 +403,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
   return (
     <form onSubmit={onSubmit} className="mx-auto max-w-2xl space-y-5">
       <h1 className="text-2xl font-bold text-ink">
-        {existing ? "Edit prompt" : "Buat prompt"}
+        {existing ? t("editorEditTitle") : t("editorCreateTitle")}
       </h1>
 
       <div className="flex gap-1 rounded-full bg-soft p-1 ring-1 ring-secondary/40">
@@ -404,7 +414,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
             isId ? "bg-primary text-white" : "text-ink-muted hover:text-ink"
           }`}
         >
-          Indonesia
+          {t("contentLangId")}
         </button>
         <button
           type="button"
@@ -413,17 +423,14 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
             !isId ? "bg-primary text-white" : "text-ink-muted hover:text-ink"
           }`}
         >
-          English
+          {t("contentLangEn")}
         </button>
       </div>
-      <p className="text-xs text-ink-muted">
-        Judul dan body wajib diisi bersama per bahasa. Bahasa yang belum lengkap
-        tidak ditampilkan saat pengguna memilih bahasa itu.
-      </p>
+      <p className="text-xs text-ink-muted">{t("editorLangHint")}</p>
 
       <label className="block space-y-1">
         <span className="text-sm font-medium">
-          {isId ? "Judul (ID)" : "Title (EN)"}
+          {isId ? t("editorTitleId") : t("editorTitleEn")}
         </span>
         <input
           className="field-control w-full rounded-lg px-3 py-2"
@@ -436,7 +443,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
 
       <label className="block space-y-1">
         <span className="text-sm font-medium">
-          {isId ? "Deskripsi (ID)" : "Description (EN)"}
+          {isId ? t("editorDescId") : t("editorDescEn")}
         </span>
         <textarea
           className="field-control w-full rounded-lg px-3 py-2"
@@ -451,7 +458,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       </label>
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium">Kategori</span>
+        <span className="text-sm font-medium">{t("editorCategory")}</span>
         <select
           className="field-control w-full rounded-lg px-3 py-2"
           value={category}
@@ -459,16 +466,14 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
         >
           {CATEGORIES.map((c) => (
             <option key={c.slug} value={c.slug}>
-              {c.emoji} {c.label}
+              {c.emoji} {categoryLabel(c.slug, locale)}
             </option>
           ))}
         </select>
       </label>
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium">
-          {locale === "en" ? "AI platform label" : "Label platform AI"}
-        </span>
+        <span className="text-sm font-medium">{t("editorAiPlatform")}</span>
         <select
           className="field-control w-full rounded-lg px-3 py-2"
           value={aiPlatform}
@@ -480,18 +485,12 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
             </option>
           ))}
         </select>
-        <p className="text-xs text-ink-muted">
-          {locale === "en"
-            ? "Shown on cards and detail: ChatGPT, Gemini, or All."
-            : "Tampil di kartu dan detail: ChatGPT, Gemini, atau Semua."}
-        </p>
+        <p className="text-xs text-ink-muted">{t("editorAiPlatformHint")}</p>
       </label>
 
       <label className="block space-y-1">
         <span className="text-sm font-medium">
-          {isId
-            ? "Tutorial penggunaan (ID)"
-            : "Usage tutorial (EN)"}
+          {isId ? t("editorUsageId") : t("editorUsageEn")}
         </span>
         <textarea
           className="field-control w-full rounded-lg px-3 py-2 text-sm"
@@ -504,11 +503,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
           }
           placeholder={defaultUsageGuidePlaceholder(isId ? "id" : "en")}
         />
-        <p className="text-xs text-ink-muted">
-          {locale === "en"
-            ? "Optional. Leave blank to use the default copy-paste guide for ChatGPT/Gemini."
-            : "Opsional. Kosongkan untuk memakai panduan default copy-paste ke ChatGPT/Gemini."}
-        </p>
+        <p className="text-xs text-ink-muted">{t("editorUsageHint")}</p>
       </label>
 
       <div className="flex gap-2">
@@ -517,14 +512,14 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
           className={`rounded-lg px-3 py-2 text-sm ${mode === "template" ? "bg-primary-hover text-white" : "border"}`}
           onClick={() => setMode("template")}
         >
-          Template berparameter
+          {t("editorModeTemplate")}
         </button>
         <button
           type="button"
           className={`rounded-lg px-3 py-2 text-sm ${mode === "static" ? "bg-primary-hover text-white" : "border"}`}
           onClick={() => setMode("static")}
         >
-          Prompt statis
+          {t("editorModeStatic")}
         </button>
       </div>
 
@@ -532,11 +527,11 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
         <span className="text-sm font-medium">
           {mode === "template"
             ? isId
-              ? "Isi template ID (pakai {{field_key}})"
-              : "Template body EN (use {{field_key}})"
+              ? t("editorBodyTemplateId")
+              : t("editorBodyTemplateEn")
             : isId
-              ? "Isi prompt (ID)"
-              : "Prompt body (EN)"}
+              ? t("editorBodyStaticId")
+              : t("editorBodyStaticEn")}
         </span>
         <textarea
           className="field-control w-full rounded-lg px-3 py-2 font-mono text-sm"
@@ -547,8 +542,8 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
           }
           placeholder={
             mode === "template"
-              ? "Kamu adalah asisten untuk {{topik}}..."
-              : "Tulis prompt siap pakai..."
+              ? t("editorBodyPhTemplate")
+              : t("editorBodyPhStatic")
           }
         />
       </label>
@@ -556,7 +551,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       {mode === "template" && (
         <div className="space-y-3 rounded-xl border p-4">
           <div className="flex items-center justify-between">
-            <p className="font-medium">Parameter</p>
+            <p className="font-medium">{t("editorParams")}</p>
             <button
               type="button"
               className="text-sm text-primary-hover"
@@ -573,7 +568,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
                 ])
               }
             >
-              + Tambah field
+              {t("editorAddField")}
             </button>
           </div>
           {fields.map((f, i) => (
@@ -610,13 +605,13 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
                     updateField(i, { required: e.target.checked })
                   }
                 />
-                Wajib
+                {t("editorRequired")}
               </label>
               <p className="text-xs text-ink/60">key: {`{{${f.field_key}}}`}</p>
               {usesOptions(f.field_type) && (
                 <input
                   className="field-control rounded px-2 py-1 text-sm sm:col-span-2"
-                  placeholder="Opsi dipisah koma (cth: Formal, Santai, Lucu)"
+                  placeholder={t("editorOptionsPh")}
                   value={(f.options ?? []).join(", ")}
                   onChange={(e) =>
                     updateField(i, {
@@ -635,7 +630,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
 
       <label className="block space-y-1">
         <span className="text-sm font-medium">
-          {isId ? "Tags ID (pisah koma)" : "Tags EN (comma-separated)"}
+          {isId ? t("editorTagsId") : t("editorTagsEn")}
         </span>
         <input
           className="field-control w-full rounded-lg px-3 py-2"
@@ -648,20 +643,16 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
 
       <FileUploadField
         key={contentLang}
-        label={
-          isId
-            ? "Preview gambar ID (jpg/png/webp, max 2MB)"
-            : "Cover image EN (jpg/png/webp, max 2MB)"
-        }
-        buttonLabel={isId ? "Pilih gambar ID" : "Choose EN cover"}
+        label={isId ? t("editorImageId") : t("editorImageEn")}
+        buttonLabel={isId ? t("editorImagePickId") : t("editorImagePickEn")}
         hint={
           isId
             ? imagePath
-              ? "Gambar ID sudah ada — pilih file baru untuk mengganti."
-              : "Opsional. Tidak dipakai sebagai cover EN."
+              ? t("editorImageHintIdHas")
+              : t("editorImageHintIdEmpty")
             : imagePathEn
-              ? "Gambar EN sudah ada — pilih file baru untuk mengganti."
-              : "Opsional. Jika kosong, kartu EN tidak memakai cover ID."
+              ? t("editorImageHintEnHas")
+              : t("editorImageHintEnEmpty")
         }
         showPreview
         previewUrl={
@@ -673,7 +664,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
               ? publicImageUrl(imagePathEn)
               : null
         }
-        previewAlt={isId ? "Cover prompt ID" : "Prompt cover EN"}
+        previewAlt={isId ? t("editorImageId") : t("editorImageEn")}
         fileName={isId ? imageFile?.name : imageFileEn?.name}
         onChange={(file) => {
           if (isId) setImageFile(file);
@@ -682,13 +673,13 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       />
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium">URL video (opsional)</span>
+        <span className="text-sm font-medium">{t("editorVideo")}</span>
         <input
           className="field-control w-full rounded-lg px-3 py-2"
           value={videoUrl}
           onChange={(e) => setVideoUrl(e.target.value)}
           placeholder="https://youtube.com/..."
-          title="URL video opsional"
+          title={t("editorVideo")}
         />
       </label>
 
@@ -706,11 +697,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       )}
 
       {!acceptedTerms ? (
-        <p className="text-xs text-ink-muted">
-          {locale === "en"
-            ? "Accept the Terms to enable Save."
-            : "Centang Persyaratan agar tombol Simpan aktif."}
-        </p>
+        <p className="text-xs text-ink-muted">{t("editorAcceptToSave")}</p>
       ) : null}
 
       <button
@@ -718,16 +705,14 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
         disabled={busy || !acceptedTerms}
         title={
           !acceptedTerms
-            ? locale === "en"
-              ? "Accept Terms first"
-              : "Centang Persyaratan dulu"
+            ? t("editorNeedTerms")
             : busy
-              ? "Menyimpan…"
-              : "Simpan prompt"
+              ? t("saving")
+              : t("editorSave")
         }
         className="rounded-xl bg-primary-hover px-5 py-3 text-white disabled:opacity-60"
       >
-        {busy ? "Menyimpan…" : "Simpan prompt"}
+        {busy ? t("saving") : t("editorSave")}
       </button>
     </form>
   );

@@ -31,7 +31,7 @@ export function MeDashboard({
   initialSocials,
 }: Props) {
   const router = useRouter();
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const [username, setUsername] = useState(initialUsername);
   const [displayName, setDisplayName] = useState(initialDisplayName);
   const [bio, setBio] = useState(initialBio);
@@ -199,12 +199,12 @@ export function MeDashboard({
   return (
     <div className="mx-auto max-w-3xl space-y-10 px-4 py-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-ink">Akun saya</h1>
+        <h1 className="text-3xl font-bold text-ink">{t("accountTitle")}</h1>
         <LocaleLink
           href="/my-prompts"
           className="text-sm font-semibold text-primary-hover underline"
         >
-          {locale === "en" ? "My prompts" : "Prompt saya"} →
+          {t("myPrompts")} →
         </LocaleLink>
       </div>
 

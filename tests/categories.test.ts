@@ -18,9 +18,11 @@ describe("categories", () => {
     expect(isValidCategory(null)).toBe(false);
   });
 
-  it("returns label for slug, falling back to Lainnya", () => {
+  it("returns label for slug, falling back to Lainnya / Other", () => {
     expect(categoryLabel("coding")).toBe("Coding & Dev");
     expect(categoryLabel("bogus")).toBe("Lainnya");
     expect(categoryLabel(null)).toBe("Lainnya");
+    expect(categoryLabel("menulis", "en")).toBe("Writing");
+    expect(categoryLabel("bogus", "en")).toBe("Other");
   });
 });
