@@ -124,7 +124,7 @@ export default async function ProfilePage({
     const selectWith =
       "id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, body, title_en, description_en, body_en, tags, tags_en, image_path_en, rating_avg, rating_count, ai_platform";
     const selectBase =
-      "id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path";
+      "id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, body, tags";
     let q = supabase
       .from("prompts")
       .select(selectWith)
@@ -136,7 +136,7 @@ export default async function ProfilePage({
       if (locale === "en") {
         prompts = [];
       } else {
-        let q2 = supabase
+        const q2 = supabase
           .from("prompts")
           .select(selectBase)
           .eq("author_id", profile.id)
@@ -147,12 +147,28 @@ export default async function ProfilePage({
     } else if (first.error?.message?.includes("generate_count")) {
       let q2 = supabase
         .from("prompts")
-        .select(selectBase)
+        .select(
+          "id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, body, title_en, description_en, body_en, tags, tags_en, image_path_en, rating_avg, rating_count, ai_platform",
+        )
         .eq("author_id", profile.id)
         .order("created_at", { ascending: false });
       q2 = applyLocaleAvailabilityFilter(q2, locale);
       const second = await q2.range(from, to);
-      prompts = (second.data as PRow[] | null) ?? [];
+      if (second.error?.message?.includes("title_en")) {
+        prompts =
+          locale === "en"
+            ? []
+            : ((
+                await supabase
+                  .from("prompts")
+                  .select(selectBase)
+                  .eq("author_id", profile.id)
+                  .order("created_at", { ascending: false })
+                  .range(from, to)
+              ).data as PRow[] | null) ?? [];
+      } else {
+        prompts = (second.data as PRow[] | null) ?? [];
+      }
     } else {
       prompts = (first.data as PRow[] | null) ?? [];
     }

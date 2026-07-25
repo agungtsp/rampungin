@@ -65,13 +65,19 @@ export function MeDashboard({
     const nextBio = bio.trim();
 
     if (!nextUsername || !nextDisplayName || !nextBio) {
-      setProfileError("Username, Fullname, dan bio wajib diisi.");
+      setProfileError(
+        locale === "en"
+          ? "Username, full name, and bio are required."
+          : "Username, Fullname, dan bio wajib diisi.",
+      );
       setBusy(false);
       return;
     }
     if (!/^[a-z0-9_]{3,30}$/.test(nextUsername)) {
       setProfileError(
-        "Username harus 3–30 karakter: huruf kecil, angka, atau underscore.",
+        locale === "en"
+          ? "Username must be 3–30 characters: lowercase letters, numbers, or underscore."
+          : "Username harus 3–30 karakter: huruf kecil, angka, atau underscore.",
       );
       setBusy(false);
       return;
@@ -173,7 +179,9 @@ export function MeDashboard({
       setProfileError(error.message + hint);
       return;
     }
-    setProfileOk("Profil berhasil disimpan");
+    setProfileOk(
+      locale === "en" ? "Profile saved successfully" : "Profil berhasil disimpan",
+    );
     router.refresh();
   }
 
@@ -340,10 +348,10 @@ export function MeDashboard({
             <button
               type="submit"
               disabled={busy}
-              title={busy ? "Menyimpan profil…" : "Simpan profil"}
+              title={busy ? t("saving") : t("saveProfile")}
               className="rounded-lg bg-primary-hover px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-60"
             >
-              {busy ? "Menyimpan…" : "Simpan profil"}
+              {busy ? t("saving") : t("saveProfile")}
             </button>
             <LocaleLink
               href={`/profile/${username}`}
@@ -357,11 +365,23 @@ export function MeDashboard({
       </form>
 
       <section className="space-y-3 rounded-xl border border-red-200 bg-red-50 p-4">
-        <h2 className="font-semibold text-red-900">Hapus akun</h2>
+        <h2 className="font-semibold text-red-900">
+          {locale === "en" ? "Delete account" : "Hapus akun"}
+        </h2>
         <p className="text-sm text-red-800">
-          Menghapus akun, prompt, suka, komentar, mengikuti, dan file gambar.
-          Ketik <strong>HAPUS</strong> atau <strong>DELETE</strong> untuk
-          mengonfirmasi.
+          {locale === "en" ? (
+            <>
+              Deletes your account, prompts, likes, comments, follows, and image
+              files. Type <strong>DELETE</strong> or <strong>HAPUS</strong> to
+              confirm.
+            </>
+          ) : (
+            <>
+              Menghapus akun, prompt, suka, komentar, mengikuti, dan file gambar.
+              Ketik <strong>HAPUS</strong> atau <strong>DELETE</strong> untuk
+              mengonfirmasi.
+            </>
+          )}
         </p>
         <input
           className="field-control w-full rounded-lg px-3 py-2"
@@ -373,7 +393,7 @@ export function MeDashboard({
           onClick={deleteAccount}
           className="rounded-lg bg-red-700 px-4 py-2 text-white"
         >
-          Hapus akun permanen
+          {locale === "en" ? "Permanently delete account" : "Hapus akun permanen"}
         </button>
       </section>
 

@@ -47,7 +47,7 @@ export function SaveToFolderButton({
         ? promptPath
         : localePath(locale, promptPath),
     );
-    window.location.href = `${localePath(locale, "/auth")}?next=${next}`;
+    window.location.assign(`${localePath(locale, "/auth")}?next=${next}`);
     return false;
   }
 
@@ -103,8 +103,14 @@ export function SaveToFolderButton({
 
   useEffect(() => {
     if (!open) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- load folder list when dialog opens
     void load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- load on open/promptId only
   }, [open, promptId]);
 
   async function openPicker(e: React.MouseEvent) {
@@ -212,16 +218,15 @@ export function SaveToFolderButton({
 
   const label = locale === "en" ? "Save" : "Simpan";
   const savedLabel = locale === "en" ? "Saved" : "Tersimpan";
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
 
   const dialog =
-    open && mounted
+    open && typeof document !== "undefined"
       ? createPortal(
           <div
             className="fixed inset-0 z-[200] flex items-end justify-center bg-ink/40 p-4 sm:items-center"
             role="dialog"
             aria-modal="true"
+            aria-labelledby="save-folder-title"
             onClick={() => setOpen(false)}
           >
             <div
@@ -229,7 +234,10 @@ export function SaveToFolderButton({
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-3 flex items-center justify-between">
-                <h2 className="font-display text-lg font-semibold text-ink">
+                <h2
+                  id="save-folder-title"
+                  className="font-display text-lg font-semibold text-ink"
+                >
                   {locale === "en" ? "Save to folder" : "Simpan ke folder"}
                 </h2>
                 <button

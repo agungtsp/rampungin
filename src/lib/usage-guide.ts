@@ -70,6 +70,10 @@ export function resolveUsageGuide(
   };
 }
 
-export function defaultUsageGuidePlaceholder(locale: Locale): string {
+export function defaultUsageGuideText(locale: Locale): string {
   return locale === "en" ? DEFAULT_EN : DEFAULT_ID;
+}
+
+export function defaultUsageGuidePlaceholder(locale: Locale): string {
+  return defaultUsageGuideText(locale);
 }

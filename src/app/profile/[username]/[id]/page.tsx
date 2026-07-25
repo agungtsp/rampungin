@@ -34,7 +34,7 @@ export async function generateMetadata({
   const { data: prompt } = await supabase
     .from("prompts")
     .select(
-      `title, description, title_en, description_en, image_path, image_path_en, is_public, public_until, created_at, ${PROMPT_AUTHOR_FULL}`,
+      `title, description, body, title_en, description_en, body_en, image_path, image_path_en, is_public, public_until, created_at, ${PROMPT_AUTHOR_FULL}`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -58,12 +58,12 @@ export async function generateMetadata({
     {
       title: prompt.title,
       description: prompt.description,
-      body: "",
+      body: prompt.body ?? "",
       tags: null,
       image_path: prompt.image_path,
       title_en: prompt.title_en,
       description_en: prompt.description_en,
-      body_en: null,
+      body_en: prompt.body_en,
       tags_en: null,
       image_path_en: prompt.image_path_en,
     },
@@ -90,10 +90,14 @@ export async function generateMetadata({
 
 export default async function ProfilePromptDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ username: string; id: string }>;
+  searchParams: Promise<{ notice?: string }>;
 }) {
   const { username, id } = await params;
+  const sp = await searchParams;
+  const locale = await getServerLocale();
   const supabase = await createClient();
   const {
     data: { user },
@@ -154,7 +158,6 @@ export default async function ProfilePromptDetailPage({
       typeof rating?.stars === "number" ? rating.stars : null;
   }
 
-  const locale = await getServerLocale();
   const detailPath = promptDetailPath(author.username, id);
   const pageAbsoluteUrl = absoluteUrl(localePath(locale, detailPath));
   const available = isAvailableInLocale(
@@ -232,7 +235,18 @@ export default async function ProfilePromptDetailPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />      <div className="space-y-3">
+      />
+      {sp.notice === "i18n_migration" ? (
+        <p
+          role="status"
+          className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-950 ring-1 ring-amber-200"
+        >
+          {locale === "en"
+            ? "Saved without English columns — run the prompt_i18n migration on Supabase to enable bilingual fields."
+            : "Tersimpan tanpa kolom bahasa Inggris — jalankan migrasi prompt_i18n di Supabase untuk mengaktifkan field bilingual."}
+        </p>
+      ) : null}
+      <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <Link
             href={localePath(locale, `/category/${prompt.category ?? "lainnya"}`)}
@@ -248,13 +262,15 @@ export default async function ProfilePromptDetailPage({
           </span>
           {prompt.public_until && effectivelyPublic && (
             <span className="rounded-full bg-amber-50 px-2.5 py-1 text-amber-900 ring-1 ring-amber-200/80">
-              Publik sampai{" "}
-              {new Date(prompt.public_until).toLocaleString("id-ID")}
+              {locale === "en" ? "Public until" : "Publik sampai"}{" "}
+              {new Date(prompt.public_until).toLocaleString(
+                locale === "en" ? "en-US" : "id-ID",
+              )}
             </span>
           )}
           {!effectivelyPublic && isOwner && (
             <span className="rounded-full bg-soft px-2.5 py-1 text-ink-muted">
-              Privat / kedaluwarsa
+              {locale === "en" ? "Private / expired" : "Privat / kedaluwarsa"}
             </span>
           )}
         </div>
@@ -281,7 +297,7 @@ export default async function ProfilePromptDetailPage({
                 href={localePath(locale, promptEditPath(author.username, id))}
                 className="text-ink-muted hover:underline"
               >
-                Edit
+                {locale === "en" ? "Edit" : "Edit"}
               </Link>
             </>
           )}

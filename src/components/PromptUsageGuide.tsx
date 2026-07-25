@@ -43,7 +43,7 @@ export function PromptUsageGuide({
           rel="noopener noreferrer"
           className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-white"
         >
-          Open ChatGPT ↗
+          {locale === "en" ? "Open ChatGPT ↗" : "Buka ChatGPT ↗"}
         </a>
         <a
           href="https://aistudio.google.com/prompts/new_chat"
@@ -51,7 +51,7 @@ export function PromptUsageGuide({
           rel="noopener noreferrer"
           className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-white"
         >
-          Open AI Studio ↗
+          {locale === "en" ? "Open AI Studio ↗" : "Buka AI Studio ↗"}
         </a>
       </div>
     </section>

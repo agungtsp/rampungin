@@ -84,10 +84,13 @@ export function SavedDashboard() {
   }, []);
 
   useEffect(() => {
+    // Legitimate data fetch on mount / folder change
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async loaders update list state
     void loadFolders();
   }, [loadFolders]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async loaders update list state
     void loadItems(activeFolder);
   }, [activeFolder, loadItems]);
 
@@ -351,13 +354,14 @@ export function SavedDashboard() {
                 if (!prompt) return null;
                 const uname = authorUsername(prompt.profiles);
                 const title =
-                  locale === "en" && prompt.title_en?.trim()
-                    ? prompt.title_en
-                    : prompt.title;
-                const cover =
                   locale === "en"
-                    ? publicImageUrl(prompt.image_path_en)
-                    : publicImageUrl(prompt.image_path);
+                    ? prompt.title_en?.trim() || prompt.title
+                    : prompt.title?.trim() || prompt.title_en?.trim() || "";
+                const coverPath =
+                  locale === "en"
+                    ? prompt.image_path_en || prompt.image_path
+                    : prompt.image_path || prompt.image_path_en;
+                const cover = publicImageUrl(coverPath ?? null);
                 const href = uname
                   ? promptDetailPath(uname, prompt.id)
                   : `/prompts/${prompt.id}`;

@@ -38,7 +38,7 @@ export function SmartSearchButton({
 }: {
   variant?: "icon" | "bar";
 }) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [tag, setTag] = useState("");
@@ -70,7 +70,7 @@ export function SmartSearchButton({
 
   useEffect(() => {
     if (!open) return;
-    const t = window.setTimeout(() => textareaRef.current?.focus(), 0);
+    const timer = window.setTimeout(() => textareaRef.current?.focus(), 0);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
@@ -79,7 +79,7 @@ export function SmartSearchButton({
     }
     window.addEventListener("keydown", onKey);
     return () => {
-      window.clearTimeout(t);
+      window.clearTimeout(timer);
       document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
     };
@@ -91,10 +91,10 @@ export function SmartSearchButton({
     if (!intent) return;
     const sp = new URLSearchParams();
     sp.set("q", intent);
-    const t = tag.trim();
-    if (t) sp.set("tag", t);
+    const tTag = tag.trim();
+    if (tTag) sp.set("tag", tTag);
     setOpen(false);
-    trackSearch(intent, t || undefined);
+    trackSearch(intent, tTag || undefined);
     window.location.assign(`${localePath(locale, "/")}?${sp.toString()}`);
   }
 
@@ -105,8 +105,8 @@ export function SmartSearchButton({
             <button
               type="button"
               className="absolute inset-0 bg-ink/50 backdrop-blur-[2px]"
-              aria-label={locale === "en" ? "Close search" : "Tutup pencarian"}
-              title={locale === "en" ? "Close search" : "Tutup pencarian"}
+              aria-label={t("searchClose")}
+              title={t("searchClose")}
               onClick={close}
             />
             <div
@@ -120,18 +120,15 @@ export function SmartSearchButton({
                   id={titleId}
                   className="font-display text-xl font-semibold tracking-tight text-ink"
                 >
-                  Cari prompt
+                  {t("searchTitle")}
                 </h2>
-                <p className="text-sm text-ink-muted">
-                  Jelaskan apa yang ingin kamu buat — kami cocokkan dengan prompt
-                  yang relevan.
-                </p>
+                <p className="text-sm text-ink-muted">{t("searchSubtitle")}</p>
               </div>
 
               <form onSubmit={onSubmit} className="mt-5 space-y-3">
                 <label className="block space-y-1.5">
                   <span className="text-sm font-medium text-ink">
-                    Konteks atau tujuan
+                    {t("searchContextLabel")}
                   </span>
                   <textarea
                     ref={textareaRef}
@@ -140,22 +137,24 @@ export function SmartSearchButton({
                     required
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
-                    placeholder="Contoh: landing page SaaS B2B, debug API Postgres…"
-                    className="field-control w-full rounded-xl bg-soft px-4 py-3 text-sm outline-none transition focus:bg-white text-ink"
+                    placeholder={t("searchContextPh")}
+                    className="field-control w-full rounded-xl bg-soft px-4 py-3 text-sm text-ink outline-none transition focus:bg-white"
                   />
                 </label>
 
                 <label className="block space-y-1.5">
                   <span className="text-sm font-medium text-ink">
-                    Tag{" "}
-                    <span className="font-normal text-ink-faint">(opsional)</span>
+                    {t("searchTagLabel")}{" "}
+                    <span className="font-normal text-ink-faint">
+                      {t("searchOptional")}
+                    </span>
                   </span>
                   <input
                     name="tag"
                     value={tag}
                     onChange={(e) => setTag(e.target.value)}
-                    placeholder="saas, postgres, copywriting…"
-                    className="field-control w-full rounded-xl bg-soft px-4 py-2.5 text-sm outline-none transition focus:bg-white text-ink"
+                    placeholder={t("searchTagPh")}
+                    className="field-control w-full rounded-xl bg-soft px-4 py-2.5 text-sm text-ink outline-none transition focus:bg-white"
                   />
                 </label>
 
@@ -165,13 +164,13 @@ export function SmartSearchButton({
                     onClick={close}
                     className="rounded-full px-4 py-2.5 text-sm font-medium text-ink-muted transition hover:bg-soft hover:text-ink"
                   >
-                    Batal
+                    {t("searchCancel")}
                   </button>
                   <button
                     type="submit"
                     className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover"
                   >
-                    Cari prompt
+                    {t("searchSubmit")}
                   </button>
                 </div>
               </form>
@@ -189,8 +188,8 @@ export function SmartSearchButton({
         onClick={openModal}
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-label={locale === "en" ? "Search prompts" : "Cari prompt"}
-        title={locale === "en" ? "Search prompts" : "Cari prompt"}
+        aria-label={t("searchAria")}
+        title={t("searchAria")}
         className={
           variant === "bar"
             ? "flex w-full min-w-0 items-center gap-2 rounded-full bg-soft px-3 py-2 text-left text-sm text-ink-muted transition hover:bg-soft sm:gap-2.5 sm:px-3.5 sm:py-2.5"
@@ -200,15 +199,13 @@ export function SmartSearchButton({
         <SearchIcon className="shrink-0 text-ink-faint" />
         {variant === "bar" ? (
           <span className="min-w-0 truncate">
-            <span className="sm:hidden">Cari prompt…</span>
-            <span className="hidden sm:inline">
-              Cari prompt, konteks, atau ide…
-            </span>
+            <span className="sm:hidden">{t("searchBarShort")}</span>
+            <span className="hidden sm:inline">{t("searchBarLong")}</span>
           </span>
         ) : (
           <>
-            <span className="hidden sm:inline">Cari</span>
-            <span className="sr-only sm:hidden">Cari</span>
+            <span className="hidden sm:inline">{t("searchBarCompact")}</span>
+            <span className="sr-only sm:hidden">{t("searchBarCompact")}</span>
           </>
         )}
       </button>

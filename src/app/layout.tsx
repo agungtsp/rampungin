@@ -16,23 +16,24 @@ import {
 import { themeClass, THEME_COOKIE } from "@/lib/theme";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 import { getServerTheme } from "@/lib/theme/server";
-import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 const sans = DM_Sans({
   variable: "--font-dm-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "600"],
   display: "swap",
   preload: true,
+  adjustFontFallback: true,
 });
 
 const display = Sora({
   variable: "--font-sora",
   subsets: ["latin"],
-  weight: ["600", "700"],
+  weight: ["600"],
   display: "swap",
-  preload: true,
+  preload: false,
+  adjustFontFallback: true,
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -75,6 +76,15 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const themeInitScript = `(function(){try{var m=document.cookie.match(/(?:^|; )${THEME_COOKIE}=([^;]*)/);var t=m?decodeURIComponent(m[1]):"light";if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.style.colorScheme="dark";}else{document.documentElement.style.colorScheme="light";}}catch(e){}})();`;
 
+function supabaseOrigin(): string | null {
+  try {
+    const u = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    return u ? new URL(u).origin : null;
+  } catch {
+    return null;
+  }
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -82,24 +92,7 @@ export default async function RootLayout({
 }>) {
   const locale = await getServerLocale();
   const theme = await getServerTheme();
-
-  let initialUsername: string | null = null;
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { data } = await supabase
-        .from("profiles")
-        .select("username")
-        .eq("id", user.id)
-        .maybeSingle();
-      initialUsername = data?.username ?? null;
-    }
-  } catch {
-    initialUsername = null;
-  }
+  const storageOrigin = supabaseOrigin();
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -123,6 +116,12 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {storageOrigin ? (
+          <>
+            <link rel="preconnect" href={storageOrigin} crossOrigin="" />
+            <link rel="dns-prefetch" href={storageOrigin} />
+          </>
+        ) : null}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <script
           type="application/ld+json"
@@ -136,7 +135,8 @@ export default async function RootLayout({
           <ThemeProvider initialTheme={theme}>
             <div className="ai-site-bg" aria-hidden="true" />
             <div className="relative z-10 flex min-h-screen flex-col">
-              <SiteHeader initialUsername={initialUsername} />
+              {/* Auth resolved client-side — avoids blocking document TTFB on Supabase */}
+              <SiteHeader />
               <div className="flex-1">{children}</div>
               <SiteFooter />
             </div>

@@ -9,6 +9,7 @@ export {
 export {
   isAvailableInLocale,
   localizePrompt,
+  preferredDisplayLocale,
   filterByLocale,
   type PromptI18nFields,
   type LocalizedPromptContent,

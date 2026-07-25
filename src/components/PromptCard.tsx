@@ -105,7 +105,9 @@ export function PromptCard({
                 sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 20vw"
                 className="object-cover transition duration-500 group-hover:scale-105"
                 priority={priority}
+                fetchPriority={priority ? "high" : "auto"}
                 loading={priority ? "eager" : "lazy"}
+                quality={priority ? 75 : 70}
                 onError={() => {
                   if (src !== fallback) {
                     setSrc(fallback);
@@ -137,7 +139,7 @@ export function PromptCard({
               </span>
               {mode === "template" ? (
                 <span className="hidden rounded-md bg-primary-hover px-1.5 py-0.5 text-[10px] font-medium text-white min-[400px]:inline sm:text-[11px]">
-                  Template
+                  {t("templateBadge")}
                 </span>
               ) : null}
               <span className="rounded-md bg-ink/80 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:text-[11px]">

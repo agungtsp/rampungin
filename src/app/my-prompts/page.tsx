@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { LocaleLink } from "@/components/LocaleLink";
 import { PromptCard } from "@/components/PromptCard";
-import { localizePrompt, translate } from "@/lib/i18n";
+import { localizePrompt, preferredDisplayLocale, translate } from "@/lib/i18n";
 import { getServerLocale } from "@/lib/i18n/server";
 import { localePath } from "@/lib/i18n/paths";
 import { promptEditPath } from "@/lib/paths";
@@ -113,21 +113,20 @@ export default async function MyPromptsPage() {
         {prompts.length > 0 ? (
           <section className="marketplace-grid">
             {prompts.map((p, index) => {
-              const loc = localizePrompt(
-                {
-                  title: p.title,
-                  description: p.description,
-                  body: p.body ?? "",
-                  tags: p.tags ?? null,
-                  image_path: p.image_path,
-                  title_en: p.title_en,
-                  description_en: p.description_en,
-                  body_en: p.body_en,
-                  tags_en: p.tags_en,
-                  image_path_en: p.image_path_en,
-                },
-                locale,
-              );
+              const fields = {
+                title: p.title,
+                description: p.description,
+                body: p.body ?? "",
+                tags: p.tags ?? null,
+                image_path: p.image_path,
+                title_en: p.title_en,
+                description_en: p.description_en,
+                body_en: p.body_en,
+                tags_en: p.tags_en,
+                image_path_en: p.image_path_en,
+              };
+              const displayLocale = preferredDisplayLocale(fields, locale);
+              const loc = localizePrompt(fields, displayLocale);
               return (
                 <PromptCard
                   key={p.id}

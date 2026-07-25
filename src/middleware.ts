@@ -73,7 +73,11 @@ export async function middleware(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!supabaseUrl || !supabaseKey) {
-    return response;
+    // Never silently allow protected routes without auth config
+    const login = request.nextUrl.clone();
+    login.pathname = localePath(urlLocale, "/auth");
+    login.search = `?next=${encodeURIComponent(localePath(urlLocale, barePath) + search)}`;
+    return NextResponse.redirect(login);
   }
 
   const supabase = createServerClient(supabaseUrl, supabaseKey, {

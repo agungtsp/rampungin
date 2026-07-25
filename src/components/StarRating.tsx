@@ -77,7 +77,8 @@ export function StarRating({
           ? promptPath
           : localePath(locale, promptPath),
       );
-      window.location.href = `${localePath(locale, "/auth")}?next=${next}`;
+      const authUrl = `${localePath(locale, "/auth")}?next=${next}`;
+      window.location.assign(authUrl);
       return;
     }
     setBusy(true);

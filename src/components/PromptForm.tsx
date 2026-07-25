@@ -57,7 +57,7 @@ export function PromptForm({
   initialGenerateCount = 0,
   aiPlatform = "all",
 }: Props) {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const platform = parseAiPlatform(aiPlatform);
   const [values, setValues] = useState<Record<string, string>>({});
   const [output, setOutput] = useState(mode === "static" ? body : "");
@@ -139,7 +139,9 @@ export function PromptForm({
 
   function applyMissing(missing: { key: string; label: string }[]) {
     setInvalidKeys(missing.map((m) => m.key));
-    setError(`Lengkapi field wajib: ${missing.map((m) => m.label).join(", ")}`);
+    setError(
+      `${t("formRequiredPrefix")}: ${missing.map((m) => m.label).join(", ")}`,
+    );
   }
 
   async function generate() {
@@ -262,7 +264,7 @@ export function PromptForm({
                     onChange={(e) => setValue(f.field_key, e.target.value)}
                     className={fieldInputClass(f.field_key)}
                   >
-                    <option value="">Pilih…</option>
+                    <option value="">{t("formSelectPlaceholder")}</option>
                     {(f.options ?? []).map((opt) => (
                       <option key={opt} value={opt}>
                         {opt}
@@ -280,7 +282,7 @@ export function PromptForm({
                 )}
                 {invalid ? (
                   <p className="text-xs font-medium text-rose-700">
-                    Wajib diisi
+                    {t("formRequired")}
                   </p>
                 ) : null}
               </div>

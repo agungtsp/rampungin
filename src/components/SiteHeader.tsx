@@ -19,9 +19,12 @@ const SmartSearchButton = dynamic(
     ssr: false,
     loading: () => (
       <div
-        className="h-9 w-full max-w-md animate-pulse rounded-full bg-soft"
+        className="flex h-9 w-full max-w-md items-center gap-2 rounded-full bg-soft px-3"
         aria-hidden
-      />
+      >
+        <span className="h-4 w-4 shrink-0 rounded-full bg-ink-faint/30" />
+        <span className="h-3 w-40 max-w-[70%] rounded bg-ink-faint/20" />
+      </div>
     ),
   },
 );
@@ -35,13 +38,13 @@ type Props = {
 
 export function SiteHeader({ initialUsername = null }: Props) {
   const { t } = useLocale();
-  const [username, setUsername] = useState<string | null>(initialUsername);
-  const [ready, setReady] = useState(initialUsername !== undefined);
-
-  useEffect(() => {
-    setUsername(initialUsername);
-    setReady(true);
-  }, [initialUsername]);
+  /** undefined = still resolving session client-side */
+  const [authUsername, setAuthUsername] = useState<string | null | undefined>(
+    initialUsername != null ? initialUsername : undefined,
+  );
+  const username =
+    authUsername === undefined ? initialUsername : authUsername;
+  const authPending = authUsername === undefined && initialUsername == null;
 
   useEffect(() => {
     const supabase = createClient();
@@ -49,15 +52,20 @@ export function SiteHeader({ initialUsername = null }: Props) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event) => {
       if (event === "SIGNED_OUT") {
-        setUsername(null);
+        setAuthUsername(null);
         return;
       }
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
+      if (
+        event === "SIGNED_IN" ||
+        event === "TOKEN_REFRESHED" ||
+        event === "USER_UPDATED" ||
+        event === "INITIAL_SESSION"
+      ) {
         const {
           data: { user },
         } = await supabase.auth.getUser();
         if (!user) {
-          setUsername(null);
+          setAuthUsername(null);
           return;
         }
         const { data } = await supabase
@@ -65,7 +73,7 @@ export function SiteHeader({ initialUsername = null }: Props) {
           .select("username")
           .eq("id", user.id)
           .maybeSingle();
-        setUsername(data?.username ?? null);
+        setAuthUsername(data?.username ?? null);
       }
     });
     return () => subscription.unsubscribe();
@@ -124,7 +132,7 @@ export function SiteHeader({ initialUsername = null }: Props) {
           >
             {username ? t("myPrompts") : t("navCreate")}
           </LocaleLink>
-          {!ready ? (
+          {authPending ? (
             <span
               className="inline-block h-9 w-16 animate-pulse rounded-full bg-soft"
               aria-hidden

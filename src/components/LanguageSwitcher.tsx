@@ -24,7 +24,7 @@ export function LanguageSwitcher() {
     <>
       {pending && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-white/60 backdrop-blur-[2px]"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/40 backdrop-blur-[2px]"
           aria-busy="true"
           aria-live="polite"
         >
@@ -33,7 +33,13 @@ export function LanguageSwitcher() {
               className="h-4 w-4 animate-spin rounded-full border-2 border-primary/25 border-t-primary"
               aria-hidden
             />
-            {pending === "en" ? "Switching to EN…" : "Beralih ke ID…"}
+            {pending === "en"
+              ? locale === "en"
+                ? "Switching to EN…"
+                : "Beralih ke EN…"
+              : locale === "en"
+                ? "Switching to ID…"
+                : "Beralih ke ID…"}
           </div>
         </div>
       )}

@@ -59,6 +59,16 @@ export function localizePrompt(
   };
 }
 
+export function preferredDisplayLocale(
+  prompt: PromptI18nFields,
+  preferred: Locale,
+): Locale {
+  if (isAvailableInLocale(prompt, preferred)) return preferred;
+  const other: Locale = preferred === "en" ? "id" : "en";
+  if (isAvailableInLocale(prompt, other)) return other;
+  return preferred;
+}
+
 export function filterByLocale<T extends PromptI18nFields>(
   rows: T[],
   locale: Locale,

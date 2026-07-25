@@ -159,6 +159,7 @@ export function SocialBar({
   showShare,
 }: Props) {
   const { locale } = useLocale();
+  const en = locale === "en";
   const [liked, setLiked] = useState(initialLiked);
   const [likes, setLikes] = useState(likeCount);
   const [message, setMessage] = useState<string | null>(null);
@@ -189,7 +190,9 @@ export function SocialBar({
           ? promptPath
           : localePath(locale, promptPath),
       );
-      window.location.href = `${localePath(locale, "/auth")}?next=${next}`;
+      window.location.assign(
+        `${localePath(locale, "/auth")}?next=${next}`,
+      );
       return;
     }
     if (!canEngage) return;
@@ -242,9 +245,17 @@ export function SocialBar({
     trackShare("instagram", promptId);
     try {
       await navigator.clipboard.writeText(window.location.href);
-      flash("Tautan disalin — tempel di Instagram Stories atau postingan");
+      flash(
+        en
+          ? "Link copied — paste it in Instagram Stories or a post"
+          : "Tautan disalin — tempel di Instagram Stories atau postingan",
+      );
     } catch {
-      flash("Salin tautan secara manual, lalu buka Instagram");
+      flash(
+        en
+          ? "Copy the link manually, then open Instagram"
+          : "Salin tautan secara manual, lalu buka Instagram",
+      );
     }
     window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
   }
@@ -253,9 +264,9 @@ export function SocialBar({
     trackShare("copy_link", promptId);
     try {
       await navigator.clipboard.writeText(window.location.href);
-      flash("Tautan disalin");
+      flash(en ? "Link copied" : "Tautan disalin");
     } catch {
-      flash("Gagal menyalin tautan");
+      flash(en ? "Failed to copy link" : "Gagal menyalin tautan");
     }
   }
 
@@ -273,7 +284,13 @@ export function SocialBar({
         >
           <HeartIcon filled={liked} />
           <span>
-            {liked ? "Disukai" : "Suka"}
+            {liked
+              ? en
+                ? "Liked"
+                : "Disukai"
+              : en
+                ? "Like"
+                : "Suka"}
             <span className="mx-1 text-current/40">·</span>
             <span className="tabular-nums">{likes}</span>
           </span>
@@ -290,7 +307,7 @@ export function SocialBar({
               className="inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-medium text-ink ring-1 ring-black/[0.08] transition hover:bg-soft hover:text-primary-hover hover:ring-secondary/25"
             >
               <ShareIcon />
-              Bagikan
+              {en ? "Share" : "Bagikan"}
               <ChevronIcon open={open} />
             </button>
 
@@ -298,7 +315,7 @@ export function SocialBar({
               <div
                 id={menuId}
                 role="menu"
-                className="absolute left-0 z-20 mt-2 w-52 overflow-hidden rounded-2xl bg-white p-1.5 shadow-card-hover ring-1 ring-secondary/50"
+                className="absolute left-0 z-50 mt-2 w-52 overflow-hidden rounded-2xl bg-white p-1.5 shadow-card-hover ring-1 ring-secondary/50"
               >
                 <button
                   type="button"
@@ -348,7 +365,7 @@ export function SocialBar({
                   onClick={() => runAndClose(copyLink)}
                 >
                   <LinkIcon />
-                  Salin tautan
+                  {en ? "Copy link" : "Salin tautan"}
                 </button>
               </div>
             ) : null}

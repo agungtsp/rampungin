@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { VisibilityControls } from "@/components/VisibilityControls";
 import { TermsAcceptance } from "@/components/TermsAcceptance";
@@ -16,7 +16,10 @@ import { useLocale } from "@/lib/i18n";
 import { isAvailableInLocale } from "@/lib/i18n/prompt";
 import { localePath } from "@/lib/i18n/paths";
 import { promptDetailPath } from "@/lib/paths";
-import { defaultUsageGuidePlaceholder } from "@/lib/usage-guide";
+import {
+  defaultUsageGuidePlaceholder,
+  defaultUsageGuideText,
+} from "@/lib/usage-guide";
 import { applyVisibilityIntent } from "@/lib/visibility";
 import {
   usesOptions,
@@ -133,10 +136,6 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(Boolean(existing));
-
-  useEffect(() => {
-    setContentLang(locale);
-  }, [locale]);
 
   function updateField(index: number, patch: Partial<PromptFieldInput>) {
     setFields((rows) =>
@@ -267,17 +266,29 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       }
     }
 
+    const usageGuideIdStored = usageGuide.trim() || defaultUsageGuideText("id");
+    const usageGuideEnStored =
+      usageGuideEn.trim() || defaultUsageGuideText("en");
+
+    // title/body columns are Indonesian primary; never wipe with "" when EN-only —
+    // use EN title as NOT NULL stub so cards/metadata stay usable.
+    const titleIdStored = okId
+      ? draft.title
+      : draft.title_en || existing?.title?.trim() || "Untitled";
+    const bodyIdStored = okId ? draft.body : "";
+    const imageIdStored = okId ? nextImagePath : null;
+
     const payloadBase = {
-      title: draft.title || draft.title_en || "Untitled",
-      description: draft.description,
+      title: titleIdStored,
+      description: okId ? draft.description : null,
       mode,
-      body: draft.body || draft.body_en || "",
+      body: bodyIdStored || (okEn ? "" : draft.body_en || ""),
       category,
-      tags: draft.tags,
+      tags: okId ? draft.tags : [],
       video_url: videoUrl.trim() || null,
-      image_path: nextImagePath,
+      image_path: imageIdStored,
       ai_platform: aiPlatform,
-      usage_guide: usageGuide.trim() || null,
+      usage_guide: okId ? usageGuideIdStored : null,
       is_public: visibility.is_public,
       public_until: visibility.public_until
         ? visibility.public_until.toISOString()
@@ -287,20 +298,21 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
 
     const payloadWithEn = {
       ...payloadBase,
-      title: okId ? draft.title : "",
+      title: titleIdStored,
       description: okId ? draft.description : null,
-      body: okId ? draft.body : "",
+      body: bodyIdStored,
       tags: okId ? draft.tags : [],
-      image_path: okId ? nextImagePath : nextImagePath,
+      image_path: imageIdStored,
       title_en: okEn ? draft.title_en : null,
       description_en: okEn ? draft.description_en : null,
       body_en: okEn ? draft.body_en : null,
       tags_en: okEn ? draft.tags_en : [],
       image_path_en: nextImagePathEn,
-      usage_guide: okId ? usageGuide.trim() || null : null,
-      usage_guide_en: okEn ? usageGuideEn.trim() || null : null,
+      usage_guide: okId ? usageGuideIdStored : null,
+      usage_guide_en: okEn ? usageGuideEnStored : null,
     };
 
+    let migrationWarn = false;
     let promptId = existing?.id;
     if (existing) {
       let { error: updateError } = await supabase
@@ -315,13 +327,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
           .eq("id", existing.id)
           .eq("author_id", user.id);
         updateError = retry.error;
-        if (!updateError) {
-          setError(
-            locale === "en"
-              ? "English columns are missing in the database. Run the prompt_i18n migration. Indonesian version was saved."
-              : "Kolom bahasa Inggris belum ada di database. Jalankan migrasi prompt_i18n di Supabase. Versi Indonesia tetap disimpan.",
-          );
-        }
+        if (!updateError) migrationWarn = true;
       }
       if (updateError) {
         setError(updateError.message);
@@ -343,13 +349,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
           .single();
         data = retry.data;
         insertError = retry.error;
-        if (!insertError) {
-          setError(
-            locale === "en"
-              ? "English columns are missing in the database. Run the prompt_i18n migration. Indonesian version was saved."
-              : "Kolom bahasa Inggris belum ada di database. Jalankan migrasi prompt_i18n. Versi Indonesia tetap disimpan.",
-          );
-        }
+        if (!insertError) migrationWarn = true;
       }
       if (insertError || !data) {
         setError(insertError?.message ?? t("editorCreateFail"));
@@ -390,10 +390,13 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
         .maybeSingle();
       username = profile?.username ?? undefined;
     }
+    const warnQs = migrationWarn ? "?notice=i18n_migration" : "";
     if (username && promptId) {
-      router.push(localePath(locale, promptDetailPath(username, promptId)));
+      router.push(
+        `${localePath(locale, promptDetailPath(username, promptId))}${warnQs}`,
+      );
     } else if (promptId) {
-      router.push(localePath(locale, `/prompts/${promptId}`));
+      router.push(`${localePath(locale, `/prompts/${promptId}`)}${warnQs}`);
     }
     router.refresh();
   }
@@ -501,7 +504,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
               ? setUsageGuide(e.target.value)
               : setUsageGuideEn(e.target.value)
           }
-          placeholder={defaultUsageGuidePlaceholder(isId ? "id" : "en")}
+          placeholder={defaultUsageGuidePlaceholder(locale)}
         />
         <p className="text-xs text-ink-muted">{t("editorUsageHint")}</p>
       </label>

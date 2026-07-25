@@ -4,6 +4,8 @@ import {
   ProfileListSkeleton,
 } from "@/components/PaginationShell";
 import { ProfileCard } from "@/components/ProfileCard";
+import { translate } from "@/lib/i18n";
+import { localePath } from "@/lib/i18n/paths";
 import { getServerLocale } from "@/lib/i18n/server";
 import {
   clampPage,
@@ -48,6 +50,8 @@ export default async function PeoplePage({
   const q = sanitizeQuery(sp.q ?? "");
   const perPage = parsePageSize(sp.perPage ?? "20");
   let page = parsePage(sp.page);
+  const locale = await getServerLocale();
+  const t = (key: Parameters<typeof translate>[1]) => translate(locale, key);
   const supabase = await createClient();
 
   let countQuery = supabase
@@ -84,19 +88,18 @@ export default async function PeoplePage({
 
   const profiles = data ?? [];
   const displayError = error ?? countError;
+  const peoplePath = localePath(locale, "/people");
   return (
     <main className="mx-auto max-w-3xl space-y-6 px-3 py-8 sm:px-6">
       <div className="space-y-2">
         <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-          Cari kreator
+          {t("peopleTitle")}
         </h1>
-        <p className="text-ink-muted">
-          Temukan pembuat prompt lewat username, nama tampilan, atau bio.
-        </p>
+        <p className="text-ink-muted">{t("peopleSubtitle")}</p>
       </div>
 
       <form
-        action="/people"
+        action={peoplePath}
         method="get"
         className="flex flex-col gap-2 rounded-2xl bg-white p-3 ring-1 ring-secondary/50 sm:flex-row sm:items-center"
       >
@@ -104,8 +107,8 @@ export default async function PeoplePage({
           type="search"
           name="q"
           defaultValue={q}
-          placeholder="Cari @username, nama, atau kata di bio…"
-          className="field-control min-w-0 flex-1 rounded-xl bg-soft px-4 py-2.5 text-sm outline-none focus:bg-white text-ink"
+          placeholder={t("peoplePlaceholder")}
+          className="field-control min-w-0 flex-1 rounded-xl bg-soft px-4 py-2.5 text-sm text-ink outline-none focus:bg-white"
         />
         {perPage !== 10 ? (
           <input type="hidden" name="perPage" value={perPage} />
@@ -114,24 +117,25 @@ export default async function PeoplePage({
           type="submit"
           className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
         >
-          Cari
+          {t("peopleSearch")}
         </button>
         {q ? (
           <a
-            href="/people"
+            href={peoplePath}
             className="rounded-full px-4 py-2.5 text-center text-sm font-medium text-ink-muted transition hover:bg-soft hover:text-ink"
           >
-            Hapus filter
+            {t("peopleClear")}
           </a>
         ) : null}
       </form>
 
       {q ? (
         <p className="text-sm text-ink-muted">
-          Hasil untuk <span className="font-medium text-ink">“{q}”</span>
+          {t("peopleResultsFor")}{" "}
+          <span className="font-medium text-ink">“{q}”</span>
         </p>
       ) : (
-        <p className="text-sm text-ink-muted">Menampilkan semua kreator</p>
+        <p className="text-sm text-ink-muted">{t("peopleShowingAll")}</p>
       )}
 
       <PaginationShell
@@ -153,10 +157,10 @@ export default async function PeoplePage({
             {!profiles.length ? (
               <p className="py-10 text-center text-ink-muted">
                 {displayError
-                  ? `Gagal memuat profil: ${displayError.message}`
+                  ? `${t("peopleLoadError")}: ${displayError.message}`
                   : q
-                    ? "Tidak ada kreator yang cocok. Coba kata kunci lain."
-                    : "Belum ada profil yang tersedia."}
+                    ? t("peopleEmptySearch")
+                    : t("peopleEmpty")}
               </p>
             ) : null}
           </>

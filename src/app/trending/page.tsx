@@ -83,7 +83,7 @@ export default async function TrendingPage({
   const isLoggedIn = Boolean(user);
 
   const attempt = async (select: string) => {
-    let q = supabase
+    const q = supabase
       .from("prompts")
       .select(select)
       .order("like_count", { ascending: false })
@@ -146,47 +146,56 @@ export default async function TrendingPage({
       <PaginationShell
         skeleton={<PromptGridSkeleton count={perPage} />}
         content={
-          <section className="marketplace-grid">
-            {pageItems.map((p) => {
-              const author = asOne(p.profiles);
-              const loc = localizePrompt(
-                {
-                  title: p.title,
-                  description: p.description,
-                  body: p.body ?? "",
-                  tags: p.tags ?? null,
-                  image_path: p.image_path,
-                  title_en: p.title_en,
-                  description_en: p.description_en,
-                  body_en: p.body_en,
-                  tags_en: p.tags_en,
-                  image_path_en: p.image_path_en,
-                },
-                locale,
-              );
-              return (
-                <PromptCard
-                  key={p.id}
-                  id={p.id}
-                  title={loc.title}
-                  description={loc.description}
-                  mode={p.mode}
-                  category={p.category}
-                  like_count={p.like_count}
-                  copy_count={p.copy_count}
-                  generate_count={p.generate_count ?? 0}
-                  is_public={p.is_public}
-                  public_until={p.public_until}
-                  authorUsername={author?.username}
-                  imageUrl={publicImageUrl(loc.imagePath)}
-                  rating_avg={p.rating_avg}
-                  rating_count={p.rating_count}
-                  ai_platform={p.ai_platform}
-                  isLoggedIn={isLoggedIn}
-                />
-              );
-            })}
-          </section>
+          <>
+            <section className="marketplace-grid">
+              {pageItems.map((p) => {
+                const author = asOne(p.profiles);
+                const loc = localizePrompt(
+                  {
+                    title: p.title,
+                    description: p.description,
+                    body: p.body ?? "",
+                    tags: p.tags ?? null,
+                    image_path: p.image_path,
+                    title_en: p.title_en,
+                    description_en: p.description_en,
+                    body_en: p.body_en,
+                    tags_en: p.tags_en,
+                    image_path_en: p.image_path_en,
+                  },
+                  locale,
+                );
+                return (
+                  <PromptCard
+                    key={p.id}
+                    id={p.id}
+                    title={loc.title}
+                    description={loc.description}
+                    mode={p.mode}
+                    category={p.category}
+                    like_count={p.like_count}
+                    copy_count={p.copy_count}
+                    generate_count={p.generate_count ?? 0}
+                    is_public={p.is_public}
+                    public_until={p.public_until}
+                    authorUsername={author?.username}
+                    imageUrl={publicImageUrl(loc.imagePath)}
+                    rating_avg={p.rating_avg}
+                    rating_count={p.rating_count}
+                    ai_platform={p.ai_platform}
+                    isLoggedIn={isLoggedIn}
+                  />
+                );
+              })}
+            </section>
+            {!pageItems.length ? (
+              <p className="py-12 text-center text-ink-muted">
+                {locale === "en"
+                  ? "No trending prompts yet."
+                  : "Belum ada prompt trending."}
+              </p>
+            ) : null}
+          </>
         }
         controls={
           <PaginationControls

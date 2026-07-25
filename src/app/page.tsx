@@ -15,16 +15,18 @@ import {
 } from "@/lib/i18n";
 import { getServerLocale } from "@/lib/i18n/server";
 import {
+  getCachedCatalogCount,
+  getCachedFeatured,
+  getCachedListPage,
+  type HomePromptRow,
+} from "@/lib/home-data";
+import {
   clampPage,
   pageRange,
   parsePage,
   parsePageSize,
 } from "@/lib/pagination";
 import {
-  LIST_SELECT,
-  LIST_SELECT_BASE,
-  LIST_SELECT_BASE_GEN,
-  LIST_SELECT_WITH_GEN,
   SEARCH_SELECT,
   SEARCH_SELECT_BASE,
   SEARCH_SELECT_WITH_GEN,
@@ -37,8 +39,9 @@ import {
   categoryFromIntent,
   rankPromptsByIntent,
 } from "@/lib/smart-search";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import { publicImageUrl } from "@/lib/storage";
+import { cookies } from "next/headers";
 import type { Metadata } from "next";
 
 export async function generateMetadata({
@@ -70,39 +73,19 @@ export async function generateMetadata({
   });
 }
 
-type PromptRow = {
-  id: string;
-  title: string;
-  description: string | null;
-  mode: string;
-  category: string | null;
-  like_count: number;
-  copy_count: number;
-  generate_count?: number | null;
-  is_public: boolean;
-  public_until: string | null;
-  image_path: string | null;
-  tags?: string[] | null;
-  body?: string | null;
-  title_en?: string | null;
-  description_en?: string | null;
-  body_en?: string | null;
-  tags_en?: string[] | null;
-  image_path_en?: string | null;
-  rating_avg?: number | null;
-  rating_count?: number | null;
-  ai_platform?: string | null;
-  profiles?: { username: string } | { username: string }[] | null;
-};
+type PromptRow = HomePromptRow;
 
 function CardGrid({
   items,
   locale,
   isLoggedIn = false,
+  priorityCount = 0,
 }: {
   items: PromptRow[];
   locale: Locale;
   isLoggedIn?: boolean;
+  /** How many leading cards get high fetchPriority (LCP). Keep ≤2. */
+  priorityCount?: number;
 }) {
   return (
     <div className="marketplace-grid">
@@ -142,12 +125,17 @@ function CardGrid({
             rating_count={p.rating_count}
             ai_platform={p.ai_platform}
             isLoggedIn={isLoggedIn}
-            priority={index < 4}
+            priority={index < priorityCount}
           />
         );
       })}
     </div>
   );
+}
+
+async function hasSessionCookie(): Promise<boolean> {
+  const jar = await cookies();
+  return jar.getAll().some((c) => c.name.includes("-auth-token"));
 }
 
 export default async function HomePage({
@@ -167,25 +155,22 @@ export default async function HomePage({
   let page = parsePage(sp.page);
   const locale = await getServerLocale();
   const t = (key: Parameters<typeof translate>[1]) => translate(locale, key);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const isLoggedIn = Boolean(user);
-  const { count: catalogCount } = await supabase
-    .from("prompts")
-    .select("id", { count: "exact", head: true });
-  const totalCatalog = catalogCount ?? 0;
+  const isLoggedIn = await hasSessionCookie();
 
   const intentCategory = q ? categoryFromIntent(q) : null;
   let prompts: PromptRow[] = [];
   let featured: PromptRow[] = [];
   let total = 0;
+  let totalCatalog = 0;
   let promptsError: string | null = null;
   let smartNote: string | null = null;
 
   if (q) {
-    const { rows, error } = await fetchCandidates(supabase, q, tag, locale);
+    const [{ rows, error }, catalogCount] = await Promise.all([
+      fetchCandidates(q, tag, locale),
+      getCachedCatalogCount(locale),
+    ]);
+    totalCatalog = catalogCount;
     if (error) promptsError = error;
     const ranked = filterByLocale(rankPromptsByIntent(rows, q), locale);
     total = ranked.length;
@@ -204,15 +189,20 @@ export default async function HomePage({
           : "Diurutkan berdasarkan kecocokan dengan konteks pencarianmu.";
     }
   } else {
-    const result = await listPage(supabase, { tag, page, perPage, locale });
-    prompts = result.rows;
-    total = result.total;
-    page = result.page;
-    promptsError = result.error;
-
-    if (page === 1 && !tag) {
-      featured = await fetchFeatured(supabase, locale);
-    }
+    const wantFeatured = page === 1 && !tag;
+    const [catalogCount, listResult, featuredRows] = await Promise.all([
+      getCachedCatalogCount(locale),
+      getCachedListPage({ tag, page, perPage, locale }),
+      wantFeatured
+        ? getCachedFeatured(locale)
+        : Promise.resolve([] as PromptRow[]),
+    ]);
+    totalCatalog = catalogCount;
+    prompts = listResult.rows;
+    total = listResult.total;
+    page = listResult.page;
+    promptsError = listResult.error;
+    featured = featuredRows;
   }
 
   const keep = { q: q || undefined, tag: tag || undefined };
@@ -224,7 +214,7 @@ export default async function HomePage({
           <div className="mx-auto max-w-3xl text-center">
             <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-soft px-3 py-1 text-xs font-semibold text-primary-hover">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-              {t("heroBadge")} · {totalCatalog}+ prompt
+              {t("heroBadge")} · {totalCatalog}+ {t("promptCountSuffix")}
             </p>
             <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-5xl sm:leading-[1.1]">
               {t("heroTitle")}
@@ -273,7 +263,12 @@ export default async function HomePage({
                 {t("seeAll")}
               </LocaleLink>
             </div>
-            <CardGrid items={featured} locale={locale} isLoggedIn={isLoggedIn} />
+            <CardGrid
+              items={featured}
+              locale={locale}
+              isLoggedIn={isLoggedIn}
+              priorityCount={2}
+            />
           </section>
         ) : null}
 
@@ -302,7 +297,12 @@ export default async function HomePage({
                     </LocaleLink>
                   ) : null}
                 </div>
-                <CardGrid items={prompts} locale={locale} isLoggedIn={isLoggedIn} />
+                <CardGrid
+                  items={prompts}
+                  locale={locale}
+                  isLoggedIn={isLoggedIn}
+                  priorityCount={featured.length ? 0 : 2}
+                />
               </section>
 
               {!prompts.length ? (
@@ -331,104 +331,12 @@ export default async function HomePage({
   );
 }
 
-async function listPage(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  opts: { tag: string; page: number; perPage: number; locale: Locale },
-): Promise<{
-  rows: PromptRow[];
-  total: number;
-  error: string | null;
-  page: number;
-}> {
-  let countQuery = supabase
-    .from("prompts")
-    .select("id", { count: "exact", head: true });
-  if (opts.tag) countQuery = countQuery.contains("tags", [opts.tag]);
-  try {
-    countQuery = applyLocaleAvailabilityFilter(countQuery, opts.locale);
-  } catch {
-    /* ignore */
-  }
-  const { count, error: countError } = await countQuery;
-  let total = count ?? 0;
-  if (countError?.message?.includes("title_en") && opts.locale === "en") {
-    total = 0;
-  }
-  const page = clampPage(opts.page, total, opts.perPage);
-  const { from, to } = pageRange(page, opts.perPage);
-
-  const attempt = async (select: string) => {
-    let query = supabase
-      .from("prompts")
-      .select(select)
-      .order("created_at", { ascending: false });
-    if (opts.tag) query = query.contains("tags", [opts.tag]);
-    query = applyLocaleAvailabilityFilter(query, opts.locale);
-    return query.range(from, to);
-  };
-
-  let res = await attempt(LIST_SELECT_WITH_GEN);
-  if (res.error?.message?.includes("title_en")) {
-    if (opts.locale === "en") {
-      return { rows: [], total: 0, error: null, page: 1 };
-    }
-    res = await attempt(LIST_SELECT_BASE_GEN);
-  }
-  if (res.error?.message?.includes("generate_count")) {
-    res = await attempt(
-      res.error?.message?.includes("title_en")
-        ? LIST_SELECT_BASE
-        : LIST_SELECT,
-    );
-    if (res.error?.message?.includes("title_en") && opts.locale === "id") {
-      res = await attempt(LIST_SELECT_BASE);
-    }
-  }
-  return {
-    rows: filterByLocale(
-      (res.data as unknown as PromptRow[] | null) ?? [],
-      opts.locale,
-    ),
-    total,
-    error: res.error?.message ?? countError?.message ?? null,
-    page,
-  };
-}
-
-async function fetchFeatured(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  locale: Locale,
-): Promise<PromptRow[]> {
-  const attempt = async (select: string) => {
-    let query = supabase
-      .from("prompts")
-      .select(select)
-      .order("like_count", { ascending: false })
-      .order("copy_count", { ascending: false })
-      .limit(20);
-    return applyLocaleAvailabilityFilter(query, locale).limit(10);
-  };
-
-  let res = await attempt(LIST_SELECT_WITH_GEN);
-  if (res.error?.message?.includes("title_en")) {
-    if (locale === "en") return [];
-    res = await attempt(LIST_SELECT_BASE_GEN);
-  }
-  if (res.error?.message?.includes("generate_count")) {
-    res = await attempt(locale === "en" ? LIST_SELECT : LIST_SELECT_BASE);
-  }
-  return filterByLocale(
-    (res.data as unknown as PromptRow[] | null) ?? [],
-    locale,
-  ).slice(0, 10);
-}
-
 async function fetchCandidates(
-  supabase: Awaited<ReturnType<typeof createClient>>,
   intent: string,
   tag: string,
   locale: Locale,
 ): Promise<{ rows: PromptRow[]; error: string | null }> {
+  const supabase = createPublicClient();
   const orFilter = buildOrIlikeFilter(intent);
   const run = async (select: string) => {
     let query = supabase
