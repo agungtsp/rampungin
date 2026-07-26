@@ -139,6 +139,28 @@ export function PromptCard({
             )}
 
             <div className="absolute left-1.5 top-1.5 flex max-w-[calc(100%-3rem)] flex-wrap gap-1 sm:left-2 sm:top-2">
+              {editorPick ? (
+                <span className="flex items-center gap-1 rounded-md bg-amber-500 px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm sm:text-[11px]">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="h-3 w-3 shrink-0"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {t("editorPickBadge")}
+                </span>
+              ) : null}
+              {adminPinned ? (
+                <span className="rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm sm:text-[11px]">
+                  {t("adminPinnedBadge")}
+                </span>
+              ) : null}
               <span className="max-w-full truncate rounded-md bg-white px-1.5 py-0.5 text-[10px] font-semibold text-ink shadow-sm sm:text-[11px]">
                 <span className="sm:hidden">{categoryEmoji(category)}</span>
                 <span className="hidden sm:inline">
@@ -153,16 +175,6 @@ export function PromptCard({
               <span className="rounded-md bg-ink/80 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:text-[11px]">
                 {aiPlatformBadge(ai_platform)}
               </span>
-              {editorPick ? (
-                <span className="rounded-md bg-amber-500 px-1.5 py-0.5 text-[10px] font-semibold text-white sm:text-[11px]">
-                  {t("editorPickBadge")}
-                </span>
-              ) : null}
-              {adminPinned ? (
-                <span className="rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-white sm:text-[11px]">
-                  {t("adminPinnedBadge")}
-                </span>
-              ) : null}
             </div>
 
             {!pub ? (

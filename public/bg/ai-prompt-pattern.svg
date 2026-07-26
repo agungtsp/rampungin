@@ -1,29 +1,71 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="720" viewBox="0 0 720 720" fill="none">
-  <!-- Subtle AI / prompt motif tile -->
-  <g opacity="0.55" stroke="#2563eb" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
-    <!-- braces -->
-    <path d="M88 120c-18 0-28 12-28 28v40c0 10-6 16-16 16 10 0 16 6 16 16v40c0 16 10 28 28 28" opacity="0.35"/>
-    <path d="M152 120c18 0 28 12 28 28v40c0 10 6 16 16 16-10 0-16 6-16 16v40c0 16-10 28-28 28" opacity="0.35"/>
-    <!-- chat bubble -->
-    <path d="M280 130h140a28 28 0 0 1 28 28v56a28 28 0 0 1-28 28h-84l-36 28v-28h-20a28 28 0 0 1-28-28v-56a28 28 0 0 1 28-28z" opacity="0.28"/>
-    <path d="M310 168h80M310 196h52" opacity="0.4"/>
-    <!-- spark / node -->
-    <circle cx="520" cy="170" r="6" fill="#2563eb" stroke="none" opacity="0.25"/>
-    <path d="M520 140v18M520 182v18M490 170h18M532 170h18" opacity="0.3"/>
-    <!-- token chips -->
-    <rect x="90" y="360" width="72" height="28" rx="8" opacity="0.22"/>
-    <rect x="178" y="360" width="96" height="28" rx="8" opacity="0.18"/>
-    <rect x="290" y="360" width="58" height="28" rx="8" opacity="0.2"/>
-    <!-- cursor prompt line -->
-    <path d="M420 372h140" opacity="0.28"/>
-    <rect x="560" y="362" width="10" height="20" rx="2" fill="#2563eb" stroke="none" opacity="0.3"/>
-    <!-- network nodes -->
-    <circle cx="140" cy="540" r="5" fill="#2563eb" stroke="none" opacity="0.22"/>
-    <circle cx="220" cy="500" r="5" fill="#2563eb" stroke="none" opacity="0.22"/>
-    <circle cx="250" cy="580" r="5" fill="#2563eb" stroke="none" opacity="0.22"/>
-    <path d="M140 540l80-40M220 500l30 80M140 540l110 40" opacity="0.2"/>
-    <!-- code chevrons -->
-    <path d="M420 520l-28 28 28 28M480 520l28 28-28 28" opacity="0.28"/>
-    <path d="M540 548h36" opacity="0.22"/>
+  <!-- E-commerce x AI Prompt Pattern Tile -->
+  <g stroke="#2563eb" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
+    
+    <!-- ==================== E-COMMERCE MOTIFS ==================== -->
+    
+    <!-- Shopping Cart -->
+    <path d="M120 180h24l16 80h72l12-56h-96" opacity="0.3"/>
+    <circle cx="168" cy="280" r="6" fill="#2563eb" stroke="none" opacity="0.25"/>
+    <circle cx="216" cy="280" r="6" fill="#2563eb" stroke="none" opacity="0.25"/>
+
+    <!-- Shopping Bag -->
+    <path d="M460 380h60v80h-60z" opacity="0.2"/>
+    <path d="M475 380v-16a15 15 0 0 1 30 0v16" opacity="0.25"/>
+    <path d="M490 410v16" opacity="0.15"/>
+
+    <!-- Price/Discount Tag -->
+    <path d="M600 160l-30 30v40h40l30-30a28 28 0 0 0-40-40z" opacity="0.22"/>
+    <circle cx="610" cy="190" r="4" fill="#2563eb" stroke="none" opacity="0.2"/>
+    <path d="M590 200l20 20M590 220l20-20" opacity="0.15"/> <!-- Percent-like cross inside tag -->
+
+    <!-- Store / Verified Star Badge -->
+    <path d="M110 520l12-32 32-12-32-12-12-32-12 32-32 12 32 12z" opacity="0.18"/>
+    <circle cx="110" cy="488" r="4" fill="#2563eb" stroke="none" opacity="0.3"/>
+
+    <!-- Delivery Box / Product Package -->
+    <path d="M260 560l40-20 40 20v40l-40 20-40-20z" opacity="0.2"/>
+    <path d="M260 560l40 20 40-20M300 580v40" opacity="0.25"/>
+
+    <!-- Payment / Check Card -->
+    <path d="M380 200h80v52h-80z" opacity="0.2"/>
+    <path d="M380 216h80" opacity="0.3"/>
+    <path d="M396 236h20" opacity="0.25"/>
+
+    <!-- ==================== AI PROMPT MOTIFS ==================== -->
+
+    <!-- Chat Bubble with AI Spark -->
+    <path d="M260 120h100a20 20 0 0 1 20 20v40a20 20 0 0 1-20 20h-60l-30 20v-20h-10a20 20 0 0 1-20-20v-40a20 20 0 0 1 20-20z" opacity="0.25"/>
+    <path d="M300 148l4-12 12-4-12-4-4-12-4 12-12 4 12 4z" opacity="0.35"/>
+    <path d="M325 155l2-6 6-2-6-2-2-6-2 6-6 2 6 2z" opacity="0.25"/>
+
+    <!-- Code Brackets / Formatting -->
+    <path d="M80 300l-20 20 20 20M140 300l20 20-20 20" opacity="0.25"/>
+    <path d="M104 348l12-56" opacity="0.15"/>
+
+    <!-- Prompt Cursor Line & Command Interface -->
+    <rect x="520" y="520" width="120" height="80" rx="8" opacity="0.22"/>
+    <circle cx="540" cy="540" r="3" fill="#2563eb" stroke="none" opacity="0.3"/>
+    <circle cx="552" cy="540" r="3" fill="#2563eb" stroke="none" opacity="0.3"/>
+    <path d="M540 560l8-8 8 8M564 560h12" opacity="0.3"/>
+    <rect x="580" y="550" width="8" height="12" fill="#2563eb" stroke="none" opacity="0.3"/>
+
+    <!-- Token Chips -->
+    <rect x="620" y="320" width="60" height="24" rx="12" opacity="0.2"/>
+    <rect x="540" y="360" width="80" height="24" rx="12" opacity="0.15"/>
+    <rect x="600" y="400" width="40" height="24" rx="12" opacity="0.25"/>
+    <path d="M628 332h4M548 372h8M608 412h4" opacity="0.3"/>
+
+    <!-- AI Nodes / Connection Lines -->
+    <circle cx="380" cy="480" r="5" fill="#2563eb" stroke="none" opacity="0.25"/>
+    <circle cx="440" cy="540" r="5" fill="#2563eb" stroke="none" opacity="0.2"/>
+    <circle cx="340" cy="560" r="5" fill="#2563eb" stroke="none" opacity="0.22"/>
+    <path d="M380 480l60 60M380 480l-40 80M440 540l-100 20" stroke-dasharray="4 4" opacity="0.2"/>
+    
+    <!-- Wand / Sparkle Generator -->
+    <path d="M500 260l-40 40" opacity="0.3"/>
+    <path d="M460 300l-6-14-14-6 14-6 6-14 6 14 14 6-14 6z" opacity="0.2"/>
+    <circle cx="496" cy="264" r="3" fill="#2563eb" stroke="none" opacity="0.25"/>
+    
   </g>
 </svg>

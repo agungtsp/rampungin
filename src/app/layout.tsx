@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SiteAnalytics } from "@/components/SiteAnalytics";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { LocaleProvider } from "@/lib/i18n";
 import { getServerLocale } from "@/lib/i18n/server";
 import {
@@ -123,6 +124,12 @@ export default async function RootLayout({
           </>
         ) : null}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#2563eb" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Rampungin" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -141,6 +148,7 @@ export default async function RootLayout({
               <SiteFooter />
             </div>
             <SiteAnalytics />
+            <ServiceWorkerRegister />
             <Analytics />
             <SpeedInsights />
           </ThemeProvider>

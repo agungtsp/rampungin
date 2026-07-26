@@ -9,6 +9,8 @@ import {
 import { localePath } from "@/lib/i18n/paths";
 import { getServerLocale } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo";
+import { resolveAvatarUrl } from "@/lib/storage";
+import { createPublicClient } from "@/lib/supabase/public";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale();
@@ -39,6 +41,16 @@ export default async function AboutPage() {
   const hasDonate = donateLinks.length > 0 || bank;
   const profileHref = localePath(locale, `/profile/${username}`);
   const tutorialHref = localePath(locale, "/tutorial");
+
+  // Fetch creator profile to get the actual avatar
+  const supabase = createPublicClient();
+  const { data: creatorProfile } = await supabase
+    .from("profiles")
+    .select("avatar_url, display_name")
+    .eq("username", username)
+    .maybeSingle();
+  const avatarSrc = resolveAvatarUrl(creatorProfile?.avatar_url);
+  const displayName = creatorProfile?.display_name || username;
   const newPromptHref = localePath(locale, "/prompts/new");
 
   const copy = en
@@ -141,8 +153,19 @@ export default async function AboutPage() {
         <div className="h-20 bg-gradient-to-r from-primary-hover via-primary to-secondary" />
         <div className="relative px-5 pb-6 sm:px-6">
           <div className="-mt-8 flex flex-wrap items-end gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-4 border-white bg-primary font-display text-2xl font-bold text-white shadow-md">
-              {username.slice(0, 1).toUpperCase()}
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-primary shadow-md">
+              {avatarSrc ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={avatarSrc}
+                  alt={displayName}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center font-display text-2xl font-bold text-white">
+                  {username.slice(0, 1).toUpperCase()}
+                </span>
+              )}
             </div>
             <div className="pb-1">
               <h2 className="font-display text-xl font-semibold text-ink">

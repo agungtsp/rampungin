@@ -6,13 +6,33 @@ import { createClient } from "@/lib/supabase/server";
 
 const LOCALES = ["id", "en"] as const;
 
-function urlsFor(path: string, opts?: { changeFrequency?: MetadataRoute.Sitemap[0]["changeFrequency"]; priority?: number; lastModified?: Date }) {
+function parseDate(d?: string | null): Date {
+  if (!d) return new Date();
+  const parsed = new Date(d);
+  return isNaN(parsed.getTime()) ? new Date() : parsed;
+}
+
+function urlsFor(
+  path: string,
+  opts?: {
+    changeFrequency?: MetadataRoute.Sitemap[0]["changeFrequency"];
+    priority?: number;
+    lastModified?: Date;
+  },
+) {
   const base = getSiteUrl();
   return LOCALES.map((locale) => ({
     url: `${base}${localePath(locale, path)}`,
     lastModified: opts?.lastModified ?? new Date(),
     changeFrequency: opts?.changeFrequency ?? "weekly",
     priority: opts?.priority ?? 0.6,
+    alternates: {
+      languages: {
+        id: `${base}${localePath("id", path)}`,
+        en: `${base}${localePath("en", path)}`,
+        "x-default": `${base}${localePath("id", path)}`,
+      },
+    },
   }));
 }
 
@@ -51,7 +71,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const supabase = await createClient();
     const { data: prompts } = await supabase
       .from("prompts")
-      .select("id, updated_at, is_public, public_until, profiles!prompts_author_id_fkey(username)")
+      .select(
+        "id, updated_at, is_public, public_until, profiles!prompts_author_id_fkey(username)",
+      )
       .eq("is_public", true)
       .order("updated_at", { ascending: false })
       .limit(2000);
@@ -66,7 +88,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         : profiles?.username;
       if (!username) continue;
       if (p.public_until && new Date(p.public_until) < new Date()) continue;
-      const lastModified = p.updated_at ? new Date(p.updated_at) : new Date();
+      const lastModified = parseDate(p.updated_at);
       entries.push(
         ...urlsFor(`/profile/${username}/prompt/${p.id}`, {
           priority: 0.8,
@@ -88,7 +110,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ...urlsFor(`/profile/${c.username}`, {
           priority: 0.6,
           changeFrequency: "weekly",
-          lastModified: c.updated_at ? new Date(c.updated_at) : new Date(),
+          lastModified: parseDate(c.updated_at),
         }),
       );
     }
@@ -98,3 +120,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return entries;
 }
+

@@ -16,12 +16,18 @@ export default function robots(): MetadataRoute.Robots {
           "/me",
           "/id/me",
           "/en/me",
+          "/my-prompts",
+          "/id/my-prompts",
+          "/en/my-prompts",
           "/saved",
           "/id/saved",
           "/en/saved",
           "/prompts/new",
           "/id/prompts/new",
           "/en/prompts/new",
+          "/*/edit",
+          "/id/*/edit",
+          "/en/*/edit",
         ],
       },
     ],
@@ -29,3 +35,4 @@ export default function robots(): MetadataRoute.Robots {
     host: base,
   };
 }
+

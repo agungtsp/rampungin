@@ -11,12 +11,12 @@ const PIN_COLS =
 
 export const LIST_SELECT = `id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, ${ID_CONTENT_COLS}, ${RATING_COLS}, ${META_COLS}, ${PIN_COLS}, ${I18N_COLS}, ${PROMPT_AUTHOR}`;
 export const LIST_SELECT_WITH_GEN = `id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, ${ID_CONTENT_COLS}, ${RATING_COLS}, ${META_COLS}, ${PIN_COLS}, ${I18N_COLS}, ${PROMPT_AUTHOR}`;
-export const LIST_SELECT_BASE = `id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, ${ID_CONTENT_COLS}, ${PROMPT_AUTHOR}`;
-export const LIST_SELECT_BASE_GEN = `id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, ${ID_CONTENT_COLS}, ${PROMPT_AUTHOR}`;
+export const LIST_SELECT_BASE = `id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, ${ID_CONTENT_COLS}, ${RATING_COLS}, ${META_COLS}, ${PIN_COLS}, ${PROMPT_AUTHOR}`;
+export const LIST_SELECT_BASE_GEN = `id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, ${ID_CONTENT_COLS}, ${RATING_COLS}, ${META_COLS}, ${PIN_COLS}, ${PROMPT_AUTHOR}`;
 
 export const SEARCH_SELECT = `id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, tags, body, ${RATING_COLS}, ${META_COLS}, ${PIN_COLS}, ${I18N_COLS}, ${PROMPT_AUTHOR}`;
 export const SEARCH_SELECT_WITH_GEN = `id, title, description, mode, category, like_count, copy_count, generate_count, is_public, public_until, image_path, tags, body, ${RATING_COLS}, ${META_COLS}, ${PIN_COLS}, ${I18N_COLS}, ${PROMPT_AUTHOR}`;
-export const SEARCH_SELECT_BASE = `id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, tags, body, ${PROMPT_AUTHOR}`;
+export const SEARCH_SELECT_BASE = `id, title, description, mode, category, like_count, copy_count, is_public, public_until, image_path, tags, body, ${RATING_COLS}, ${META_COLS}, ${PIN_COLS}, ${PROMPT_AUTHOR}`;
 
 export function selectMissingPinColumns(message?: string | null): boolean {
   return Boolean(

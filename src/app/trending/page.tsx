@@ -64,6 +64,9 @@ type Row = {
   rating_avg?: number | null;
   rating_count?: number | null;
   ai_platform?: string | null;
+  owner_pinned_at?: string | null;
+  admin_pin_global?: boolean | null;
+  admin_pin_category?: boolean | null;
   profiles: { username: string } | { username: string }[] | null;
 };
 
@@ -93,6 +96,14 @@ export default async function TrendingPage({
   };
 
   let res = await attempt(LIST_SELECT_WITH_GEN);
+  if (selectMissingPinColumns(res.error?.message)) {
+    res = await attempt(
+      LIST_SELECT_WITH_GEN.replace(
+        /, admin_pin_global, admin_pin_category, admin_pinned_at, owner_pinned_at/,
+        "",
+      ),
+    );
+  }
   let rows: Row[] = [];
   if (res.error?.message?.includes("title_en")) {
     if (locale === "en") {
@@ -148,8 +159,8 @@ export default async function TrendingPage({
         content={
           <>
             <section className="marketplace-grid">
-              {pageItems.map((p) => {
-                const author = asOne(p.profiles);
+              {pageItems.map((p, index) => {
+                const author = asOne(p.profiles ?? null);
                 const loc = localizePrompt(
                   {
                     title: p.title,
@@ -184,6 +195,9 @@ export default async function TrendingPage({
                     rating_count={p.rating_count}
                     ai_platform={p.ai_platform}
                     isLoggedIn={isLoggedIn}
+                    priority={index < 2}
+                    editorPick={Boolean(p.owner_pinned_at)}
+                    adminPinned={Boolean(p.admin_pin_global || p.admin_pin_category)}
                   />
                 );
               })}
