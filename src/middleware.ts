@@ -45,6 +45,11 @@ export async function middleware(request: NextRequest) {
 
   const { locale: urlLocale, path: barePath } = stripLocalePrefix(pathname);
 
+  // Bare short links stay locale-free: /p/{slug}
+  if (!urlLocale && /^\/p\/[a-z0-9]([a-z0-9-]*[a-z0-9])?$/i.test(barePath)) {
+    return NextResponse.next();
+  }
+
   // No locale prefix → redirect to preferred locale
   if (!urlLocale) {
     const preferred = detectPreferredLocale(

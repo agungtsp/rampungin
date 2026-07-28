@@ -77,6 +77,10 @@ const id: TutorialCopy = {
           title: "Generate Prompt & salin",
           body: "Klik “Generate Prompt” untuk melihat hasil akhir, lalu “Salin” untuk menyalin ke clipboard. Berlaku untuk prompt dengan form maupun tanpa form.",
         },
+        {
+          title: "Buka di ChatGPT / AI Studio",
+          body: "Setelah Generate, tombol Open ChatGPT ↗ dan Open AI Studio ↗ muncul di bawah hasil. Klik untuk membuka tab baru dengan teks prompt yang sudah terisi.",
+        },
       ],
     },
     create: {
@@ -115,6 +119,10 @@ const id: TutorialCopy = {
             "Publik untuk X jam — otomatis menjadi privat setelah waktu habis",
           ],
         },
+        {
+          title: "Short link (pemilik)",
+          body: "Di halaman detail prompt milikmu, buat short link /p/slug. Bisa digenerate otomatis atau pakai slug custom. Short link hanya aktif saat prompt publik.",
+        },
       ],
     },
     social: {
@@ -130,9 +138,13 @@ const id: TutorialCopy = {
           body: "Klik ikon bookmark pada kartu atau tombol Simpan di detail, lalu pilih folder (atau Tanpa kategori). Kelola di menu Tersimpan.",
           points: [
             "Buat, ubah nama, atau hapus folder",
-            "Hapus dari satu folder atau dari semua folder",
+            "Gunakan ikon hapus dari folder / hapus semua (lihat label aksesibilitas tombol)",
             "Folder Tanpa kategori dibuat otomatis dan tidak bisa dihapus",
           ],
+        },
+        {
+          title: "Prompt saya & hapus",
+          body: "Di Prompt saya kamu dapat pin, edit, atau menghapus (soft delete) prompt milikmu lewat ikon hapus. Prompt terhapus disembunyikan dan short link berhenti berfungsi.",
         },
         {
           title: "Ikuti kreator",
@@ -202,6 +214,10 @@ const en: TutorialCopy = {
           title: "Generate Prompt & copy",
           body: "Click “Generate Prompt” to see the final result, then “Copy” to copy it to the clipboard. Applies to prompts with or without a form.",
         },
+        {
+          title: "Open in ChatGPT / AI Studio",
+          body: "After Generate, the Open ChatGPT ↗ and Open AI Studio ↗ buttons appear under the result. Click to open a new tab with the prompt text prefilled.",
+        },
       ],
     },
     create: {
@@ -240,6 +256,10 @@ const en: TutorialCopy = {
             "Public for X hours — automatically becomes private when time is up",
           ],
         },
+        {
+          title: "Short link (owner)",
+          body: "On your prompt detail page, create a short link at /p/slug. Auto-generate or set a custom slug. The short link only works while the prompt is public.",
+        },
       ],
     },
     social: {
@@ -255,9 +275,13 @@ const en: TutorialCopy = {
           body: "Click the bookmark on a card or Save on the detail page, then pick a folder (or Uncategorized). Manage everything under Saved.",
           points: [
             "Create, rename, or delete folders",
-            "Remove from one folder or unsave everywhere",
+            "Use the remove-from-folder / unsave-all icons (see each button’s accessibility label)",
             "Uncategorized is created automatically and cannot be deleted",
           ],
+        },
+        {
+          title: "My prompts & delete",
+          body: "On My prompts you can pin, edit, or soft-delete your prompts via the delete icon. Deleted prompts are hidden and their short links stop working.",
         },
         {
           title: "Follow creators",

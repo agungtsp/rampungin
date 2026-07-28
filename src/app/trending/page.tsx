@@ -21,6 +21,7 @@ import {
   LIST_SELECT_BASE_GEN,
   LIST_SELECT_WITH_GEN,
   applyLocaleAvailabilityFilter,
+  selectMissingPinColumns,
 } from "@/lib/prompt-select";
 import { asOne } from "@/lib/relations";
 import { buildPageMetadata } from "@/lib/seo";

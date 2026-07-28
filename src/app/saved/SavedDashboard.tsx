@@ -399,19 +399,54 @@ export function SavedDashboard() {
                         onClick={() =>
                           void removeFromFolder(prompt.id, item.folder_id)
                         }
-                        className="rounded-full px-3 py-1.5 text-xs font-medium text-ink ring-1 ring-secondary/50 hover:bg-soft"
+                        title={
+                          locale === "en"
+                            ? "Remove from folder"
+                            : "Hapus dari folder"
+                        }
+                        aria-label={
+                          locale === "en"
+                            ? "Remove from folder"
+                            : "Hapus dari folder"
+                        }
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full text-ink ring-1 ring-secondary/50 hover:bg-soft disabled:opacity-50"
                       >
-                        {locale === "en"
-                          ? "Remove from folder"
-                          : "Hapus dari folder"}
+                        <svg
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          className="h-4 w-4"
+                          aria-hidden="true"
+                        >
+                          <path d="M2 5.5A1.5 1.5 0 0 1 3.5 4H8l1.5 1.5H16.5A1.5 1.5 0 0 1 18 7v7.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 2 14.5v-9Z" />
+                          <path
+                            fillRule="evenodd"
+                            d="M12.78 8.22a.75.75 0 0 1 0 1.06L11.06 11l1.72 1.72a.75.75 0 1 1-1.06 1.06L10 12.06l-1.72 1.72a.75.75 0 0 1-1.06-1.06L8.94 11 7.22 9.28a.75.75 0 0 1 1.06-1.06L10 9.94l1.72-1.72a.75.75 0 0 1 1.06 0Z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
                       </button>
                       <button
                         type="button"
                         disabled={busy}
                         onClick={() => void unsaveEverywhere(prompt.id)}
-                        className="rounded-full px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+                        title={locale === "en" ? "Unsave all" : "Hapus semua"}
+                        aria-label={
+                          locale === "en" ? "Unsave all" : "Hapus semua"
+                        }
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full text-red-600 hover:bg-red-50 disabled:opacity-50"
                       >
-                        {locale === "en" ? "Unsave all" : "Hapus semua"}
+                        <svg
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          className="h-4 w-4"
+                          aria-hidden="true"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M7.5 3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V4H16a1 1 0 1 1 0 2h-.292l-.7 9.1A2 2 0 0 1 13.017 17H6.983a2 2 0 0 1-1.991-1.9L4.292 6H4a1 1 0 0 1 0-2h3.5V3Zm1.5 1h2V3.5h-2V4Zm-2.2 2 .66 8.58a.5.5 0 0 0 .498.42h6.084a.5.5 0 0 0 .498-.42L13.2 6H6.8Z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
                       </button>
                     </div>
                   </li>

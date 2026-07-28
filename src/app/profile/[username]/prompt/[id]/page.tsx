@@ -6,6 +6,7 @@ import { MediaPreview } from "@/components/MediaPreview";
 import { PromptForm } from "@/components/PromptForm";
 import { PromptPinControls } from "@/components/PromptPinControls";
 import { PromptUsageGuide } from "@/components/PromptUsageGuide";
+import { ShortLinkControls } from "@/components/ShortLinkControls";
 import { SaveToFolderButton } from "@/components/SaveToFolderButton";
 import { SocialBar } from "@/components/SocialBar";
 import { StarRating } from "@/components/StarRating";
@@ -358,6 +359,16 @@ export default async function ProfilePromptDetailPage({
           initialOwnerPinned={Boolean(prompt.owner_pinned_at)}
           initialAdminPinGlobal={Boolean(prompt.admin_pin_global)}
           initialAdminPinCategory={Boolean(prompt.admin_pin_category)}
+        />
+      ) : null}
+
+      {isOwner ? (
+        <ShortLinkControls
+          promptId={prompt.id}
+          isPublic={effectivelyPublic}
+          initialSlug={
+            typeof prompt.short_slug === "string" ? prompt.short_slug : null
+          }
         />
       ) : null}
 

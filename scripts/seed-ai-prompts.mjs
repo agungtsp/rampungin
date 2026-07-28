@@ -120,9 +120,6 @@ function buildUsageGuide(p, locale) {
       lines.push(`- **${k}:** ${v}`);
     }
   }
-  lines.push("");
-  lines.push(isEn ? "## Example result" : "## Contoh hasil");
-  lines.push(isEn ? p.example_output_en : p.example_output_id);
   return lines.join("\n");
 }
 

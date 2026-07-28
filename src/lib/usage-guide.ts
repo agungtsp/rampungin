@@ -8,28 +8,26 @@ import {
 const DEFAULT_ID = `Cara memakai prompt ini
 
 1. Isi form parameter di halaman ini (jika ada), lalu klik Generate Prompt. Setelah itu baru bisa Salin.
-2. Buka ChatGPT (chatgpt.com) atau Google AI Studio (aistudio.google.com) di tab baru — atau pakai tombol shortcut setelah Generate Prompt.
-3. Buat chat baru (jika belum via shortcut), lalu tempel (paste) seluruh teks hasil prompt ke kolom chat.
+2. Setelah Generate, gunakan tombol Open ChatGPT / Open AI Studio (jika tersedia) atau salin teks lalu tempel di asisten AI pilihanmu.
+3. Buat chat baru (jika belum via shortcut), lalu tempel seluruh teks hasil prompt ke kolom chat.
 4. Tekan Enter / Kirim. Sesuaikan jawaban AI jika perlu (misalnya minta versi lebih singkat atau lebih formal).
 
 Tips
 • Pastikan tidak ada placeholder {{...}} yang belum terisi sebelum menempel.
 • Untuk hasil terbaik, tempel prompt sebagai pesan pertama di percakapan baru.
-• Prompt berlabel ChatGPT atau Gemini dioptimalkan untuk platform tersebut; label All cocok untuk keduanya.
-• Shortcut AI Studio memakai parameter URL prompt= agar teks terisi otomatis.`;
+• Prompt berlabel ChatGPT atau Gemini dioptimalkan untuk platform tersebut; label All cocok untuk keduanya.`;
 
 const DEFAULT_EN = `How to use this prompt
 
 1. Fill in the parameter form on this page (if any), then click Generate Prompt. Copy is available after that.
-2. Open ChatGPT (chatgpt.com) or Google AI Studio (aistudio.google.com) in a new tab — or use the shortcut buttons after Generate Prompt.
+2. After Generate, use the Open ChatGPT / Open AI Studio buttons (when shown) or copy the text and paste it into your AI assistant.
 3. Start a new chat (if not opened via shortcut), then paste the full generated prompt text into the message box.
 4. Press Enter / Send. Refine the AI reply if needed (e.g. ask for a shorter or more formal version).
 
 Tips
 • Make sure no {{...}} placeholders remain before you paste.
 • For best results, paste the prompt as the first message in a new conversation.
-• Prompts labeled ChatGPT or Gemini are tuned for that product; All works with both.
-• The AI Studio shortcut uses the prompt= URL parameter so text is prefilled automatically.`;
+• Prompts labeled ChatGPT or Gemini are tuned for that product; All works with both.`;
 
 function platformHint(platform: AiPlatform, locale: Locale): string {
   if (locale === "en") {

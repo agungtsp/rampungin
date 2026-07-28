@@ -341,11 +341,10 @@ export function PromptForm({
                 rel="noopener noreferrer"
                 onClick={() => trackOpenAiShortcut("chatgpt", promptId)}
                 className="rounded-full bg-soft px-4 py-2 text-sm font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-secondary/30"
-                title={
-                  locale === "en" ? "Open in ChatGPT" : "Buka di ChatGPT"
-                }
+                title={t("openChatGpt")}
+                aria-label={t("openChatGpt")}
               >
-                {locale === "en" ? "Open in ChatGPT ↗" : "Buka di ChatGPT ↗"}
+                {t("openChatGpt")}
               </a>
             )}
             {(platform === "all" || platform === "gemini") && (
@@ -355,32 +354,13 @@ export function PromptForm({
                 rel="noopener noreferrer"
                 onClick={() => trackOpenAiShortcut("gemini", promptId)}
                 className="rounded-full bg-soft px-4 py-2 text-sm font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-secondary/30"
-                title={
-                  locale === "en"
-                    ? "Open in Google AI Studio"
-                    : "Buka di Google AI Studio"
-                }
+                title={t("openAiStudio")}
+                aria-label={t("openAiStudio")}
               >
-                {locale === "en" ? "Open in AI Studio ↗" : "Buka di AI Studio ↗"}
+                {t("openAiStudio")}
               </a>
             )}
           </div>
-          <p className="text-xs text-ink-faint">
-            {locale === "en" ? (
-              <>
-                ChatGPT uses <code className="rounded bg-soft px-1">q</code>; AI
-                Studio uses <code className="rounded bg-soft px-1">prompt</code>{" "}
-                so the text is prefilled in a new tab.
-              </>
-            ) : (
-              <>
-                ChatGPT memakai <code className="rounded bg-soft px-1">q</code>;
-                AI Studio memakai{" "}
-                <code className="rounded bg-soft px-1">prompt</code> agar teks
-                langsung terisi di tab baru.
-              </>
-            )}
-          </p>
         </div>
       ) : null}
 
