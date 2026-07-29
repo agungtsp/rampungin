@@ -80,15 +80,17 @@ function CardGrid({
   locale,
   isLoggedIn = false,
   priorityCount = 0,
+  variant = "grid",
 }: {
   items: PromptRow[];
   locale: Locale;
   isLoggedIn?: boolean;
   /** How many leading cards get high fetchPriority (LCP). Keep ≤2. */
   priorityCount?: number;
+  variant?: "grid" | "bento";
 }) {
   return (
-    <div className="marketplace-grid">
+    <div className={variant === "bento" ? "featured-bento" : "marketplace-grid"}>
       {items.map((p, index) => {
         const author = asOne(p.profiles ?? null);
         const loc = localizePrompt(
@@ -212,28 +214,27 @@ export default async function HomePage({
   return (
     <main className="mx-auto max-w-7xl px-3 sm:px-6">
       {!q ? (
-        <section className="animate-fade-up border-b border-secondary/60 py-8 sm:py-14">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-soft px-3 py-1 text-xs font-semibold text-primary-hover">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+        <section className="animate-fade-up py-6 sm:py-8">
+          <div className="stage-panel relative overflow-hidden rounded-2xl px-5 py-8 sm:rounded-3xl sm:px-10 sm:py-12">
+            <p className="mb-3 text-xs font-semibold text-white/70">
               {t("heroBadge")} · {totalCatalog}+ {t("promptCountSuffix")}
             </p>
-            <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-5xl sm:leading-[1.1]">
+            <h1 className="max-w-xl font-display text-3xl font-semibold tracking-tight text-white sm:text-5xl sm:leading-[1.1]">
               {t("heroTitle")}
             </h1>
-            <p className="mx-auto mt-3 max-w-xl px-1 text-sm text-ink-muted sm:text-lg">
+            <p className="mt-3 max-w-xl text-sm text-white/80 sm:text-lg">
               {t("heroSubtitle")}
             </p>
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:mt-6 sm:gap-3">
+            <div className="mt-6 flex flex-wrap gap-2 sm:gap-3">
               <LocaleLink
                 href="/prompts/new"
-                className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover sm:px-5"
+                className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover sm:px-5"
               >
                 {t("heroShare")}
               </LocaleLink>
               <LocaleLink
                 href="/trending"
-                className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-soft sm:px-5"
+                className="rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white hover:bg-white/15 sm:px-5"
               >
                 {t("heroTrending")}
               </LocaleLink>
@@ -269,6 +270,7 @@ export default async function HomePage({
               items={featured}
               locale={locale}
               isLoggedIn={isLoggedIn}
+              variant="bento"
               priorityCount={2}
             />
           </section>
