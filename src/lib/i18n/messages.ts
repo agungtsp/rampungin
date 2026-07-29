@@ -174,7 +174,9 @@ const messages = {
     deletePrompt: "Hapus prompt",
     shortLinkTitle: "Short link",
     shortLinkHint:
-      "Hanya pemilik yang bisa membuat. Short link hanya aktif saat prompt publik: /p/slug",
+      "Hanya pemilik yang bisa membuat. Short link hanya aktif saat prompt publik: /p/slug. Pengunjung bisa menyalin jika sudah dibuat.",
+    shortLinkPublicHint:
+      "Salin short link yang sudah dibuat pemilik prompt.",
     shortLinkGenerate: "Buat short link",
     shortLinkSetCustom: "Pakai slug custom",
     shortLinkUpdate: "Perbarui slug",
@@ -359,7 +361,8 @@ const messages = {
     deletePrompt: "Delete prompt",
     shortLinkTitle: "Short link",
     shortLinkHint:
-      "Only the owner can create one. Works only while the prompt is public: /p/slug",
+      "Only the owner can create one. Works only while the prompt is public: /p/slug. Visitors can copy it once created.",
+    shortLinkPublicHint: "Copy the short link created by the prompt owner.",
     shortLinkGenerate: "Generate short link",
     shortLinkSetCustom: "Use custom slug",
     shortLinkUpdate: "Update slug",

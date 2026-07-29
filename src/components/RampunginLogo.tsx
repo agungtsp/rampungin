@@ -4,7 +4,7 @@ type Props = SVGProps<SVGSVGElement> & {
   title?: string;
 };
 
-/** Rampungin brand mark — blue gradient tile with R + prompt brace + spark. */
+/** Rampungin brand mark — indigo→cyan gradient tile with R + prompt brace + spark. */
 export function RampunginLogo({
   title = "Rampungin",
   className,
@@ -30,9 +30,9 @@ export function RampunginLogo({
           y2="60"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stopColor="#1d4ed8" />
-          <stop offset="0.45" stopColor="#2563eb" />
-          <stop offset="1" stopColor="#93c5fd" />
+          <stop stopColor="#4f46e5" />
+          <stop offset="0.45" stopColor="#06b6d4" />
+          <stop offset="1" stopColor="#22d3ee" />
         </linearGradient>
         <linearGradient
           id={`${id}-shine`}
@@ -68,7 +68,7 @@ export function RampunginLogo({
       />
       <path
         d="M48.5 18.5l1.1 2.8 2.8 1.1-2.8 1.1-1.1 2.8-1.1-2.8-2.8-1.1 2.8-1.1 1.1-2.8z"
-        fill="#fde68a"
+        fill="#a5f3fc"
       />
     </svg>
   );

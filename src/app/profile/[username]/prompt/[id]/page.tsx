@@ -362,9 +362,13 @@ export default async function ProfilePromptDetailPage({
         />
       ) : null}
 
-      {isOwner ? (
+      {isOwner ||
+      (effectivelyPublic &&
+        typeof prompt.short_slug === "string" &&
+        prompt.short_slug) ? (
         <ShortLinkControls
           promptId={prompt.id}
+          isOwner={isOwner}
           isPublic={effectivelyPublic}
           initialSlug={
             typeof prompt.short_slug === "string" ? prompt.short_slug : null

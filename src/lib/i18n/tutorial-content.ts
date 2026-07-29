@@ -121,7 +121,7 @@ const id: TutorialCopy = {
         },
         {
           title: "Short link (pemilik)",
-          body: "Di halaman detail prompt milikmu, buat short link /p/slug. Bisa digenerate otomatis atau pakai slug custom. Short link hanya aktif saat prompt publik.",
+          body: "Di halaman detail prompt milikmu, buat short link /p/slug. Bisa digenerate otomatis atau pakai slug custom. Short link hanya aktif saat prompt publik. Pengunjung publik bisa menyalin short link yang sudah dibuat.",
         },
       ],
     },
@@ -258,7 +258,7 @@ const en: TutorialCopy = {
         },
         {
           title: "Short link (owner)",
-          body: "On your prompt detail page, create a short link at /p/slug. Auto-generate or set a custom slug. The short link only works while the prompt is public.",
+          body: "On your prompt detail page, create a short link at /p/slug. Auto-generate or set a custom slug. The short link only works while the prompt is public. Public visitors can copy an existing short link.",
         },
       ],
     },

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CategoryChips } from "@/components/CategoryChips";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { LocaleLink } from "@/components/LocaleLink";
 import { PaginationControls } from "@/components/PaginationControls";
 import {
@@ -9,7 +10,7 @@ import {
 } from "@/components/PaginationShell";
 import { PromptCard } from "@/components/PromptCard";
 import {
-  categoryEmoji,
+  categoryIconName,
   categoryLabel,
   isValidCategory,
 } from "@/lib/categories";
@@ -215,7 +216,7 @@ export default async function CategoryPage({
     <main className="mx-auto max-w-7xl px-3 sm:px-6">
       <div className="space-y-2 border-b border-secondary/60 py-8">
         <h1 className="flex items-center gap-2 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-          <span>{categoryEmoji(slug)}</span>
+          <CategoryIcon name={categoryIconName(slug)} size={28} className="shrink-0" />
           {categoryLabel(slug, locale)}
         </h1>
         <p className="text-ink-muted">

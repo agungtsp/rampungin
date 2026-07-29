@@ -30,7 +30,7 @@ const SmartSearchButton = dynamic(
 );
 
 const navLinkClass =
-  "whitespace-nowrap rounded-lg px-2.5 py-1.5 transition hover:bg-soft hover:text-ink";
+  "whitespace-nowrap rounded-lg px-2.5 py-1.5 text-ink-muted transition hover:bg-soft hover:text-ink";
 
 type Props = {
   initialUsername?: string | null;
@@ -102,7 +102,7 @@ export function SiteHeader({ initialUsername = null }: Props) {
   );
 
   return (
-    <header className="sticky top-0 z-40 border-b border-secondary/60 bg-white">
+    <header className="sticky top-0 z-40 border-b border-secondary/80 bg-panel/85 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-2 px-3 sm:gap-3 sm:px-6">
         <LocaleLink
           href="/"
@@ -146,7 +146,7 @@ export function SiteHeader({ initialUsername = null }: Props) {
             <LocaleLink
               href="/auth"
               prefetch
-              className="rounded-full bg-primary px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-primary-hover sm:px-3.5 sm:py-2"
+              className="rounded-full border border-secondary px-3 py-1.5 text-sm font-semibold text-ink-muted transition hover:bg-soft hover:text-ink sm:px-3.5 sm:py-2"
             >
               {t("navLogin")}
             </LocaleLink>
@@ -156,7 +156,7 @@ export function SiteHeader({ initialUsername = null }: Props) {
 
       <nav
         aria-label="Main"
-        className="-mx-0 flex items-center gap-0.5 overflow-x-auto border-t border-secondary/40 px-3 py-1.5 text-sm font-medium text-ink-muted [scrollbar-width:none] sm:px-6 xl:hidden [&::-webkit-scrollbar]:hidden"
+        className="-mx-0 flex items-center gap-0.5 overflow-x-auto border-t border-secondary/80 px-3 py-1.5 text-sm font-medium text-ink-muted [scrollbar-width:none] sm:px-6 xl:hidden [&::-webkit-scrollbar]:hidden"
       >
         {navLinks}
         <LocaleLink

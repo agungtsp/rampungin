@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans, Sora } from "next/font/google";
+import { DM_Sans, JetBrains_Mono, Sora } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SiteAnalytics } from "@/components/SiteAnalytics";
@@ -35,6 +35,14 @@ const display = Sora({
   display: "swap",
   preload: false,
   adjustFontFallback: true,
+});
+
+const mono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
+  preload: false,
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -125,7 +133,7 @@ export default async function RootLayout({
         ) : null}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#2563eb" />
+        <meta name="theme-color" content="#06b6d4" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -136,7 +144,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`${sans.variable} ${display.variable} relative flex min-h-screen flex-col font-sans text-ink antialiased`}
+        className={`${sans.variable} ${display.variable} ${mono.variable} relative flex min-h-screen flex-col font-sans text-ink antialiased`}
       >
         <LocaleProvider initialLocale={locale}>
           <ThemeProvider initialTheme={theme}>

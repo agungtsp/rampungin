@@ -11,7 +11,7 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto border-t border-secondary/60 bg-white">
+    <footer className="mt-auto border-t border-secondary bg-panel text-ink-muted">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 sm:px-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
@@ -57,7 +57,7 @@ export function SiteFooter() {
             </LocaleLink>
           </nav>
         </div>
-        <p className="border-t border-secondary/40 pt-4 text-xs text-ink-muted sm:text-sm">
+        <p className="border-t border-secondary pt-4 text-xs sm:text-sm">
           <a
             href={AUTHOR_URL}
             target="_blank"
