@@ -1,6 +1,33 @@
 import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
+import { isAdmin } from "@/lib/roles";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+
+const FULL_SOFT_DELETE = {
+  short_slug: null as null,
+  is_public: false,
+  public_until: null as null,
+  owner_pinned_at: null as null,
+  admin_pin_global: false,
+  admin_pin_category: false,
+  admin_pinned_at: null as null,
+};
+
+function softDeletePayload() {
+  return {
+    deleted_at: new Date().toISOString(),
+    ...FULL_SOFT_DELETE,
+  };
+}
+
+function minimalSoftDeletePayload() {
+  return {
+    deleted_at: new Date().toISOString(),
+    is_public: false,
+    public_until: null as null,
+  };
+}
 
 export async function POST(
   _request: Request,
@@ -27,38 +54,34 @@ export async function POST(
   if (!prompt) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  if (prompt.author_id !== user.id) {
+
+  const owner = prompt.author_id === user.id;
+  const admin = owner ? false : await isAdmin(supabase, user.id);
+  if (!owner && !admin) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const fullPayload = {
-    deleted_at: new Date().toISOString(),
-    short_slug: null,
-    is_public: false,
-    public_until: null,
-    owner_pinned_at: null,
-    admin_pin_global: false,
-    admin_pin_category: false,
-    admin_pinned_at: null,
-  };
+  // Owners update via RLS; admins soft-delete any prompt via service role.
+  const client = admin ? createAdminClient() : supabase;
+  let query = client.from("prompts").update(softDeletePayload()).eq("id", id);
+  if (owner) {
+    query = query.eq("author_id", user.id);
+  }
 
-  let { error } = await supabase
-    .from("prompts")
-    .update(fullPayload)
-    .eq("id", id)
-    .eq("author_id", user.id);
+  let { error } = await query;
 
-  if (error && /owner_pinned|admin_pin|short_slug|deleted_at|column/i.test(error.message)) {
-    const minimal = {
-      deleted_at: new Date().toISOString(),
-      is_public: false,
-      public_until: null,
-    };
-    ({ error } = await supabase
+  if (
+    error &&
+    /owner_pinned|admin_pin|short_slug|deleted_at|column/i.test(error.message)
+  ) {
+    let retry = client
       .from("prompts")
-      .update(minimal)
-      .eq("id", id)
-      .eq("author_id", user.id));
+      .update(minimalSoftDeletePayload())
+      .eq("id", id);
+    if (owner) {
+      retry = retry.eq("author_id", user.id);
+    }
+    ({ error } = await retry);
   }
 
   if (error) {

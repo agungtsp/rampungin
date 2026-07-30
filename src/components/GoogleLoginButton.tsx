@@ -31,7 +31,7 @@ export function GoogleLoginButton() {
     <button
       type="button"
       onClick={login}
-      className="w-full rounded-xl bg-primary-hover px-4 py-3 text-white hover:bg-primary-hover"
+      className="w-full rounded-xl bg-primary px-4 py-3 font-semibold text-white transition hover:bg-primary-hover"
     >
       {locale === "en" ? "Continue with Google" : "Lanjutkan dengan Google"}
     </button>

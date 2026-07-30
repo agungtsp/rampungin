@@ -7,11 +7,13 @@ import { PromptForm } from "@/components/PromptForm";
 import { PromptPinControls } from "@/components/PromptPinControls";
 import { PromptUsageGuide } from "@/components/PromptUsageGuide";
 import { ShortLinkControls } from "@/components/ShortLinkControls";
+import { SoftDeleteButton } from "@/components/SoftDeleteButton";
 import { SaveToFolderButton } from "@/components/SaveToFolderButton";
 import { SocialBar } from "@/components/SocialBar";
 import { StarRating } from "@/components/StarRating";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { aiPlatformBadge } from "@/lib/ai-platform";
-import { categoryEmoji, categoryLabel } from "@/lib/categories";
+import { categoryIconName, categoryLabel } from "@/lib/categories";
 import {
   isAvailableInLocale,
   localizePrompt,
@@ -254,7 +256,7 @@ export default async function ProfilePromptDetailPage({
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2 text-xs">
           {prompt.owner_pinned_at && (
-            <span className="flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-1 font-semibold text-white shadow-sm">
+            <span className="flex items-center gap-1 rounded-full bg-accent-quiet px-2.5 py-1 font-semibold text-white shadow-sm">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -272,9 +274,14 @@ export default async function ProfilePromptDetailPage({
           )}
           <Link
             href={localePath(locale, `/category/${prompt.category ?? "lainnya"}`)}
-            className="rounded-full bg-soft px-2.5 py-1 font-medium text-primary-hover transition hover:bg-primary/15"
+            className="flex items-center gap-1.5 rounded-full bg-soft px-2.5 py-1 font-medium text-primary-hover transition hover:bg-primary/15"
           >
-            {categoryEmoji(prompt.category)} {categoryLabel(prompt.category, locale)}
+            <CategoryIcon
+              name={categoryIconName(prompt.category)}
+              size={12}
+              className="shrink-0"
+            />
+            {categoryLabel(prompt.category, locale)}
           </Link>
           <span className="rounded-full bg-soft px-2.5 py-1 font-medium text-ink-muted ring-1 ring-black/[0.06]">
             {modeLabel}
@@ -359,6 +366,19 @@ export default async function ProfilePromptDetailPage({
           initialOwnerPinned={Boolean(prompt.owner_pinned_at)}
           initialAdminPinGlobal={Boolean(prompt.admin_pin_global)}
           initialAdminPinCategory={Boolean(prompt.admin_pin_category)}
+        />
+      ) : null}
+
+      {isOwner || viewerIsAdmin ? (
+        <SoftDeleteButton
+          promptId={prompt.id}
+          promptTitle={localized.title}
+          compact={false}
+          redirectTo={
+            isOwner
+              ? localePath(locale, "/my-prompts")
+              : localePath(locale, "/")
+          }
         />
       ) : null}
 

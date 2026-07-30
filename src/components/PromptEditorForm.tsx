@@ -432,7 +432,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       <p className="text-xs text-ink-muted">{t("editorLangHint")}</p>
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium">
+        <span className="text-sm font-medium text-ink">
           {isId ? t("editorTitleId") : t("editorTitleEn")}
         </span>
         <input
@@ -445,7 +445,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       </label>
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium">
+        <span className="text-sm font-medium text-ink">
           {isId ? t("editorDescId") : t("editorDescEn")}
         </span>
         <textarea
@@ -461,7 +461,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       </label>
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium">{t("editorCategory")}</span>
+        <span className="text-sm font-medium text-ink">{t("editorCategory")}</span>
         <select
           className="field-control w-full rounded-lg px-3 py-2"
           value={category}
@@ -469,14 +469,14 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
         >
           {CATEGORIES.map((c) => (
             <option key={c.slug} value={c.slug}>
-              {c.emoji} {categoryLabel(c.slug, locale)}
+              {categoryLabel(c.slug, locale)}
             </option>
           ))}
         </select>
       </label>
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium">{t("editorAiPlatform")}</span>
+        <span className="text-sm font-medium text-ink">{t("editorAiPlatform")}</span>
         <select
           className="field-control w-full rounded-lg px-3 py-2"
           value={aiPlatform}
@@ -492,7 +492,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       </label>
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium">
+        <span className="text-sm font-medium text-ink">
           {isId ? t("editorUsageId") : t("editorUsageEn")}
         </span>
         <textarea
@@ -527,7 +527,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       </div>
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium">
+        <span className="text-sm font-medium text-ink">
           {mode === "template"
             ? isId
               ? t("editorBodyTemplateId")
@@ -632,7 +632,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       )}
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium">
+        <span className="text-sm font-medium text-ink">
           {isId ? t("editorTagsId") : t("editorTagsEn")}
         </span>
         <input
@@ -676,7 +676,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
       />
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium">{t("editorVideo")}</span>
+        <span className="text-sm font-medium text-ink">{t("editorVideo")}</span>
         <input
           className="field-control w-full rounded-lg px-3 py-2"
           value={videoUrl}
@@ -713,7 +713,7 @@ export function PromptEditorForm({ existing, authorUsername }: Props) {
               ? t("saving")
               : t("editorSave")
         }
-        className="rounded-xl bg-primary-hover px-5 py-3 text-white disabled:opacity-60"
+        className="rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover disabled:opacity-60"
       >
         {busy ? t("saving") : t("editorSave")}
       </button>

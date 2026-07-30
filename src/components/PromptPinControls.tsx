@@ -103,7 +103,7 @@ export function PromptPinControls({
   const catLabel = categoryLabel(category, locale);
 
   return (
-    <div className="space-y-3 rounded-2xl bg-white p-4 ring-1 ring-ink/15">
+    <div className="space-y-3 rounded-2xl border border-secondary bg-panel p-4">
       <p className="text-sm font-semibold text-ink">{t("pinControlsTitle")}</p>
       <div className="flex flex-wrap gap-2">
         {isOwner ? (
@@ -118,10 +118,10 @@ export function PromptPinControls({
                   ? t("ownerUnpin")
                   : t("ownerPin")
             }
-            className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+            className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
               ownerPinned
-                ? "bg-primary text-white hover:bg-primary-hover"
-                : "bg-soft text-ink ring-1 ring-secondary/50 hover:bg-secondary/30"
+                ? "bg-accent-quiet text-white hover:bg-accent-quiet/90"
+                : "bg-accent-quiet/15 text-accent-quiet hover:bg-accent-quiet/25"
             } disabled:cursor-not-allowed disabled:opacity-50`}
           >
             {ownerPinned ? t("ownerUnpin") : t("ownerPin")}
@@ -133,10 +133,10 @@ export function PromptPinControls({
               type="button"
               disabled={busy}
               onClick={() => void toggleAdmin("global", !adminGlobal)}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+              className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
                 adminGlobal
-                  ? "bg-primary text-white hover:bg-primary-hover"
-                  : "bg-soft text-ink ring-1 ring-secondary/50 hover:bg-secondary/30"
+                  ? "bg-accent-quiet text-white hover:bg-accent-quiet/90"
+                  : "bg-accent-quiet/15 text-accent-quiet hover:bg-accent-quiet/25"
               } disabled:opacity-50`}
             >
               {adminGlobal ? t("adminUnpinHome") : t("adminPinHome")}
@@ -146,10 +146,10 @@ export function PromptPinControls({
               disabled={busy || !category}
               onClick={() => void toggleAdmin("category", !adminCategory)}
               title={!category ? t("adminPinNoCategory") : undefined}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+              className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
                 adminCategory
-                  ? "bg-primary text-white hover:bg-primary-hover"
-                  : "bg-soft text-ink ring-1 ring-secondary/50 hover:bg-secondary/30"
+                  ? "bg-accent-quiet text-white hover:bg-accent-quiet/90"
+                  : "bg-accent-quiet/15 text-accent-quiet hover:bg-accent-quiet/25"
               } disabled:cursor-not-allowed disabled:opacity-50`}
             >
               {adminCategory

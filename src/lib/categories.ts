@@ -28,7 +28,7 @@ export const CATEGORIES: Category[] = [
     labelEn: "Marketing",
     emoji: "📣",
     icon: "megaphone",
-    cover: "from-[#1d4ed8] via-[#3b82f6] to-[#93c5fd]",
+    cover: "from-[#312e81] via-[#4f46e5] to-[#67e8f9]",
   },
   {
     slug: "coding",
@@ -36,7 +36,7 @@ export const CATEGORIES: Category[] = [
     labelEn: "Coding & Dev",
     emoji: "💻",
     icon: "code",
-    cover: "from-[#0f172a] via-[#334155] to-[#22d3ee]",
+    cover: "from-[#0f172a] via-[#3730a3] to-[#22d3ee]",
   },
   {
     slug: "menulis",
@@ -44,7 +44,7 @@ export const CATEGORIES: Category[] = [
     labelEn: "Writing",
     emoji: "✍️",
     icon: "pencil-simple",
-    cover: "from-[#7c2d12] via-[#ea580c] to-[#fdba74]",
+    cover: "from-[#4c1d95] via-[#6366f1] to-[#a5b4fc]",
   },
   {
     slug: "desain",
@@ -52,7 +52,7 @@ export const CATEGORIES: Category[] = [
     labelEn: "Design",
     emoji: "🎨",
     icon: "palette",
-    cover: "from-[#831843] via-[#db2777] to-[#f9a8d4]",
+    cover: "from-[#581c87] via-[#7c3aed] to-[#c4b5fd]",
   },
   {
     slug: "bisnis",
@@ -60,7 +60,7 @@ export const CATEGORIES: Category[] = [
     labelEn: "Business",
     emoji: "📈",
     icon: "chart-line-up",
-    cover: "from-[#14532d] via-[#16a34a] to-[#86efac]",
+    cover: "from-[#134e4a] via-[#0d9488] to-[#5eead4]",
   },
   {
     slug: "edukasi",
@@ -68,7 +68,7 @@ export const CATEGORIES: Category[] = [
     labelEn: "Education",
     emoji: "🎓",
     icon: "graduation-cap",
-    cover: "from-[#1e3a8a] via-[#6366f1] to-[#c4b5fd]",
+    cover: "from-[#1e1b4b] via-[#4338ca] to-[#818cf8]",
   },
   {
     slug: "produktivitas",
@@ -76,7 +76,7 @@ export const CATEGORIES: Category[] = [
     labelEn: "Productivity",
     emoji: "⚡",
     icon: "lightning",
-    cover: "from-[#713f12] via-[#eab308] to-[#fde68a]",
+    cover: "from-[#155e75] via-[#0891b2] to-[#67e8f9]",
   },
   {
     slug: "data",
@@ -92,7 +92,7 @@ export const CATEGORIES: Category[] = [
     labelEn: "Entertainment",
     emoji: "🎬",
     icon: "film-strip",
-    cover: "from-[#4c1d95] via-[#7c3aed] to-[#e9d5ff]",
+    cover: "from-[#5b21b6] via-[#9333ea] to-[#f0abfc]",
   },
   {
     slug: "lainnya",
@@ -100,7 +100,7 @@ export const CATEGORIES: Category[] = [
     labelEn: "Other",
     emoji: "🧩",
     icon: "puzzle-piece",
-    cover: "from-[#27272a] via-[#52525b] to-[#d4d4d8]",
+    cover: "from-[#1e293b] via-[#475569] to-[#94a3b8]",
   },
 ];
 

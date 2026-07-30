@@ -11,6 +11,7 @@ describe("robots.txt configuration", () => {
     expect(rules.disallow).toContain("/me");
     expect(rules.disallow).toContain("/my-prompts");
     expect(rules.disallow).toContain("/saved");
+    expect(rules.disallow).toContain("/admin/");
     expect(rules.disallow).toContain("/*/edit");
     expect(config.sitemap).toMatch(/sitemap\.xml$/);
   });

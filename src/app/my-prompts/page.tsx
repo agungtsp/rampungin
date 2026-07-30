@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { LocaleLink } from "@/components/LocaleLink";
 import { OwnerPinButton } from "@/components/OwnerPinButton";
 import { PromptCard } from "@/components/PromptCard";
+import { SoftDeleteButton } from "@/components/SoftDeleteButton";
 import { localizePrompt, preferredDisplayLocale, translate } from "@/lib/i18n";
 import { getServerLocale } from "@/lib/i18n/server";
 import { localePath } from "@/lib/i18n/paths";
@@ -170,14 +171,20 @@ export default async function MyPromptsPage() {
                     username ? promptEditPath(username, p.id) : `/prompts/${p.id}/edit`
                   }
                   manageControls={
-                    <OwnerPinButton
-                      promptId={p.id}
-                      isPublic={isEffectivelyPublic(
-                        p.is_public,
-                        p.public_until,
-                      )}
-                      initialPinned={Boolean(p.owner_pinned_at)}
-                    />
+                    <>
+                      <SoftDeleteButton
+                        promptId={p.id}
+                        promptTitle={loc.title}
+                      />
+                      <OwnerPinButton
+                        promptId={p.id}
+                        isPublic={isEffectivelyPublic(
+                          p.is_public,
+                          p.public_until,
+                        )}
+                        initialPinned={Boolean(p.owner_pinned_at)}
+                      />
+                    </>
                   }
                 />
               );

@@ -81,23 +81,20 @@ export function SiteHeader({ initialUsername = null }: Props) {
 
   const navLinks = (
     <>
+      <LocaleLink href="/" prefetch className={navLinkClass}>
+        {t("navHome")}
+      </LocaleLink>
       <LocaleLink href="/trending" prefetch className={navLinkClass}>
         {t("navTrending")}
       </LocaleLink>
-      <LocaleLink href="/editor-picks" prefetch className={navLinkClass}>
-        {t("navEditorPicks")}
-      </LocaleLink>
-      <LocaleLink href="/people" prefetch className={navLinkClass}>
-        {t("navCreators")}
+      <LocaleLink href="/labs" prefetch className={navLinkClass}>
+        {t("navLabs")}
       </LocaleLink>
       {username ? (
         <LocaleLink href="/saved" prefetch className={navLinkClass}>
           {t("navSaved")}
         </LocaleLink>
       ) : null}
-      <LocaleLink href="/tutorial" prefetch className={navLinkClass}>
-        {t("navGuide")}
-      </LocaleLink>
     </>
   );
 

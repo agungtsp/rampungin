@@ -267,10 +267,9 @@ export default async function HomePage({
               </LocaleLink>
             </div>
             <CardGrid
-              items={featured}
+              items={featured.slice(0, 3)}
               locale={locale}
               isLoggedIn={isLoggedIn}
-              variant="bento"
               priorityCount={2}
             />
           </section>

@@ -137,9 +137,20 @@ export function SmartSearchButton({
                     required
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        e.currentTarget.form?.requestSubmit();
+                      }
+                    }}
                     placeholder={t("searchContextPh")}
                     className="field-control w-full rounded-xl bg-soft px-4 py-3 text-sm text-ink outline-none transition focus:bg-white"
                   />
+                  <p className="text-xs text-ink-faint">
+                    {locale === "en"
+                      ? "Press Enter to search · Shift+Enter for a new line"
+                      : "Tekan Enter untuk cari · Shift+Enter untuk baris baru"}
+                  </p>
                 </label>
 
                 <label className="block space-y-1.5">

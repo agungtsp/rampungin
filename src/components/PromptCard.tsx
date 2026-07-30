@@ -5,7 +5,8 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { LocaleLink } from "./LocaleLink";
 import { aiPlatformBadge } from "@/lib/ai-platform";
-import { categoryEmoji, categoryLabel } from "@/lib/categories";
+import { CategoryIcon } from "./CategoryIcon";
+import { categoryIconName, categoryLabel } from "@/lib/categories";
 import { defaultCoverUrl, promptCoverUrl } from "@/lib/cover";
 import { useLocale } from "@/lib/i18n";
 import { promptDetailPath } from "@/lib/paths";
@@ -81,7 +82,7 @@ export function PromptCard({
   const editLabel = t("edit");
 
   return (
-    <div className="card-hover group relative min-w-0">
+    <div className="card-hover group relative min-w-0 h-full">
       <div className="absolute right-1.5 top-1.5 z-10 flex flex-col items-end gap-1 sm:right-2 sm:top-2">
         {editHref ? (
           <LocaleLink
@@ -101,9 +102,9 @@ export function PromptCard({
           compact
         />
       </div>
-      <LocaleLink href={href} className="block">
-        <article className="overflow-hidden rounded-xl bg-white shadow-card ring-1 ring-black/[0.06] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-card-hover">
-          <div className="relative aspect-square overflow-hidden bg-soft">
+      <LocaleLink href={href} className="block h-full">
+        <article className="flex h-full flex-col overflow-hidden rounded-2xl bg-panel shadow-card ring-1 ring-secondary transition duration-300 group-hover:-translate-y-1 group-hover:shadow-card-hover">
+          <div className="relative aspect-square shrink-0 overflow-hidden bg-soft">
             {isRemote && !useFallbackImg ? (
               <Image
                 src={src}
@@ -111,7 +112,7 @@ export function PromptCard({
                 title={title}
                 fill
                 sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 20vw"
-                className="object-cover transition duration-500 group-hover:scale-105"
+                className="object-cover transition duration-500 group-hover:scale-[1.03]"
                 priority={priority}
                 fetchPriority={priority ? "high" : "auto"}
                 loading={priority ? "eager" : "lazy"}
@@ -131,7 +132,7 @@ export function PromptCard({
                 title={title}
                 loading={priority ? "eager" : "lazy"}
                 decoding="async"
-                className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
                 onError={() => {
                   if (src !== fallback) setSrc(fallback);
                 }}
@@ -140,7 +141,7 @@ export function PromptCard({
 
             <div className="absolute left-1.5 top-1.5 flex max-w-[calc(100%-3rem)] flex-wrap gap-1 sm:left-2 sm:top-2">
               {editorPick ? (
-                <span className="flex items-center gap-1 rounded-md bg-amber-500 px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm sm:text-[11px]">
+                <span className="flex items-center gap-1 rounded-md bg-accent-quiet px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm sm:text-[11px]">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -157,18 +158,18 @@ export function PromptCard({
                 </span>
               ) : null}
               {adminPinned ? (
-                <span className="rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm sm:text-[11px]">
+                <span className="rounded-md bg-accent-quiet px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm sm:text-[11px]">
                   {t("adminPinnedBadge")}
                 </span>
               ) : null}
-              <span className="max-w-full truncate rounded-md bg-white px-1.5 py-0.5 text-[10px] font-semibold text-ink shadow-sm sm:text-[11px]">
-                <span className="sm:hidden">{categoryEmoji(category)}</span>
-                <span className="hidden sm:inline">
-                  {categoryEmoji(category)} {categoryLabel(category, locale)}
+              <span className="inline-flex max-w-full items-center gap-1 truncate rounded-md bg-panel/95 px-1.5 py-0.5 text-[10px] font-semibold text-ink shadow-sm backdrop-blur sm:text-[11px]">
+                <CategoryIcon name={categoryIconName(category)} size={12} />
+                <span className="hidden truncate sm:inline">
+                  {categoryLabel(category, locale)}
                 </span>
               </span>
               {mode === "template" ? (
-                <span className="hidden rounded-md bg-primary-hover px-1.5 py-0.5 text-[10px] font-medium text-white min-[400px]:inline sm:text-[11px]">
+                <span className="hidden rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm min-[400px]:inline sm:text-[11px]">
                   {t("templateBadge")}
                 </span>
               ) : null}
@@ -188,11 +189,11 @@ export function PromptCard({
             )}
           </div>
 
-          <div className="space-y-1 p-2.5 sm:space-y-1.5 sm:p-3">
-            <h3 className="line-clamp-2 min-h-[2.25rem] text-[13px] font-semibold leading-snug text-ink group-hover:text-primary-hover sm:min-h-[2.5rem] sm:text-sm">
+          <div className="flex flex-1 flex-col space-y-1 p-2.5 sm:space-y-1.5 sm:p-3">
+            <h3 className="line-clamp-2 min-h-[2.5rem] text-[13px] font-semibold leading-snug text-ink sm:min-h-[2.75rem] sm:text-sm">
               {title}
             </h3>
-            <div className="flex items-center justify-between gap-1.5 text-[10px] text-ink-muted sm:text-[11px]">
+            <div className="mt-auto flex items-center justify-between gap-1.5 text-[10px] text-ink-faint sm:text-[11px]">
               <span className="min-w-0 truncate font-medium">
                 {authorUsername ? `@${authorUsername}` : t("anonymous")}
               </span>

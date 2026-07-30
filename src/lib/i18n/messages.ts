@@ -3,6 +3,8 @@ import type { Locale } from "./locale";
 const messages = {
   id: {
     navTrending: "Trending",
+    navHome: "Beranda",
+    navLabs: "Labs",
     navEditorPicks: "Pilihan Editor",
     navCreators: "Kreator",
     navGuide: "Panduan",
@@ -172,6 +174,8 @@ const messages = {
     visibility7d: "7 hari",
     visibilityCustom: "Pakai jam custom",
     deletePrompt: "Hapus prompt",
+    deletePromptFailed: "Gagal menghapus prompt",
+    deletingPrompt: "Menghapus…",
     shortLinkTitle: "Short link",
     shortLinkHint:
       "Hanya pemilik yang bisa membuat. Short link hanya aktif saat prompt publik: /p/slug. Pengunjung bisa menyalin jika sudah dibuat.",
@@ -189,6 +193,8 @@ const messages = {
   },
   en: {
     navTrending: "Trending",
+    navHome: "Home",
+    navLabs: "Labs",
     navEditorPicks: "Editor Picks",
     navCreators: "Creators",
     navGuide: "Guide",
@@ -359,6 +365,8 @@ const messages = {
     visibility7d: "7 days",
     visibilityCustom: "Use custom hours",
     deletePrompt: "Delete prompt",
+    deletePromptFailed: "Failed to delete prompt",
+    deletingPrompt: "Deleting…",
     shortLinkTitle: "Short link",
     shortLinkHint:
       "Only the owner can create one. Works only while the prompt is public: /p/slug. Visitors can copy it once created.",

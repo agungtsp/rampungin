@@ -302,26 +302,10 @@ export function PromptForm({
           type="button"
           onClick={() => void generate()}
           title="Generate Prompt"
-          className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover"
+          className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
         >
           Generate Prompt
         </button>
-        {hasGenerated ? (
-          <button
-            type="button"
-            onClick={() => void copy()}
-            title={locale === "en" ? "Copy to clipboard" : "Salin ke clipboard"}
-            className="rounded-full bg-white px-5 py-2.5 text-sm font-medium text-ink ring-1 ring-black/[0.1] transition hover:bg-soft"
-          >
-            {copied
-              ? locale === "en"
-                ? "Copied"
-                : "Tersalin"
-              : locale === "en"
-                ? "Copy"
-                : "Salin"}
-          </button>
-        ) : null}
         <span className="text-xs text-ink-faint">
           {generateCount}{" "}
           {locale === "en" ? "generations" : "kali dihasilkan"}
@@ -330,17 +314,33 @@ export function PromptForm({
 
       {hasGenerated && output ? (
         <div className="space-y-3">
-          <pre className="whitespace-pre-wrap rounded-2xl bg-white p-4 text-sm leading-relaxed text-ink ring-1 ring-ink/20">
+          <pre className="overflow-x-auto whitespace-pre-wrap rounded-2xl bg-stage p-4 font-mono text-sm leading-relaxed text-white/90">
             {output}
           </pre>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void copy()}
+              title={
+                locale === "en" ? "Copy to clipboard" : "Salin ke clipboard"
+              }
+              className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
+            >
+              {copied
+                ? locale === "en"
+                  ? "Copied"
+                  : "Tersalin"
+                : locale === "en"
+                  ? "Copy"
+                  : "Salin"}
+            </button>
             {(platform === "all" || platform === "chatgpt") && (
               <a
                 href={chatgptPromptUrl(output)}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackOpenAiShortcut("chatgpt", promptId)}
-                className="rounded-full bg-soft px-4 py-2 text-sm font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-secondary/30"
+                className="rounded-xl border border-secondary bg-panel px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-soft"
                 title={t("openChatGpt")}
                 aria-label={t("openChatGpt")}
               >
@@ -353,7 +353,7 @@ export function PromptForm({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackOpenAiShortcut("gemini", promptId)}
-                className="rounded-full bg-soft px-4 py-2 text-sm font-semibold text-ink ring-1 ring-secondary/50 transition hover:bg-secondary/30"
+                className="rounded-xl border border-secondary bg-panel px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-soft"
                 title={t("openAiStudio")}
                 aria-label={t("openAiStudio")}
               >

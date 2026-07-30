@@ -48,6 +48,22 @@ function platformHint(platform: AiPlatform, locale: Locale): string {
   return "Prompt ini ditulis agar cocok dipakai di ChatGPT maupun Gemini.";
 }
 
+/** Strip "## Example result" / "## Contoh hasil" sections from stored guides. */
+export function stripExampleResultSections(text: string): string {
+  const lines = text.split("\n");
+  const out: string[] = [];
+  let skipping = false;
+  for (const line of lines) {
+    if (/^##\s/.test(line)) {
+      skipping = /^##\s*(Example result|Contoh hasil)\b/i.test(line);
+      if (!skipping) out.push(line);
+      continue;
+    }
+    if (!skipping) out.push(line);
+  }
+  return out.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
 /** Resolve usage guide for display; falls back to informative default. */
 export function resolveUsageGuide(
   locale: Locale,
@@ -56,14 +72,14 @@ export function resolveUsageGuide(
   usageGuideEn?: string | null,
 ): { title: string; body: string; platformNote: string } {
   const p = parseAiPlatform(platform);
-  const body =
+  const raw =
     locale === "en"
       ? usageGuideEn?.trim() || DEFAULT_EN
       : usageGuide?.trim() || DEFAULT_ID;
 
   return {
     title: locale === "en" ? "How to use" : "Cara menggunakan",
-    body,
+    body: stripExampleResultSections(raw),
     platformNote: `${aiPlatformLabel(p, locale)}. ${platformHint(p, locale)}`,
   };
 }

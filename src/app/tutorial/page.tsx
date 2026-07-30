@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { CATEGORIES } from "@/lib/categories";
 import { getTutorialCopy } from "@/lib/i18n/tutorial-content";
 import { localePath } from "@/lib/i18n/paths";
@@ -101,7 +102,7 @@ export default async function TutorialPage() {
           <div className="flex flex-wrap gap-3 pt-1">
             <Link
               href={home}
-              className="rounded-full bg-amber-300 px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-amber-200"
+              className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-soft"
             >
               {copy.startBrowse}
             </Link>
@@ -128,7 +129,7 @@ export default async function TutorialPage() {
               href={localePath(locale, `/category/${c.slug}`)}
               className="inline-flex items-center gap-1.5 rounded-full border border-primary/12 bg-white px-3 py-1.5 text-sm text-ink shadow-sm transition hover:border-secondary hover:bg-soft"
             >
-              <span>{c.emoji}</span>
+              <CategoryIcon name={c.icon} size={14} className="shrink-0" />
               {c.label}
             </Link>
           ))}

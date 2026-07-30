@@ -30,6 +30,7 @@ function pathNeedsAuth(barePath: string): boolean {
     barePath === "/saved" ||
     barePath === "/my-prompts" ||
     barePath === "/prompts/new" ||
+    barePath === "/admin/labs" ||
     /^\/prompts\/[^/]+\/edit$/.test(barePath) ||
     /^\/profile\/[^/]+\/prompt\/[^/]+\/edit$/.test(barePath) ||
     /^\/profile\/[^/]+\/[^/]+\/edit$/.test(barePath)

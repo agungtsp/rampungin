@@ -304,22 +304,22 @@ html.dark .ai-site-bg::after {
 @media (prefers-reduced-motion: reduce) {
   .stage-panel { animation: none; }
   .card-hover article { transition: none; }
+  .animate-fade-up {
+    animation: none;
+  }
 }
 
 .featured-bento {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .featured-bento {
-    grid-template-columns: 1.35fr 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
   }
-}
-
-.featured-bento > :first-child {
-  /* first card spans visually wider via grid track; no extra class required */
 }
 
 .marketplace-grid {
